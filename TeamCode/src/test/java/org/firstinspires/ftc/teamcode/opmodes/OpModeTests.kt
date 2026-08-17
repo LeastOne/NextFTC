@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes
 
 import dev.nextftc.extensions.pedro.PedroComponent
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.bindings.BindingsComponent
 import org.firstinspires.ftc.teamcode.adaptations.pedropathing.PedroDrawingComponent
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.ConfigComponent
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Telemetry
@@ -19,6 +20,7 @@ class OpModeTests {
 
         assertNotNull(opMode)
         assertTrue(opMode.components.contains(Telemetry))
+        assertEquals(1, opMode.components.count { it === BindingsComponent })
         assertTrue(opMode.components.any { it is PedroComponent })
         assertTrue(opMode.components.any { it is PedroDrawingComponent })
         val component = opMode.components.filterIsInstance<ConfigComponent<*>>().single()
