@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <!-- The FTC Control Hub runs Android 7.1.2 with 4 KB memory pages. -->
+    <issue id="Aligned16KB" severity="ignore" />
+</lint>
