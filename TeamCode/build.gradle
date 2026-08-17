@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'org.jetbrains.kotlin.android'
+apply plugin: 'jacoco'
 
 //
 // build.gradle in TeamCode
@@ -23,6 +24,10 @@ android {
     packagingOptions {
         jniLibs.useLegacyPackaging true
     }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
 }
 
 kotlin {
@@ -37,4 +42,61 @@ dependencies {
     implementation 'dev.nextftc:ftc:1.1.0'
     implementation 'dev.nextftc:hardware:1.1.0'
     implementation 'dev.nextftc:bindings:1.0.1'
+
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.mockito:mockito-core:5.23.0'
 }
+
+tasks.withType(Test).configureEach {
+    doFirst {
+        def agent = classpath.files.find { it.name.startsWith('mockito-core') }
+        if (agent) {
+            jvmArgs "-javaagent:${agent.absolutePath}"
+        }
+    }
+}
+
+def teamCodeClasses = fileTree("$buildDir/tmp/kotlin-classes/debug") {
+    exclude '**/R.class', '**/R$*.class', '**/BuildConfig.class',
+        '**/*$DefaultImpls.class', '**/*Test*.*'
+}
+def teamCodeSources = files('src/main/java')
+def unitTestExecutionData = fileTree(buildDir) {
+    include 'jacoco/testDebugUnitTest.exec'
+}
+
+tasks.register('unitTestCoverage', JacocoReport) {
+    dependsOn 'testDebugUnitTest'
+    reports {
+        html.required = true
+        xml.required = true
+    }
+
+    classDirectories.setFrom(teamCodeClasses)
+    sourceDirectories.setFrom(teamCodeSources)
+    executionData.setFrom(unitTestExecutionData)
+}
+
+tasks.register('verifyUnitTestCoverage', JacocoCoverageVerification) {
+    dependsOn 'testDebugUnitTest'
+    classDirectories.setFrom(teamCodeClasses)
+    sourceDirectories.setFrom(teamCodeSources)
+    executionData.setFrom(unitTestExecutionData)
+
+    violationRules {
+        rule {
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 1.0
+            }
+            limit {
+                counter = 'BRANCH'
+                value = 'COVEREDRATIO'
+                minimum = 1.0
+            }
+        }
+    }
+}
+
+tasks.named('check').configure { dependsOn 'verifyUnitTestCoverage' }
