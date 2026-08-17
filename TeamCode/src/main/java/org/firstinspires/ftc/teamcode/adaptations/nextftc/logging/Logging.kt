@@ -1,101 +1,145 @@
 package org.firstinspires.ftc.teamcode.adaptations.nextftc.logging
 
-import com.qualcomm.robotcore.util.RobotLog
-
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.LogLevel.VERBOSE
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.LogLevel.DEBUG
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.LogLevel.INFO
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.LogLevel.WARN
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.LogLevel.ERROR
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.LogLevel.ASSERT
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.LogLevel.OFF
-
-import dev.nextftc.core.components.Component
+import com.bylazar.configurables.annotations.Configurable
+import com.bylazar.configurables.annotations.IgnoreConfigurable
 import dev.nextftc.core.commands.CommandManager
-import dev.nextftc.core.subsystems.Subsystem
-import dev.nextftc.ftc.ActiveOpMode.telemetry
+import dev.nextftc.ftc.ActiveOpMode
+import com.qualcomm.robotcore.util.RobotLog.aa
+import com.qualcomm.robotcore.util.RobotLog.dd
+import com.qualcomm.robotcore.util.RobotLog.ee
+import com.qualcomm.robotcore.util.RobotLog.ii
+import com.qualcomm.robotcore.util.RobotLog.vv
+import com.qualcomm.robotcore.util.RobotLog.ww
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Level.ASSERT
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Level.DEBUG
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Level.ERROR
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Level.INFO
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Level.OFF
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Level.VERBOSE
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Level.WARN
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.DiagnosticsConfig
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.toLogLevel
 
-object Logging : Component {
-    var LOG_LEVEL = DEBUG
+@Configurable
+object Logging {
+    var LEVEL = OFF
+    var FILTER = ""
+    @field:IgnoreConfigurable
+    var DISPLAY_FILTER = ""
+    @field:IgnoreConfigurable
+    var commandSnapshot = emptyList<String>()
+    @field:IgnoreConfigurable
+    var displayedFilter = ""
+    @field:IgnoreConfigurable
+    var displayedLevel = LEVEL
+    @field:IgnoreConfigurable
+    var displayedSpecificFilter = ""
+    @field:IgnoreConfigurable
+    val history = mutableListOf<LogEntry>()
+    @field:IgnoreConfigurable
+    private var diagnostics: DiagnosticsConfig? = null
+    @field:IgnoreConfigurable
+    private var configuredLevel = OFF
 
-    var TELEMETRY_LEVEL = VERBOSE
-    var TELEMETRY_TAG = ""
-    var TELEMETRY_TEXT = ""
-
-    private var commandSnapshot = emptyList<String>()
-
-    fun log(owner: Subsystem, level: LogLevel, caption: String?, value: Any?) =
-        log(owner.javaClass.simpleName, level, caption, value)
-
-    fun log(tag: String, level: LogLevel, caption: String?, value: Any?) {
-        val message = if (caption == null) value.toString() else "$caption | $value"
-        val searchableText = if (caption == null) message else "$caption $value"
-
-        if (LOG_LEVEL.accepts(level)) writeToRobotLog(level, tag, message)
-        if (TELEMETRY_LEVEL.accepts(level) &&
-            tag.matches(TELEMETRY_TAG) &&
-            searchableText.matches(TELEMETRY_TEXT)
-        ) {
-            when (caption) {
-                null -> telemetry.log().add("$level $tag | $message")
-                else -> telemetry.addData("$tag ($caption)", value)
-            }
-        }
-    }
-
-    fun log(owner: Subsystem, level: LogLevel, caption: String?, valueProvider: () -> Any?) =
-        log(owner.javaClass.simpleName, level, caption, valueProvider)
-
-    fun log(tag: String, level: LogLevel, caption: String?, valueProvider: () -> Any?) {
-        if (LOG_LEVEL.accepts(level) ||
-            TELEMETRY_LEVEL.accepts(level) &&
-            tag.matches(TELEMETRY_TAG)
-        ) log(tag, level, caption, valueProvider())
-    }
-
-    override fun preInit() {
+    fun initialize() {
+        diagnostics = null
+        bind(null)
         commandSnapshot = emptyList()
+        history.clear()
+        displayedFilter = DISPLAY_FILTER
+        displayedLevel = LEVEL
+        displayedSpecificFilter = FILTER
     }
 
-    override fun preWaitForStart() {
+    fun beginFrame() {
+        sampleDiagnostics()
         logCommandSnapshotChanges()
+        if (LEVEL != displayedLevel || DISPLAY_FILTER != displayedFilter ||
+            FILTER != displayedSpecificFilter) rebuild()
+        displayedFilter = DISPLAY_FILTER
+        displayedLevel = LEVEL
+        displayedSpecificFilter = FILTER
     }
 
-    override fun preUpdate() {
-        logCommandSnapshotChanges()
+    fun bind(config: DiagnosticsConfig?) {
+        diagnostics = config
+        configuredLevel = config.level()
+        LEVEL = configuredLevel
+        DISPLAY_FILTER = config.filter()
     }
 
-    override fun postWaitForStart() {
-        telemetry.update()
+    fun sampleDiagnostics() {
+        val config = diagnostics
+        val nextLevel = config.level()
+        if (LEVEL == configuredLevel) LEVEL = nextLevel
+        configuredLevel = nextLevel
+        DISPLAY_FILTER = config.filter()
     }
 
-    override fun postUpdate() {
-        telemetry.update()
+    fun DiagnosticsConfig?.level() = if (this == null) OFF else level.toLogLevel()
+    fun DiagnosticsConfig?.filter() = if (this == null) "" else filter
+
+    fun add(tag: String, level: Level, message: String, context: String = "") {
+        if (level == OFF) return
+        writeToRobotLog(level, tag, message)
+        val entry = LogEntry(level, tag, message, context)
+        retain(entry)
+        if (visible(entry)) ActiveOpMode.telemetry.log().add(entry.line)
+    }
+
+    fun add(tag: String, level: Level, message: () -> String) = add(tag, level, message())
+
+    fun writeToRobotLog(level: Level, tag: String, message: String) {
+        when (level) {
+            VERBOSE -> vv(tag, message)
+            DEBUG -> dd(tag, message)
+            INFO -> ii(tag, message)
+            WARN -> ww(tag, message)
+            ERROR -> ee(tag, message)
+            ASSERT -> aa(tag, message)
+            OFF -> Unit
+        }
     }
 
     fun logCommandSnapshotChanges() {
         val current = CommandManager.snapshot.filterNot { it == "NullCommand" }
         if (current == commandSnapshot) return
 
-        val state = if (current.isEmpty()) "Idle" else "Running | ${current.joinToString()}"
-        log("Commands", DEBUG, null, state)
+        val message = if (current.isEmpty()) "Idle" else "Running | ${current.joinToString()}"
+        add("Commands", DEBUG, message, commandSnapshot.joinToString())
         commandSnapshot = current
     }
 
-    fun LogLevel.accepts(level: LogLevel) =
-        this != OFF && level != OFF && level.ordinal >= ordinal
-
-    fun String.matches(filter: String) = contains(filter, ignoreCase = true)
-
-    fun writeToRobotLog(level: LogLevel, tag: String, message: String) {
-        when (level) {
-            VERBOSE -> RobotLog.vv(tag, message)
-            DEBUG -> RobotLog.dd(tag, message)
-            INFO -> RobotLog.ii(tag, message)
-            WARN -> RobotLog.ww(tag, message)
-            ERROR -> RobotLog.ee(tag, message)
-            ASSERT -> RobotLog.aa(tag, message)
-            OFF -> Unit
-        }
+    fun retain(entry: LogEntry) {
+        history += entry
+        while (history.size > ActiveOpMode.telemetry.log().capacity) history.removeAt(0)
     }
+
+    fun visible(entry: LogEntry) = LEVEL.accepts(entry.level) &&
+        entry.matches(DISPLAY_FILTER) && entry.matches(FILTER)
+
+    fun visibleEntries() = history.filter(::visible)
+
+    fun rebuild() {
+        ActiveOpMode.telemetry.log().clear()
+        visibleEntries().forEach { ActiveOpMode.telemetry.log().add(it.line) }
+    }
+}
+
+class Logger(val tag: String) {
+    fun add(level: Level, message: String) = Logging.add(tag, level, message)
+    fun verbose(message: String) = add(VERBOSE, message)
+    fun debug(message: String) = add(DEBUG, message)
+    fun info(message: String) = add(INFO, message)
+    fun warn(message: String) = add(WARN, message)
+    fun error(message: String) = add(ERROR, message)
+    fun fatal(message: String) = add(ASSERT, message)
+
+    fun add(level: Level, message: () -> String) = Logging.add(tag, level, message)
+    fun verbose(message: () -> String) = add(VERBOSE, message)
+    fun debug(message: () -> String) = add(DEBUG, message)
+    fun info(message: () -> String) = add(INFO, message)
+    fun warn(message: () -> String) = add(WARN, message)
+    fun error(message: () -> String) = add(ERROR, message)
+    fun fatal(message: () -> String) = add(ASSERT, message)
 }

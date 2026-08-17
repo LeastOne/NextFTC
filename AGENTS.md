@@ -8,6 +8,8 @@
 - Do not add visibility modifiers merely by habit. Use restricted visibility when it prevents a concrete misuse or clarifies an important boundary.
 - Prefer direct imports of frequently used singleton members, such as `gamepad2`, over repeated qualified references.
 - Keep Panels-adjustable configuration as plainly visible mutable subsystem properties. Do not turn those values into constants merely to silence IDE suggestions.
+- Mark Panels-configurable singleton objects with `@Configurable`; their mutable Kotlin properties are discoverable without `@JvmField`.
+- Mark mutable implementation state in a configurable object with `@field:IgnoreConfigurable` so Panels exposes only intentional settings.
 
 ## Subsystems and commands
 
@@ -37,7 +39,7 @@
 - Let hardware telemetry infer its source from the configured hardware name and retain raw numeric values for Panels graphing.
 - Preserve every `log` event in RobotLog independently of configurable Driver Station level and filter settings.
 - Rebuild regular Driver Station telemetry as a current snapshot each cycle and retain event history only in its telemetry log.
-- Keep the titled `CONFIG`, `TELEMETRY`, and `LOGS` sections visually and conceptually distinct.
+- Keep the titled `CONFIG`, `TEL`, and `LOG` sections visually and conceptually distinct.
 
 ## TeamCode test coverage
 

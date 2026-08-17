@@ -1,18 +1,21 @@
 package org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems
 
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.hardware.Hardware
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.LogLevel.DEBUG
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.LogLevel.INFO
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.LogLevel.OFF
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
+import com.qualcomm.robotcore.util.RobotLog
+import dev.nextftc.ftc.ActiveOpMode
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Level.OFF
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Logging
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Level.INFO
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Telemetry as TeamTelemetry
 import org.firstinspires.ftc.robotcore.external.Telemetry
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.mockStatic
 import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
 
@@ -46,17 +49,19 @@ class SubsystemAdapterTests {
     @Before
     fun setUp() {
         telemetry = mock(Telemetry::class.java)
-        Logging.telemetry = telemetry
-        Logging.LOG_LEVEL = OFF
-        Logging.TELEMETRY_LEVEL = INFO
-        Logging.TELEMETRY_FILTER = ""
-    }
-
-    @After
-    fun tearDown() {
-        Logging.LOG_LEVEL = DEBUG
-        Logging.TELEMETRY_LEVEL = INFO
-        Logging.TELEMETRY_FILTER = ""
+        val telemetryLog = mock(Telemetry.Log::class.java)
+        org.mockito.Mockito.`when`(telemetry.log()).thenReturn(telemetryLog)
+        org.mockito.Mockito.`when`(telemetryLog.capacity).thenReturn(9)
+        ActiveOpMode.it = object : LinearOpMode() {
+            override fun runOpMode() = Unit
+        }.apply { this.telemetry = this@SubsystemAdapterTests.telemetry }
+        Logging.FILTER = ""
+        Logging.DISPLAY_FILTER = ""
+        TeamTelemetry.FILTER = ""
+        TeamTelemetry.DISPLAY_FILTER = ""
+        TeamTelemetry.preInit()
+        Logging.LEVEL = OFF
+        TeamTelemetry.LEVEL = INFO
     }
 
     @Test
@@ -87,7 +92,7 @@ class SubsystemAdapterTests {
         assertTrue(subsystem.errors.isEmpty())
         assertEquals(1, hardware.initializations)
         verify(telemetry, never()).addData(
-            "HardwareSubsystem (Status)", "Disabled (see Logcat)"
+            "E | HardwareSubsystem | Status", "Disabled (see Logcat)"
         )
     }
 
@@ -109,17 +114,22 @@ class SubsystemAdapterTests {
         val hardware = TestHardware("bad", IllegalStateException("missing"))
         val subsystem = HardwareSubsystem(hardware)
 
-        subsystem.initializeHardware()
-        subsystem.reportDisabled()
+        mockStatic(RobotLog::class.java).use { robotLog ->
+            subsystem.initializeHardware()
+            subsystem.reportDisabled()
+
+            robotLog.verify {
+                RobotLog.ee(
+                    "HardwareSubsystem",
+                    "Hardware | bad: java.lang.IllegalStateException: missing"
+                )
+            }
+        }
 
         assertTrue(subsystem.disabled)
         assertEquals(1, hardware.initializations)
         verify(telemetry).addData(
-            "HardwareSubsystem (Hardware)",
-            "bad: java.lang.IllegalStateException: missing" as Any
-        )
-        verify(telemetry).addData(
-            "HardwareSubsystem (Status)", "Disabled (see Logcat)" as Any
+            "E | HardwareSubsystem | Status", "Disabled (see Logcat)" as Any
         )
     }
 

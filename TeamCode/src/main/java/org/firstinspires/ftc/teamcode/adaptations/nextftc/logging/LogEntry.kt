@@ -1,0 +1,13 @@
+package org.firstinspires.ftc.teamcode.adaptations.nextftc.logging
+
+data class LogEntry(
+    val level: Level,
+    val tag: String,
+    val message: String,
+    val context: String = ""
+) {
+    val line = "${level.indicator} | $tag | $message"
+    val searchableText = listOf(level, tag, message, context).joinToString(" ")
+
+    fun matches(filter: String) = searchableText.contains(filter, ignoreCase = true)
+}

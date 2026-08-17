@@ -3,6 +3,10 @@ package org.firstinspires.ftc.teamcode.subsystems
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.hardware.HardwareMap
 import dev.nextftc.ftc.ActiveOpMode
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Logging
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Level.OFF
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Level.INFO
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Telemetry as TeamTelemetry
 import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.mockito.Answers.RETURNS_DEFAULTS
 import org.mockito.Mockito.mock
@@ -10,6 +14,13 @@ import org.mockito.Mockito.mock
 abstract class SubsystemTests {
     init {
         resetTestOpMode()
+        Logging.FILTER = ""
+        Logging.DISPLAY_FILTER = ""
+        TeamTelemetry.FILTER = ""
+        TeamTelemetry.DISPLAY_FILTER = ""
+        TeamTelemetry.preInit()
+        Logging.LEVEL = OFF
+        TeamTelemetry.LEVEL = INFO
     }
 
     companion object {
@@ -31,6 +42,7 @@ abstract class SubsystemTests {
             val telemetry = mock(Telemetry::class.java)
             val telemetryLog = mock(Telemetry.Log::class.java)
             org.mockito.Mockito.`when`(telemetry.log()).thenReturn(telemetryLog)
+            org.mockito.Mockito.`when`(telemetryLog.capacity).thenReturn(9)
             testHardwareMap = hardwareMap
             testTelemetry = telemetry
 

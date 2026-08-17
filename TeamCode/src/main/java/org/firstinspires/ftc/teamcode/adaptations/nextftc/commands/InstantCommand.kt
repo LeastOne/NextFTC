@@ -4,8 +4,8 @@ import dev.nextftc.core.commands.utility.InstantCommand as NextInstantCommand
 import java.lang.Runnable
 import kotlin.reflect.KProperty
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Subsystem
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.LogLevel.DEBUG
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Logging.log
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Level.DEBUG
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Logging
 
 class InstantCommand(
     val owner: Subsystem,
@@ -21,7 +21,7 @@ class InstantCommand(
         setStart {
             if (owner.disabled) return@setStart
             action.run()
-            log("Commands", DEBUG, null, "Executed | $name")
+            Logging.add("Commands", DEBUG, "Executed | $name")
         }
     }
 
