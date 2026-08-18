@@ -42,6 +42,11 @@ captures/
 # IntelliJ
 *.iml
 .idea/
+!.idea/
+.idea/*
+!.idea/dictionaries/
+.idea/dictionaries/*
+!.idea/dictionaries/3DRD.xml
 
 # For Mac users
 .DS_Store
