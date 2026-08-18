@@ -3,8 +3,10 @@ package org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems
 import dev.nextftc.core.commands.CommandManager
 import dev.nextftc.core.commands.utility.NullCommand
 import dev.nextftc.core.components.Component
+import dev.nextftc.ftc.ActiveOpMode
 import dev.nextftc.ftc.ActiveOpMode.hardwareMap
 import dev.nextftc.core.subsystems.Subsystem as NextSubsystem
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.opmodes.isTeleop
 
 class SubsystemComponent private constructor(
     subsystems: Set<NextSubsystem>,
@@ -41,7 +43,9 @@ class SubsystemComponent private constructor(
     override fun preWaitForStart() = updateSubsystems(false)
 
     override fun preStartButtonPressed() {
-        subsystems.filterIsInstance<Subsystem>().filterNot { it.disabled }.forEach { it.start() }
+        val active = subsystems.filterIsInstance<Subsystem>().filterNot { it.disabled }
+        active.forEach { it.start() }
+        if (ActiveOpMode.isTeleop) active.forEach { it.controls() }
     }
 
     override fun preUpdate() = updateSubsystems(true)

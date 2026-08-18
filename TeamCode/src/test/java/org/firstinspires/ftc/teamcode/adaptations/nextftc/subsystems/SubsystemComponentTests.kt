@@ -2,8 +2,10 @@ package org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems
 
 import android.content.Context
 import android.content.pm.ApplicationInfo
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.OpModeManagerNotifier
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.HardwareMap
 import dalvik.system.DexFile
 import dev.nextftc.core.commands.Command
@@ -29,6 +31,16 @@ import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 
 class SubsystemComponentTests {
+    @TeleOp
+    private class TestTeleop : LinearOpMode() {
+        override fun runOpMode() = Unit
+    }
+
+    @Autonomous
+    private class TestAuto : LinearOpMode() {
+        override fun runOpMode() = Unit
+    }
+
     private class TestHardware(
         override val name: String,
         val failure: Exception? = null
@@ -60,6 +72,7 @@ class SubsystemComponentTests {
     private class AdaptedSubsystem(val hardware: TestHardware) : Subsystem() {
         var initializations = 0
         var starts = 0
+        var controls = 0
         var updates = 0
         val idle = PersistentCommand(this)
         override val defaultCommand get() = idle
@@ -74,6 +87,10 @@ class SubsystemComponentTests {
 
         override fun start() {
             starts++
+        }
+
+        override fun controls() {
+            controls++
         }
     }
 
@@ -110,6 +127,7 @@ class SubsystemComponentTests {
 
     @Test
     fun initializesAndUpdatesReadyAndNativeSubsystems() {
+        activate(TestTeleop())
         val adapted = AdaptedSubsystem(TestHardware("ready"))
         val native = NativeSubsystem()
         val component = SubsystemComponent(adapted, native)
@@ -127,10 +145,22 @@ class SubsystemComponentTests {
         assertEquals(1, adapted.hardware.initializations)
         assertEquals(1, adapted.initializations)
         assertEquals(1, adapted.starts)
+        assertEquals(1, adapted.controls)
         assertEquals(2, adapted.updates)
         assertEquals(1, native.initializations)
         assertEquals(2, native.updates)
         assertTrue(CommandManager.hasCommandsUsing(adapted))
+    }
+
+    @Test
+    fun startsWithoutCreatingDriverControlsDuringAutonomous() {
+        activate(TestAuto())
+        val subsystem = AdaptedSubsystem(TestHardware("ready"))
+
+        SubsystemComponent(subsystem).preStartButtonPressed()
+
+        assertEquals(1, subsystem.starts)
+        assertEquals(0, subsystem.controls)
     }
 
     @Test
@@ -206,6 +236,12 @@ class SubsystemComponentTests {
     }
 
     @Test
+    fun defaultControlsRequireNoSpecialHandling() {
+        val subsystem = object : Subsystem() {}
+        subsystem.controls()
+    }
+
+    @Test
     fun discoversSubsystemsOnlyOnce() {
         val subsystem = AdaptedSubsystem(TestHardware("ready"))
         var discoveries = 0
@@ -248,6 +284,13 @@ class SubsystemComponentTests {
             )
         }.use {
             assertEquals(setOf(DiscoveredSubsystem), SubsystemComponent.discover())
+        }
+    }
+
+    private fun activate(opMode: LinearOpMode) {
+        ActiveOpMode.it = opMode.apply {
+            hardwareMap = mock(HardwareMap::class.java)
+            telemetry = this@SubsystemComponentTests.telemetry
         }
     }
 }
