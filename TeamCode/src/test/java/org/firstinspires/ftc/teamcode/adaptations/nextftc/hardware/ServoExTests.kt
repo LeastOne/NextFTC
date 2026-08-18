@@ -3,33 +3,24 @@ package org.firstinspires.ftc.teamcode.adaptations.nextftc.hardware
 import com.qualcomm.robotcore.hardware.Servo.Direction.FORWARD
 import com.qualcomm.robotcore.hardware.Servo.Direction.REVERSE
 import dev.nextftc.ftc.ActiveOpMode
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.LogLevel.DEBUG
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.LogLevel.INFO
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.LogLevel.OFF
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.LogLevel.VERBOSE
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Logging
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Level.VERBOSE
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Level.INFO
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Telemetry as TeamTelemetry
 import org.firstinspires.ftc.teamcode.subsystems.SubsystemTests
-import org.junit.After
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito.clearInvocations
+import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 
 class ServoExTests : SubsystemTests() {
     @Before
-    fun configureLogging() {
-        Logging.LOG_LEVEL = OFF
-        Logging.TELEMETRY_LEVEL = VERBOSE
-        Logging.TELEMETRY_FILTER = ""
-    }
-
-    @After
-    fun resetLogging() {
-        Logging.LOG_LEVEL = DEBUG
-        Logging.TELEMETRY_LEVEL = INFO
-        Logging.TELEMETRY_FILTER = ""
+    fun configureTelemetry() {
+        TeamTelemetry.LEVEL = VERBOSE
+        TeamTelemetry.FILTER = ""
     }
 
     @Test
@@ -45,14 +36,13 @@ class ServoExTests : SubsystemTests() {
     fun telemetryUsesHardwareNameAndStandardFields() {
         val servo = ServoEx("testServo")
         `when`(servo.servo.direction).thenReturn(REVERSE)
-        servo.position = 0.42
         val telemetry = ActiveOpMode.telemetry
         clearInvocations(telemetry)
 
-        servo.telemetry()
+        servo.update { position = 0.426 }
 
-        verify(telemetry).addData("testServo (pos)", "0.42" as Any)
-        verify(telemetry).addData("testServo (rev)", true as Any)
+        verify(telemetry).addData("D | Test Servo | Position", "0.43" as Any)
+        verify(telemetry).addData("V | Test Servo | Reversed", true as Any)
     }
 
     @Test
@@ -62,8 +52,23 @@ class ServoExTests : SubsystemTests() {
         val telemetry = ActiveOpMode.telemetry
         clearInvocations(telemetry)
 
-        servo.telemetry()
+        servo.tel()
 
-        verify(telemetry).addData("testServo (rev)", false as Any)
+        verify(telemetry).addData("V | Test Servo | Reversed", false as Any)
+        assertEquals("", "".humanize())
+        assertEquals("Test Servo", "testServo".humanize())
+    }
+
+    @Test
+    fun hardwareTelemetryIsHiddenAtTheDefaultInfoLevel() {
+        val servo = ServoEx("testServo")
+        val telemetry = ActiveOpMode.telemetry
+        TeamTelemetry.LEVEL = INFO
+        clearInvocations(telemetry)
+
+        servo.tel()
+
+        verify(telemetry, never()).addData(org.mockito.ArgumentMatchers.anyString(),
+            org.mockito.ArgumentMatchers.any())
     }
 }
