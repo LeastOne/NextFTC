@@ -7,6 +7,7 @@ import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Logger
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Tel
 
 abstract class Subsystem : dev.nextftc.core.subsystems.Subsystem {
+    open val order = 0
     val errors = mutableListOf<String>()
     val disabled get() = errors.isNotEmpty()
     val tel = Tel(javaClass.simpleName)

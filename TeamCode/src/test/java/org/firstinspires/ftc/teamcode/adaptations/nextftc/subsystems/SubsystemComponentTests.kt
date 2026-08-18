@@ -15,6 +15,7 @@ import dev.nextftc.core.subsystems.Subsystem as NextSubsystem
 import java.util.Collections
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.hardware.Hardware
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Logging
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Telemetry as TeamTelemetry
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.fixtures.DiscoveredSubsystem
 import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.junit.After
@@ -107,6 +108,15 @@ class SubsystemComponentTests {
         }
     }
 
+    private class OrderedSubsystem(
+        override val order: Int,
+        val updates: MutableList<Int>
+    ) : Subsystem() {
+        override fun periodic() {
+            updates += order
+        }
+    }
+
     private lateinit var telemetry: Telemetry
 
     @Before
@@ -114,7 +124,16 @@ class SubsystemComponentTests {
         CommandManager.cancelAll()
         CommandManager.run()
         telemetry = mock(Telemetry::class.java)
-        Logging.telemetry = telemetry
+        val telemetryLog = mock(Telemetry.Log::class.java)
+        `when`(telemetry.log()).thenReturn(telemetryLog)
+        `when`(telemetryLog.capacity).thenReturn(9)
+        TeamTelemetry.output = telemetry
+        ActiveOpMode.it = object : LinearOpMode() {
+            override fun runOpMode() = Unit
+        }.apply {
+            hardwareMap = mock(HardwareMap::class.java)
+            this.telemetry = this@SubsystemComponentTests.telemetry
+        }
     }
 
     @After
@@ -180,7 +199,7 @@ class SubsystemComponentTests {
         assertEquals(0, subsystem.updates)
         assertFalse(CommandManager.hasCommandsUsing(subsystem))
         verify(telemetry).addData(
-            "AdaptedSubsystem (Status)", "Disabled (see Logcat)" as Any
+            "E | AdaptedSubsystem | Status", "Disabled (see Logcat)" as Any
         )
     }
 
@@ -199,7 +218,7 @@ class SubsystemComponentTests {
         assertTrue(active.isScheduled)
         assertFalse(subsystem.idle.isScheduled)
         verify(telemetry, times(0)).addData(
-            "AdaptedSubsystem (Status)", "Disabled (see Logcat)" as Any
+            "E | AdaptedSubsystem | Status", "Disabled (see Logcat)" as Any
         )
     }
 
@@ -239,6 +258,20 @@ class SubsystemComponentTests {
     fun defaultControlsRequireNoSpecialHandling() {
         val subsystem = object : Subsystem() {}
         subsystem.controls()
+    }
+
+    @Test
+    fun updatesSubsystemsInExplicitOrder() {
+        val updates = mutableListOf<Int>()
+        val component = SubsystemComponent(
+            OrderedSubsystem(1, updates),
+            OrderedSubsystem(-1, updates),
+            OrderedSubsystem(0, updates)
+        )
+
+        component.preUpdate()
+
+        assertEquals(listOf(-1, 0, 1), updates)
     }
 
     @Test

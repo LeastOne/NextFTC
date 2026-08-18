@@ -26,12 +26,14 @@ class SubsystemComponent private constructor(
 
     constructor(vararg subsystems: NextSubsystem) : this(subsystems.toSet(), false)
 
-    var subsystems = subsystems.flatMap { it.subsystems }.toSet()
+    var subsystems = ordered(subsystems.flatMap { it.subsystems })
 
     override fun preInit() {
         if (discoverAll) {
-            subsystems = (discovered ?: discovery().also { discovered = it })
-                .flatMap { it.subsystems }.toSet()
+            subsystems = ordered(
+                (discovered ?: discovery().also { discovered = it })
+                    .flatMap { it.subsystems }
+            )
         }
 
         subsystems.forEach {
@@ -65,4 +67,8 @@ class SubsystemComponent private constructor(
             }
         }
     }
+
+    fun ordered(subsystems: Iterable<NextSubsystem>) = subsystems
+        .sortedBy { (it as? Subsystem)?.order ?: 0 }
+        .toCollection(linkedSetOf())
 }
