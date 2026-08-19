@@ -1,6 +1,11 @@
 package org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems
 
 import java.lang.Runnable
+import dev.nextftc.core.commands.Command
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.commands.DeferredCommand
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.commands.DeferredCommandFactory1
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.commands.DeferredCommandFactory3
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.commands.DefaultedDeferredCommandFactory3
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.commands.InstantCommand
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.hardware.Hardware
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Logger
@@ -42,4 +47,11 @@ abstract class Subsystem : dev.nextftc.core.subsystems.Subsystem {
 
     override fun instant(name: String, action: Runnable) =
         InstantCommand(this, action).named(name)
+
+    fun deferred(create: () -> Command) = DeferredCommand(this, create = create)
+    fun <A> deferred(create: (A) -> Command) = DeferredCommandFactory1(this, command = create)
+    fun <A, B, C> deferred(create: (A, B, C) -> Command) =
+        DeferredCommandFactory3(this, command = create)
+    fun <A, B, C> deferred(second: B, third: C, create: (A, B, C) -> Command) =
+        DefaultedDeferredCommandFactory3(this, second = second, third = third, command = create)
 }

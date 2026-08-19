@@ -2,14 +2,37 @@ package org.firstinspires.ftc.teamcode.adaptations.nextftc.commands
 
 import dev.nextftc.core.commands.CommandManager
 import dev.nextftc.core.commands.utility.LambdaCommand
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Subsystem
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotSame
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class DeferredCommandTests {
+    private object TestSubsystem : Subsystem() {
+        var created = 0
+        var arguments = emptyList<Int>()
+        val example by deferred {
+            created++
+            LambdaCommand()
+        }
+        val one by deferred { first: Int ->
+            arguments = listOf(first)
+            LambdaCommand()
+        }
+        val three by deferred { first: Int, second: Int, third: Int ->
+            arguments = listOf(first, second, third)
+            LambdaCommand()
+        }
+        val defaulted by deferred(2, 3) { first: Int, second: Int, third: Int ->
+            arguments = listOf(first, second, third)
+            LambdaCommand()
+        }
+    }
+
     @After
     fun resetCommands() {
         CommandManager.cancelAll()
@@ -57,6 +80,54 @@ class DeferredCommandTests {
         assertEquals(2, started)
         deferred.stop(false)
         assertFalse(stopped)
+    }
+
+    @Test
+    fun delegatedCommandsInferTheirSubsystemQualifiedName() {
+        TestSubsystem.created = 0
+
+        assertEquals("TestSubsystem.example", TestSubsystem.example.name)
+        assertTrue(TestSubsystem.example.requirements.contains(TestSubsystem))
+        assertEquals(0, TestSubsystem.created)
+
+        TestSubsystem.example.start()
+        assertEquals(1, TestSubsystem.created)
+        TestSubsystem.example.stop(false)
+    }
+
+    @Test
+    fun delegatedFactoriesCreateFreshNamedCommandsWithArguments() {
+        TestSubsystem.arguments = emptyList()
+        val first = TestSubsystem.one(1)
+        val second = TestSubsystem.one(2)
+
+        assertNotSame(first, second)
+        assertEquals("TestSubsystem.one", first.name)
+        assertTrue(first.requirements.contains(TestSubsystem))
+        assertTrue(TestSubsystem.arguments.isEmpty())
+
+        first.start()
+        assertEquals(listOf(1), TestSubsystem.arguments)
+        first.stop(false)
+        second.start()
+        assertEquals(listOf(2), TestSubsystem.arguments)
+        second.stop(false)
+
+        TestSubsystem.three(3, 4, 5).run { start(); stop(false) }
+        assertEquals(listOf(3, 4, 5), TestSubsystem.arguments)
+    }
+
+    @Test
+    fun delegatedFactoriesSupportTrailingDefaults() {
+        TestSubsystem.defaulted(1).run { start(); stop(false) }
+        assertEquals(listOf(1, 2, 3), TestSubsystem.arguments)
+
+        TestSubsystem.defaulted(1, 4).run { start(); stop(false) }
+        assertEquals(listOf(1, 4, 3), TestSubsystem.arguments)
+
+        TestSubsystem.defaulted(1, 4, 5).run { start(); stop(false) }
+        assertEquals(listOf(1, 4, 5), TestSubsystem.arguments)
+        assertEquals("TestSubsystem.defaulted", TestSubsystem.defaulted(1).name)
     }
 
     @Test

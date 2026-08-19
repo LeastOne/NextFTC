@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.adaptations.nextftc.commands
 
 import dev.nextftc.core.commands.Command
+import kotlin.reflect.KProperty
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Subsystem
 
 class DeferredCommand(
     vararg requirements: Any,
@@ -11,6 +13,12 @@ class DeferredCommand(
     init {
         requires(*requirements)
     }
+
+    operator fun provideDelegate(owner: Subsystem, property: KProperty<*>) = apply {
+        named("${owner.javaClass.simpleName}.${property.name}")
+    }
+
+    operator fun getValue(owner: Subsystem, property: KProperty<*>) = this
 
     override fun start() {
         check(command == null) { "DeferredCommand is already running" }

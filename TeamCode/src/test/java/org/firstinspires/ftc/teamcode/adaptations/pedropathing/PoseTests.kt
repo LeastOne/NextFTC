@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.adaptations.pedropathing
 
 import com.pedropathing.geometry.Pose
+import dev.nextftc.core.units.inches
 import kotlin.math.PI
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -12,11 +13,17 @@ class PoseTests {
 
         val axial = pose.axial(5.0)
         val lateral = pose.lateral(5.0)
+        val measuredAxial = pose.axial(5.inches)
+        val measuredLateral = pose.lateral(5.inches)
 
         assertEquals(10.0, axial.x, 0.0001)
         assertEquals(25.0, axial.y, 0.0001)
         assertEquals(5.0, lateral.x, 0.0001)
         assertEquals(20.0, lateral.y, 0.0001)
+        assertEquals(axial.x, measuredAxial.x, 0.0)
+        assertEquals(axial.y, measuredAxial.y, 0.0)
+        assertEquals(lateral.x, measuredLateral.x, 0.0)
+        assertEquals(lateral.y, measuredLateral.y, 0.0)
     }
 
     @Test

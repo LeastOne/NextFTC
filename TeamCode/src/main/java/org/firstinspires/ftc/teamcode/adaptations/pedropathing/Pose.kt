@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.adaptations.pedropathing
 
 import com.pedropathing.geometry.Pose
+import dev.nextftc.core.units.Distance
 import kotlin.math.PI
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -13,12 +14,16 @@ fun Pose.axial(distance: Double) = Pose(
     coordinateSystem
 )
 
+fun Pose.axial(distance: Distance) = axial(distance.inIn)
+
 fun Pose.lateral(distance: Double) = Pose(
     x + cos(heading + PI / 2) * distance,
     y + sin(heading + PI / 2) * distance,
     heading,
     coordinateSystem
 )
+
+fun Pose.lateral(distance: Distance) = lateral(distance.inIn)
 
 fun Pose.midpoint(other: Pose) = Pose(
     (x + other.x) / 2,
