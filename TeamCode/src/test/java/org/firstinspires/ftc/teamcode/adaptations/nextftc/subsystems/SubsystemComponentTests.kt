@@ -15,6 +15,7 @@ import dev.nextftc.core.subsystems.Subsystem as NextSubsystem
 import java.util.Collections
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.hardware.Hardware
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Logging
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Level.ERROR
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.TelemetryComponent as TeamTelemetry
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.fixtures.DiscoveredSubsystem
 import org.firstinspires.ftc.robotcore.external.Telemetry
@@ -74,6 +75,7 @@ class SubsystemComponentTests {
         var initializations = 0
         var starts = 0
         var controls = 0
+        var stops = 0
         var updates = 0
         val idle = PersistentCommand(this)
         override val defaultCommand get() = idle
@@ -92,6 +94,10 @@ class SubsystemComponentTests {
 
         override fun controls() {
             controls++
+        }
+
+        override fun stop() {
+            stops++
         }
     }
 
@@ -128,6 +134,9 @@ class SubsystemComponentTests {
         `when`(telemetry.log()).thenReturn(telemetryLog)
         `when`(telemetryLog.capacity).thenReturn(9)
         TeamTelemetry.output = telemetry
+        TeamTelemetry.LEVEL = ERROR
+        TeamTelemetry.FILTER = ""
+        TeamTelemetry.DISPLAY_FILTER = ""
         ActiveOpMode.it = object : LinearOpMode() {
             override fun runOpMode() = Unit
         }.apply {
@@ -159,12 +168,14 @@ class SubsystemComponentTests {
         CommandManager.run()
         component.preUpdate()
         CommandManager.run()
+        component.preStop()
 
         assertEquals(setOf(adapted, native), component.subsystems)
         assertEquals(1, adapted.hardware.initializations)
         assertEquals(1, adapted.initializations)
         assertEquals(1, adapted.starts)
         assertEquals(1, adapted.controls)
+        assertEquals(1, adapted.stops)
         assertEquals(2, adapted.updates)
         assertEquals(1, native.initializations)
         assertEquals(2, native.updates)
@@ -192,10 +203,12 @@ class SubsystemComponentTests {
         component.preInit()
         component.preStartButtonPressed()
         component.preUpdate()
+        component.preStop()
 
         assertTrue(subsystem.disabled)
         assertEquals(0, subsystem.initializations)
         assertEquals(0, subsystem.starts)
+        assertEquals(0, subsystem.stops)
         assertEquals(0, subsystem.updates)
         assertFalse(CommandManager.hasCommandsUsing(subsystem))
         verify(telemetry).addData(
@@ -272,6 +285,35 @@ class SubsystemComponentTests {
         component.preUpdate()
 
         assertEquals(listOf(-1, 0, 1), updates)
+    }
+
+    @Test
+    fun stopsAdaptedSubsystemsInReverseOrder() {
+        val stops = mutableListOf<Int>()
+        val disabled = object : Subsystem() {
+            override val order = 2
+            override fun stop() { stops += order }
+        }.apply { errors += "unavailable" }
+        val component = SubsystemComponent(
+            object : Subsystem() {
+                override val order = -1
+                override fun stop() { stops += order }
+            },
+            object : Subsystem() {
+                override val order = 1
+                override fun stop() { stops += order }
+            },
+            disabled
+        )
+
+        component.preStop()
+
+        assertEquals(listOf(1, -1), stops)
+    }
+
+    @Test
+    fun defaultStopRequiresNoSpecialHandling() {
+        object : Subsystem() {}.stop()
     }
 
     @Test

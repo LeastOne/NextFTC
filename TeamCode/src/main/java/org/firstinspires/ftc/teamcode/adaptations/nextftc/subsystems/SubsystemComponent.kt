@@ -52,6 +52,13 @@ class SubsystemComponent private constructor(
 
     override fun preUpdate() = updateSubsystems(true)
 
+    override fun preStop() {
+        subsystems.reversed()
+            .filterIsInstance<Subsystem>()
+            .filterNot { it.disabled }
+            .forEach { it.stop() }
+    }
+
     fun updateSubsystems(scheduleDefaults: Boolean) {
         subsystems.forEach {
             if (it is Subsystem && it.disabled) {

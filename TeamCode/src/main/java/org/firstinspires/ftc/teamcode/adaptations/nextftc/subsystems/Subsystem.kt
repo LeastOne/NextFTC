@@ -42,6 +42,8 @@ abstract class Subsystem : dev.nextftc.core.subsystems.Subsystem {
 
     open fun controls() = Unit
 
+    open fun stop() = Unit
+
     override fun instant(action: Runnable) =
         InstantCommand(this, action)
 
