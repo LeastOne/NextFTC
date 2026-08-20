@@ -24,11 +24,10 @@ import org.firstinspires.ftc.teamcode.adaptations.pedropathing.axial
 import org.firstinspires.ftc.teamcode.adaptations.pedropathing.lateral
 import org.firstinspires.ftc.teamcode.adaptations.pedropathing.tiles
 import org.firstinspires.ftc.teamcode.adaptations.quanomous.Quanomous as QuanomousData
-import org.firstinspires.ftc.teamcode.adaptations.vision.Pipeline
-import org.firstinspires.ftc.teamcode.adaptations.vision.Pipeline.APRIL_TAG
-import org.firstinspires.ftc.teamcode.adaptations.vision.Pipeline.GREEN
-import org.firstinspires.ftc.teamcode.adaptations.vision.Pipeline.PURPLE
-import org.firstinspires.ftc.teamcode.adaptations.vision.Pipeline.QR_CODE
+import org.firstinspires.ftc.teamcode.subsystems.Vision.Pipeline.APRIL_TAG
+import org.firstinspires.ftc.teamcode.subsystems.Vision.Pipeline.GREEN
+import org.firstinspires.ftc.teamcode.subsystems.Vision.Pipeline.PURPLE
+import org.firstinspires.ftc.teamcode.subsystems.Vision.Pipeline.QR_CODE
 import org.firstinspires.ftc.teamcode.game.Alliance.BLUE
 import org.firstinspires.ftc.teamcode.game.Alliance.RED
 import org.firstinspires.ftc.teamcode.subsystems.Config.config
@@ -36,6 +35,13 @@ import org.firstinspires.ftc.teamcode.subsystems.Config.state
 
 @Configurable
 object Vision : Subsystem() {
+    enum class Pipeline(val index: Int) {
+        QR_CODE(0),
+        APRIL_TAG(1),
+        GREEN(2),
+        PURPLE(3)
+    }
+
     var CAMERA_UPSIDE_DOWN = true
     var CAMERA_X_INCHES = 3.93701
     var CAMERA_Y_INCHES = -0.3937008
@@ -53,10 +59,7 @@ object Vision : Subsystem() {
     var POS = 1.0
     var SETTLE_SECONDS = 0.6
 
-    val limelightDevice = device(Limelight3A::class.java, "limelight") { pipelineSwitch(QR_CODE.index)
-        start()
-    }
-    val limelight by limelightDevice
+    val limelight by device(Limelight3A::class.java, "limelight") { pipelineSwitch(QR_CODE.index); start() }
     val servo = ServoEx("turret") { scaleRange(POS_MIN, POS_MAX) }
 
     var pipeline = QR_CODE
@@ -159,10 +162,12 @@ object Vision : Subsystem() {
 
     fun processAprilTag(result: LLResult) {
         val fiducial = result.fiducialResults.firstOrNull() ?: return
+
         if ((config.alliance == BLUE && fiducial.fiducialId != 20) ||
             (config.alliance == RED && fiducial.fiducialId != 24)) return
 
         val pose = result.botpose_MT2
+
         botpose = Pose(
             pose.position.x * INCHES_PER_METER,
             pose.position.y * INCHES_PER_METER,
@@ -172,6 +177,7 @@ object Vision : Subsystem() {
 
     fun processColor(result: LLResult, primary: MutableList<Pose>, secondary: List<Pose>) {
         if (!state.started) return
+
         result.colorResults.forEach { color ->
             val direction = if (CAMERA_UPSIDE_DOWN) -1 else 1
             val pose = elementPose(
@@ -181,6 +187,7 @@ object Vision : Subsystem() {
             primary.removeAll { distance(it, pose) <= ELEMENT_RADIUS }
             primary += pose
         }
+
         element = (primary + secondary).minByOrNull { distance(follower.pose, it) } ?: element
     }
 

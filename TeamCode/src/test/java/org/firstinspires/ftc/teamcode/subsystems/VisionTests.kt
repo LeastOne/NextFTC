@@ -17,14 +17,14 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.ConfigComponent
 import org.firstinspires.ftc.teamcode.adaptations.quanomous.Quanomous as QuanomousData
 import org.firstinspires.ftc.teamcode.adaptations.quanomous.QuanomousStorage
-import org.firstinspires.ftc.teamcode.adaptations.vision.Pipeline.APRIL_TAG
-import org.firstinspires.ftc.teamcode.adaptations.vision.Pipeline.GREEN
-import org.firstinspires.ftc.teamcode.adaptations.vision.Pipeline.PURPLE
-import org.firstinspires.ftc.teamcode.adaptations.vision.Pipeline.QR_CODE
 import org.firstinspires.ftc.teamcode.game.Alliance.BLUE
 import org.firstinspires.ftc.teamcode.game.Alliance.RED
 import org.firstinspires.ftc.teamcode.subsystems.Config.config
 import org.firstinspires.ftc.teamcode.subsystems.Config.state
+import org.firstinspires.ftc.teamcode.subsystems.Vision.Pipeline.APRIL_TAG
+import org.firstinspires.ftc.teamcode.subsystems.Vision.Pipeline.GREEN
+import org.firstinspires.ftc.teamcode.subsystems.Vision.Pipeline.PURPLE
+import org.firstinspires.ftc.teamcode.subsystems.Vision.Pipeline.QR_CODE
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -78,6 +78,7 @@ class VisionTests : SubsystemTests() {
 
     @Test
     fun lifecycleInitializesAndStopsVisionHardware() {
+        assertEquals(listOf(0, 1, 2, 3), Vision.Pipeline.entries.map { it.index })
         assertEquals(QR_CODE, Vision.pipeline)
         assertNull(Vision.result)
         assertNull(Vision.botpose)
