@@ -1,10 +1,13 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
 import com.bylazar.configurables.annotations.Configurable
+import com.pedropathing.follower.Follower
+import com.pedropathing.geometry.Pose
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import dev.nextftc.ftc.ActiveOpMode
+import dev.nextftc.extensions.pedro.PedroComponent
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.Setting
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.ConfigComponent
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.DiagnosticsConfig.Level.INFO
@@ -26,13 +29,17 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.After
 import org.junit.Test
 import org.mockito.Mockito.clearInvocations
+import org.mockito.Mockito.mock
 import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
 import java.lang.reflect.Modifier
 
 class ConfigTests : SubsystemTests() {
+    lateinit var pedro: PedroComponent
+
     @Before
     fun resetConfig() {
         config.alliance = UNKNOWN
@@ -52,6 +59,12 @@ class ConfigTests : SubsystemTests() {
         Logging.FILTER = ""
         TeamTelemetry.FILTER = ""
         ConfigComponent.onChange = {}
+        pedro = PedroComponent { mock(Follower::class.java) }.apply { preInit() }
+    }
+
+    @After
+    fun stopPedro() {
+        pedro.postStop()
     }
 
     @Test
@@ -219,6 +232,22 @@ class ConfigTests : SubsystemTests() {
         assertEquals(BLUE, config.alliance)
         assertEquals(SOUTH, config.side)
         assertFalse(config.robotCentric)
+    }
+
+    @Test
+    fun changingAllianceOrSideResetsTheStartingPose() {
+        val follower = dev.nextftc.extensions.pedro.PedroComponent.follower
+        state.configurable = true
+
+        state.setting = 0
+        Config.changeValue(NEXT)
+        verify(follower).setStartingPose(org.mockito.ArgumentMatchers.any(Pose::class.java))
+        verify(follower).setPose(org.mockito.ArgumentMatchers.any(Pose::class.java))
+
+        clearInvocations(follower)
+        state.setting = 2
+        Config.changeValue(NEXT)
+        verify(follower, never()).setStartingPose(org.mockito.ArgumentMatchers.any())
     }
 
     @Test

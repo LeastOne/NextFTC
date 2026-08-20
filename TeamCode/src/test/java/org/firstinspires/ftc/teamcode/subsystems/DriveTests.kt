@@ -21,6 +21,9 @@ import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Level.VERBOS
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Telemetry as TeamTelemetry
 import org.firstinspires.ftc.teamcode.adaptations.pedropathing.pct
 import org.firstinspires.ftc.teamcode.adaptations.pedropathing.pctT
+import org.firstinspires.ftc.teamcode.adaptations.pedropathing.axial
+import org.firstinspires.ftc.teamcode.adaptations.pedropathing.lateral
+import org.firstinspires.ftc.teamcode.adaptations.pedropathing.tiles
 import org.firstinspires.ftc.teamcode.subsystems.Config.config
 import org.firstinspires.ftc.teamcode.subsystems.Config.state
 import org.firstinspires.ftc.teamcode.subsystems.Drive.POWER_HIGH
@@ -232,6 +235,33 @@ class DriveTests : SubsystemTests() {
         assertEquals(end, points.last())
         verify(follower).followPath(chain, true)
         assertEquals("Drive.to", command.name)
+    }
+
+    @Test
+    fun sampleAutonomousCommandsHideTheirPathComposition() {
+        val start = Pose(0.0, 0.0, 0.0)
+        `when`(follower.pose).thenReturn(start)
+
+        val toScore = Drive.toScore
+        toScore.start()
+        var curve = ArgumentCaptor.forClass(Curve::class.java)
+        verify(builder).addPath(curve.capture())
+        val approach = Nav.score.axial(-0.5.tiles).lateral(0.25.tiles)
+        assertEquals(approach.x, curve.value.controlPoints[1].x, 0.0)
+        assertEquals(approach.y, curve.value.controlPoints[1].y, 0.0)
+        assertEquals(approach.heading, curve.value.controlPoints[1].heading, 0.0)
+        assertEquals(Nav.score, curve.value.controlPoints.last())
+        assertEquals("Drive.toScore", toScore.name)
+        toScore.stop(false)
+
+        clearInvocations(builder, follower)
+        val toPark = Drive.toPark
+        toPark.start()
+        curve = ArgumentCaptor.forClass(Curve::class.java)
+        verify(builder).addPath(curve.capture())
+        assertEquals(Nav.park, curve.value.controlPoints.last())
+        assertEquals("Drive.toPark", toPark.name)
+        toPark.stop(false)
     }
 
     @Test

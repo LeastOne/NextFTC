@@ -10,10 +10,23 @@ import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Lateral.RIG
 import org.firstinspires.ftc.teamcode.adaptations.pedropathing.TILE_WIDTH
 import org.firstinspires.ftc.teamcode.adaptations.pedropathing.tile
 import org.firstinspires.ftc.teamcode.adaptations.pedropathing.tiles
+import org.firstinspires.ftc.teamcode.game.Alliance.BLUE
+import org.firstinspires.ftc.teamcode.game.Alliance.RED
+import org.firstinspires.ftc.teamcode.game.Alliance.UNKNOWN
+import org.firstinspires.ftc.teamcode.game.Side.NORTH
+import org.firstinspires.ftc.teamcode.game.Side.SOUTH
+import org.firstinspires.ftc.teamcode.game.Side.UNKNOWN as UNKNOWN_SIDE
 import org.junit.Assert.assertEquals
+import org.junit.After
 import org.junit.Test
 
 class NavTests {
+    @After
+    fun resetConfig() {
+        Config.config.alliance = UNKNOWN
+        Config.config.side = UNKNOWN_SIDE
+    }
+
     @Test
     fun createsCenteredPosesFromDistances() {
         assertEquals(14.25, Nav.robotLength.inIn, 0.0001)
@@ -22,6 +35,48 @@ class NavTests {
         assertEquals(1.0, centered.x, 0.0)
         assertEquals(2.0, centered.y, 0.0)
         assertEquals(0.0, centered.heading, 0.0)
+    }
+
+    @Test
+    fun providesSampleAutonomousPoses() {
+        Config.config.alliance = UNKNOWN
+        Config.config.side = UNKNOWN_SIDE
+        assertEquals(0.0, Nav.start.x, 0.0)
+        assertEquals(0.0, Nav.start.y, 0.0)
+        assertEquals(23.5, Nav.score.x, 0.0)
+        assertEquals(11.75, Nav.score.y, 0.0)
+        assertEquals(PI / 2, Nav.score.heading, 0.0)
+        assertEquals(35.25, Nav.park.x, 0.0)
+        assertEquals(0.0, Nav.park.y, 0.0)
+    }
+
+    @Test
+    fun startPoseReflectsAllianceAndSide() {
+        Config.config.alliance = RED
+        Config.config.side = NORTH
+        assertEquals(63.45, Nav.start.x, 0.0001)
+        assertEquals(18.8, Nav.start.y, 0.0001)
+        assertEquals(0.0, Nav.start.heading, 0.0)
+
+        Config.config.side = SOUTH
+        assertEquals(-63.45, Nav.start.x, 0.0001)
+        assertEquals(18.8, Nav.start.y, 0.0001)
+        assertEquals(0.0, Nav.start.heading, 0.0)
+
+        Config.config.alliance = BLUE
+        Config.config.side = NORTH
+        assertEquals(63.45, Nav.start.x, 0.0001)
+        assertEquals(-18.8, Nav.start.y, 0.0001)
+        assertEquals(0.0, Nav.start.heading, 0.0)
+
+        Config.config.side = SOUTH
+        assertEquals(-63.45, Nav.start.x, 0.0001)
+        assertEquals(-18.8, Nav.start.y, 0.0001)
+        assertEquals(0.0, Nav.start.heading, 0.0)
+
+        Config.config.side = UNKNOWN_SIDE
+        assertEquals(0.0, Nav.start.x, 0.0)
+        assertEquals(0.0, Nav.start.y, 0.0)
     }
 
     @Test

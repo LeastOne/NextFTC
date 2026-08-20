@@ -4,6 +4,7 @@ import com.bylazar.configurables.annotations.Configurable
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.DiagnosticsConfig
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.DiagnosticsConfig.Level
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.Setting
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.SettingItem
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.DiagnosticsConfig.Level.INFO
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.ConfigSubsystem
 import org.firstinspires.ftc.teamcode.game.Alliance
@@ -38,4 +39,8 @@ object Config : ConfigSubsystem() {
 
         var quanomous: String? = null
     ) : DiagnosticsConfig
+
+    override fun onChange(item: SettingItem) {
+        if (item.key == "Alliance" || item.key == "Side") Auto.locate.start()
+    }
 }
