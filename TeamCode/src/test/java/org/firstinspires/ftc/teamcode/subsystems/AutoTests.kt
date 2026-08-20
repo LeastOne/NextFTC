@@ -17,10 +17,9 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito.mock
-import org.mockito.Mockito.inOrder
+import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
-import org.mockito.ArgumentCaptor
 import java.nio.file.Files
 import org.firstinspires.ftc.teamcode.adaptations.quanomous.Quanomous as QuanomousData
 import org.firstinspires.ftc.teamcode.adaptations.quanomous.QuanomousStorage
@@ -49,39 +48,22 @@ class AutoTests {
     }
 
     @Test
-    fun locateResetsPedrosStartingPoseExactly() {
-        val pose = Nav.start
-        Auto.locate.start()
-
-        val poses = ArgumentCaptor.forClass(com.pedropathing.geometry.Pose::class.java)
-        inOrder(follower).run {
-            verify(follower).setStartingPose(poses.capture())
-            verify(follower).setPose(poses.capture())
-        }
-        poses.allValues.forEach {
-            assertEquals(pose.x, it.x, 0.0)
-            assertEquals(pose.y, it.y, 0.0)
-            assertEquals(pose.heading, it.heading, 0.0)
-        }
-        assertEquals("Auto.locate", Auto.locate.name)
-    }
-
-    @Test
     fun executeCreatesAComposableSampleRoutine() {
         val first = Auto.execute()
         val second = Auto.execute()
 
         assertNotSame(first, second)
         assertTrue(first.requirements.containsAll(
-            listOf(Auto, Drive, Gate, Deflector, Intake, Conveyor, Flywheel)
+            listOf(Drive, Gate, Deflector, Intake, Conveyor, Flywheel)
         ))
 
         val commands = flatten(first)
-        assertTrue(commands.contains(Auto.locate))
         assertTrue(commands.filterIsInstance<ParallelGroup>().size >= 2)
         assertTrue(commands.any { it.name.contains("Gate.open") })
         assertNotSame(Auto.sample(), Auto.sample())
         assertTrue(Auto.selected().requirements.contains(Gate))
+        verify(follower, never()).setStartingPose(org.mockito.ArgumentMatchers.any())
+        verify(follower, never()).setPose(org.mockito.ArgumentMatchers.any())
     }
 
     @Test

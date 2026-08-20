@@ -1,14 +1,16 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
 import com.bylazar.configurables.annotations.Configurable
+import dev.nextftc.extensions.pedro.PedroComponent.Companion.follower
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.Diagnostics.Level
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.Diagnostics.Level.INFO
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.Setting
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.SettingItem
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.ConfigSubsystem
+import org.firstinspires.ftc.teamcode.adaptations.pedropathing.resetStartingPose
+import org.firstinspires.ftc.teamcode.adaptations.quanomous.Quanomous as QuanomousData
 import org.firstinspires.ftc.teamcode.game.Alliance
 import org.firstinspires.ftc.teamcode.game.Side
-import org.firstinspires.ftc.teamcode.adaptations.quanomous.Quanomous as QuanomousData
 
 @Configurable
 object Config : ConfigSubsystem() {
@@ -42,6 +44,6 @@ object Config : ConfigSubsystem() {
     )
 
     override fun onChange(item: SettingItem) {
-        if (item.key == "Alliance" || item.key == "Side") Auto.locate.start()
+        if (item.key == "Alliance" || item.key == "Side") follower.resetStartingPose(Nav.start)
     }
 }

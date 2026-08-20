@@ -16,7 +16,6 @@ import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Axial
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Lateral
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Subsystem
 import org.firstinspires.ftc.teamcode.adaptations.pedropathing.pct
-import org.firstinspires.ftc.teamcode.adaptations.pedropathing.resetStartingPose
 import org.firstinspires.ftc.teamcode.adaptations.pedropathing.tiles
 import org.firstinspires.ftc.teamcode.game.Side
 import org.firstinspires.ftc.teamcode.game.Side.NORTH
@@ -25,8 +24,6 @@ import org.firstinspires.ftc.teamcode.subsystems.Config.config
 
 object Auto : Subsystem() {
     const val TIMEOUT = 29.5
-
-    val locate by instant { follower.resetStartingPose(Nav.start) }
 
     fun intakeStart() = goalLock(false).then(
         Intake.forward, Conveyor.forward, Gate.close
@@ -160,8 +157,7 @@ object Auto : Subsystem() {
         Flywheel.stop
     )
 
-    fun execute() = locate
-        .thenWait(config.delay)
+    fun execute() = Delay(config.delay.seconds)
         .then(selected())
         .endAfter(TIMEOUT)
         .then(stopAll())
