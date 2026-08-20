@@ -20,7 +20,7 @@ import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Subsystem
 import org.firstinspires.ftc.teamcode.adaptations.pedropathing.pct
 import org.firstinspires.ftc.teamcode.adaptations.pedropathing.resetStartingPose
 import org.firstinspires.ftc.teamcode.adaptations.pedropathing.tiles
-import org.firstinspires.ftc.teamcode.adaptations.quanomous.QuanomousProgram
+import org.firstinspires.ftc.teamcode.adaptations.quanomous.QuanomousCompiler
 import org.firstinspires.ftc.teamcode.game.Side
 import org.firstinspires.ftc.teamcode.game.Side.NORTH
 import org.firstinspires.ftc.teamcode.game.Side.SOUTH
@@ -29,7 +29,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Config.config
 object Auto : Subsystem() {
     const val TIMEOUT = 29.5
 
-    val programs by lazy { QuanomousProgram(mapOf(
+    val compiler by lazy { QuanomousCompiler(mapOf(
         "delay" to { step -> Delay(step["seconds"].asDouble.seconds) },
         "intake" to { step -> remaining(intake(step["spike"].asInt)) },
         "intake_gate" to { remaining(gateIntake()) },
@@ -178,7 +178,7 @@ object Auto : Subsystem() {
         Drive.toPark.alongWith(Drive.until(25.pct).then(Deflector.down))
     )
 
-    fun selected() = if (config.quanomous == null) sample() else programs.load(config.quanomous!!)
+    fun selected() = if (config.quanomous == null) sample() else compiler.load(config.quanomous!!)
 
     fun stopAll() = goalLock(false).then(
         Drive.chaseUnlock,

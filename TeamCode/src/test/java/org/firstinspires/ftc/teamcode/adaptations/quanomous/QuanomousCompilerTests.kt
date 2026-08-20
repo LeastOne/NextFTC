@@ -9,43 +9,43 @@ import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
 
-class QuanomousProgramTests {
+class QuanomousCompilerTests {
     lateinit var directory: java.io.File
 
     @Before
     fun setUp() {
-        directory = Files.createTempDirectory("quanomous-program").toFile()
-        Quanomous.files = QuanomousFiles(directory)
+        directory = Files.createTempDirectory("quanomous-compiler").toFile()
+        Quanomous.storage = QuanomousStorage(directory)
     }
 
     @After
     fun reset() {
-        Quanomous.files = QuanomousFiles()
+        Quanomous.storage = QuanomousStorage()
     }
 
     @Test
     fun turnsStoredStepsIntoASequentialCommand() {
-        val commands = QuanomousProgram(
+        val compiler = QuanomousCompiler(
             mapOf("step" to { step -> NullCommand().named(step["name"].asString) })
         )
         val json = JsonParser().parse(
             "[{\"cmd\":\"step\",\"name\":\"First\"},{\"cmd\":\"step\",\"name\":\"Second\"}]"
         ).asJsonArray
-        Quanomous.files.save("auto.json", json)
+        Quanomous.storage.save("auto.json", json)
 
-        val group = commands.load("auto.json") as dev.nextftc.core.commands.groups.SequentialGroup
+        val group = compiler.load("auto.json") as dev.nextftc.core.commands.groups.SequentialGroup
 
         assertEquals(listOf("First", "Second"), group.commands.map { it.name })
     }
 
     @Test
     fun rejectsUnknownCommands() {
-        val program = QuanomousProgram(emptyMap())
+        val compiler = QuanomousCompiler(emptyMap())
         val steps = JsonParser().parse("[{\"cmd\":\"missing\"}]").asJsonArray
 
         assertEquals(
             "Unknown Quanomous command: missing",
-            assertThrows(IllegalArgumentException::class.java) { program.create(steps) }.message
+            assertThrows(IllegalArgumentException::class.java) { compiler.compile(steps) }.message
         )
     }
 }

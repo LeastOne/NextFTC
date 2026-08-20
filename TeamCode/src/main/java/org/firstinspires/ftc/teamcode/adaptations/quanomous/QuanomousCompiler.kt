@@ -4,12 +4,12 @@ import com.google.gson.JsonObject
 import dev.nextftc.core.commands.Command
 import dev.nextftc.core.commands.groups.SequentialGroup
 
-class QuanomousProgram(
+class QuanomousCompiler(
     val commands: Map<String, (JsonObject) -> Command>
 ) {
-    fun load(name: String) = create(Quanomous.load(name))
+    fun load(name: String) = compile(Quanomous.load(name))
 
-    fun create(steps: Iterable<com.google.gson.JsonElement>): Command {
+    fun compile(steps: Iterable<com.google.gson.JsonElement>): Command {
         val created = steps.map { element ->
             val step = element.asJsonObject
             val name = step["cmd"].asString

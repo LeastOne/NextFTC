@@ -17,7 +17,7 @@ class QuanomousTests {
     @Before
     fun setUp() {
         directory = Files.createTempDirectory("quanomous").toFile()
-        Quanomous.files = QuanomousFiles(directory)
+        Quanomous.storage = QuanomousStorage(directory)
         Quanomous.now = { Date(0) }
         Quanomous.decoder = { Base64.getDecoder().decode(it) }
         Quanomous.lastHash = null
@@ -26,7 +26,7 @@ class QuanomousTests {
 
     @After
     fun reset() {
-        Quanomous.files = QuanomousFiles()
+        Quanomous.storage = QuanomousStorage()
         Quanomous.now = ::Date
         Quanomous.decoder = { android.util.Base64.decode(it, android.util.Base64.NO_WRAP) }
         Quanomous.lastHash = null

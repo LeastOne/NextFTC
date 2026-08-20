@@ -25,7 +25,7 @@ import org.mockito.Mockito.`when`
 import org.mockito.ArgumentCaptor
 import java.nio.file.Files
 import org.firstinspires.ftc.teamcode.adaptations.quanomous.Quanomous
-import org.firstinspires.ftc.teamcode.adaptations.quanomous.QuanomousFiles
+import org.firstinspires.ftc.teamcode.adaptations.quanomous.QuanomousStorage
 
 class AutoTests {
     lateinit var follower: Follower
@@ -41,13 +41,13 @@ class AutoTests {
         component.preInit()
         Config.config.delay = 0.0
         Config.config.quanomous = null
-        Quanomous.files = QuanomousFiles(Files.createTempDirectory("auto-quanomous").toFile())
+        Quanomous.storage = QuanomousStorage(Files.createTempDirectory("auto-quanomous").toFile())
     }
 
     @After
     fun tearDown() {
         component.postStop()
-        Quanomous.files = QuanomousFiles()
+        Quanomous.storage = QuanomousStorage()
     }
 
     @Test
@@ -98,7 +98,7 @@ class AutoTests {
             {"cmd":"park","gate":true,"axial":"front","lateral":"right"},
             {"cmd":"drive","tx":1,"ty":2,"h":90,"axial":"back","lateral":"left"}
         ]""").asJsonArray
-        Quanomous.files.save("routine.json", steps)
+        Quanomous.storage.save("routine.json", steps)
         Config.config.quanomous = "routine.json"
 
         val selected = Auto.selected() as dev.nextftc.core.commands.groups.SequentialGroup
@@ -175,7 +175,7 @@ class AutoTests {
             {"cmd":"deposit","locale":"far","txo":0,"tyo":0},
             {"cmd":"chase","cycles":0}
         ]""").asJsonArray
-        assertEquals(2, Auto.programs.create(variants)
+        assertEquals(2, Auto.compiler.compile(variants)
             .let { it as dev.nextftc.core.commands.groups.SequentialGroup }.commands.size)
 
         Drive.goalLocked = true

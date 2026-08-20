@@ -14,13 +14,13 @@ import java.util.zip.GZIPInputStream
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.SettingOptions
 
 object Quanomous : SettingOptions {
-    var files = QuanomousFiles()
+    var storage = QuanomousStorage()
     var now: () -> Date = ::Date
     var decoder: (String) -> ByteArray = { Base64.decode(it, Base64.NO_WRAP) }
     var lastHash: String? = null
     var lastName: String? = null
 
-    override fun options() = files.names()
+    override fun options() = storage.names()
 
     fun process(data: String): String {
         val program = parse(decode(data))
@@ -28,7 +28,7 @@ object Quanomous : SettingOptions {
         if (hash == lastHash) return lastName!!
 
         val name = filename()
-        files.save(name, program)
+        storage.save(name, program)
         lastHash = hash
         lastName = name
         return name
@@ -46,11 +46,11 @@ object Quanomous : SettingOptions {
 
     fun parse(json: String) = JsonParser().parse(json).asJsonArray
 
-    fun load(name: String) = files.load(name)
+    fun load(name: String) = storage.load(name)
 
     fun filename(): String {
         val timestamp = SimpleDateFormat("MM-dd-HHmm", Locale.US).format(now())
-        return "%s--%04d.json".format(timestamp, files.names().size + 1)
+        return "%s--%04d.json".format(timestamp, storage.names().size + 1)
     }
 
     fun hash(program: JsonArray): String {

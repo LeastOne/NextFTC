@@ -4,7 +4,7 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonParser
 import java.io.File
 
-open class QuanomousFiles(
+open class QuanomousStorage(
     val directory: File = File("/sdcard/FIRST/quanomous")
 ) {
     open fun names() = directory

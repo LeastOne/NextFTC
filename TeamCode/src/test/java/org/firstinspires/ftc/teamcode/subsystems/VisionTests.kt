@@ -16,7 +16,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose3D
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.ConfigComponent
 import org.firstinspires.ftc.teamcode.adaptations.quanomous.Quanomous
-import org.firstinspires.ftc.teamcode.adaptations.quanomous.QuanomousFiles
+import org.firstinspires.ftc.teamcode.adaptations.quanomous.QuanomousStorage
 import org.firstinspires.ftc.teamcode.adaptations.vision.Pipeline.APRIL_TAG
 import org.firstinspires.ftc.teamcode.adaptations.vision.Pipeline.GREEN
 import org.firstinspires.ftc.teamcode.adaptations.vision.Pipeline.PURPLE
@@ -59,7 +59,7 @@ class VisionTests : SubsystemTests() {
         state.started = false
         state.teleop = false
         ConfigComponent.onChange = {}
-        Quanomous.files = QuanomousFiles(Files.createTempDirectory("vision-quanomous").toFile())
+        Quanomous.storage = QuanomousStorage(Files.createTempDirectory("vision-quanomous").toFile())
         Quanomous.decoder = { Base64.getDecoder().decode(it) }
         Quanomous.lastHash = null
         Quanomous.lastName = null
@@ -70,7 +70,7 @@ class VisionTests : SubsystemTests() {
     fun tearDown() {
         pedro.postStop()
         Vision.timer = ElapsedTime()
-        Quanomous.files = QuanomousFiles()
+        Quanomous.storage = QuanomousStorage()
         Quanomous.decoder = { android.util.Base64.decode(it, android.util.Base64.NO_WRAP) }
         Quanomous.lastHash = null
         Quanomous.lastName = null
