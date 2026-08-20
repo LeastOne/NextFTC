@@ -3,8 +3,8 @@ package org.firstinspires.ftc.teamcode.adaptations.nextftc.hardware
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType
 import dev.nextftc.ftc.ActiveOpMode
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit.AMPS
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Level.VERBOSE
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.TelemetryComponent as TeamTelemetry
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.TelemetryLevel.VERBOSE
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Telemetry as TeamTelemetry
 import org.firstinspires.ftc.teamcode.subsystems.SubsystemTests
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertSame

@@ -1,15 +1,14 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
 import com.bylazar.configurables.annotations.Configurable
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.DiagnosticsConfig
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.DiagnosticsConfig.Level
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.Diagnostics.Level
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.Diagnostics.Level.INFO
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.Setting
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.SettingItem
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.DiagnosticsConfig.Level.INFO
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.ConfigSubsystem
+import org.firstinspires.ftc.teamcode.adaptations.quanomous.Quanomous
 import org.firstinspires.ftc.teamcode.game.Alliance
 import org.firstinspires.ftc.teamcode.game.Side
-import org.firstinspires.ftc.teamcode.adaptations.quanomous.Quanomous
 
 @Configurable
 object Config : ConfigSubsystem() {
@@ -33,14 +32,14 @@ object Config : ConfigSubsystem() {
         var robotCentric: Boolean = true,
 
         @Setting(live = true)
-        override var level: Level = INFO,
+        var level: Level = INFO,
 
         @Transient
-        override var filter: String = "",
+        var filter: String = "",
 
         @Setting(options = Quanomous::class)
         var quanomous: String? = null
-    ) : DiagnosticsConfig
+    )
 
     override fun onChange(item: SettingItem) {
         if (item.key == "Alliance" || item.key == "Side") Auto.locate.start()

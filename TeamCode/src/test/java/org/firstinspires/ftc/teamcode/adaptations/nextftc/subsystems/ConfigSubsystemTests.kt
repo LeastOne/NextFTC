@@ -3,10 +3,10 @@ package org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import dev.nextftc.ftc.ActiveOpMode
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.Setting
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Level.OFF as LOG_OFF
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.LogLevel.OFF as LOG_OFF
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Logging
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Level.OFF as TEL_OFF
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.TelemetryComponent
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.TelemetryLevel.OFF as TEL_OFF
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Telemetry
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.ConfigSubsystem.Change.NEXT
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -25,7 +25,7 @@ class ConfigSubsystemTests {
 
         MinimalConfig.initialize()
 
-        assertEquals(TEL_OFF, TelemetryComponent.LEVEL)
+        assertEquals(TEL_OFF, Telemetry.LEVEL)
         assertEquals(LOG_OFF, Logging.LEVEL)
         assertEquals(listOf("Enabled"), MinimalConfig.items.map { it.key })
     }

@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry
 
-enum class Level(val indicator: Char) {
+enum class TelemetryLevel(val indicator: Char) {
     VERBOSE('V'),
     DEBUG('D'),
     INFO('I'),
@@ -9,5 +9,5 @@ enum class Level(val indicator: Char) {
     ASSERT('A'),
     OFF('-');
 
-    fun accepts(level: Level) = this != OFF && level != OFF && level.ordinal >= ordinal
+    fun accepts(level: TelemetryLevel) = this != OFF && level != OFF && level.ordinal >= ordinal
 }

@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.adaptations.nextftc.logging
 
 data class LogEntry(
-    val level: Level,
+    val level: LogLevel,
     val tag: String,
     val message: String,
     val context: String = ""

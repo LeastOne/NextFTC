@@ -10,14 +10,14 @@ import com.qualcomm.robotcore.util.RobotLog.ee
 import com.qualcomm.robotcore.util.RobotLog.ii
 import com.qualcomm.robotcore.util.RobotLog.vv
 import com.qualcomm.robotcore.util.RobotLog.ww
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Level.ASSERT
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Level.DEBUG
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Level.ERROR
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Level.INFO
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Level.OFF
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Level.VERBOSE
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Level.WARN
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.DiagnosticsConfig
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.LogLevel.ASSERT
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.LogLevel.DEBUG
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.LogLevel.ERROR
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.LogLevel.INFO
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.LogLevel.OFF
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.LogLevel.VERBOSE
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.LogLevel.WARN
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.Diagnostics
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.toLogLevel
 
 @Configurable
@@ -37,7 +37,7 @@ object Logging {
     @field:IgnoreConfigurable
     val history = mutableListOf<LogEntry>()
     @field:IgnoreConfigurable
-    private var diagnostics: DiagnosticsConfig? = null
+    private var diagnostics: Diagnostics? = null
     @field:IgnoreConfigurable
     private var configuredLevel = OFF
 
@@ -61,7 +61,7 @@ object Logging {
         displayedSpecificFilter = FILTER
     }
 
-    fun bind(config: DiagnosticsConfig?) {
+    fun bind(config: Diagnostics?) {
         diagnostics = config
         configuredLevel = config.level()
         LEVEL = configuredLevel
@@ -76,10 +76,10 @@ object Logging {
         DISPLAY_FILTER = config.filter()
     }
 
-    fun DiagnosticsConfig?.level() = if (this == null) OFF else level.toLogLevel()
-    fun DiagnosticsConfig?.filter() = if (this == null) "" else filter
+    fun Diagnostics?.level() = if (this == null) OFF else level().toLogLevel()
+    fun Diagnostics?.filter() = if (this == null) "" else filter()
 
-    fun add(tag: String, level: Level, message: String, context: String = "") {
+    fun add(tag: String, level: LogLevel, message: String, context: String = "") {
         if (level == OFF) return
         writeToRobotLog(level, tag, message)
         val entry = LogEntry(level, tag, message, context)
@@ -87,9 +87,9 @@ object Logging {
         if (visible(entry)) ActiveOpMode.telemetry.log().add(entry.line)
     }
 
-    fun add(tag: String, level: Level, message: () -> String) = add(tag, level, message())
+    fun add(tag: String, level: LogLevel, message: () -> String) = add(tag, level, message())
 
-    fun writeToRobotLog(level: Level, tag: String, message: String) {
+    fun writeToRobotLog(level: LogLevel, tag: String, message: String) {
         when (level) {
             VERBOSE -> vv(tag, message)
             DEBUG -> dd(tag, message)
@@ -127,7 +127,7 @@ object Logging {
 }
 
 class Logger(val tag: String) {
-    fun add(level: Level, message: String) = Logging.add(tag, level, message)
+    fun add(level: LogLevel, message: String) = Logging.add(tag, level, message)
     fun verbose(message: String) = add(VERBOSE, message)
     fun debug(message: String) = add(DEBUG, message)
     fun info(message: String) = add(INFO, message)
@@ -135,7 +135,7 @@ class Logger(val tag: String) {
     fun error(message: String) = add(ERROR, message)
     fun fatal(message: String) = add(ASSERT, message)
 
-    fun add(level: Level, message: () -> String) = Logging.add(tag, level, message)
+    fun add(level: LogLevel, message: () -> String) = Logging.add(tag, level, message)
     fun verbose(message: () -> String) = add(VERBOSE, message)
     fun debug(message: () -> String) = add(DEBUG, message)
     fun info(message: () -> String) = add(INFO, message)

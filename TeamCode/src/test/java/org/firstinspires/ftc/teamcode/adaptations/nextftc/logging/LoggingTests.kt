@@ -6,14 +6,14 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.util.RobotLog
 import dev.nextftc.ftc.ActiveOpMode
 import org.firstinspires.ftc.robotcore.external.Telemetry
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Level.ASSERT
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Level.DEBUG
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Level.ERROR
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Level.INFO
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Level.OFF
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Level.VERBOSE
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Level.WARN
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.DiagnosticsConfig
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.LogLevel.ASSERT
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.LogLevel.DEBUG
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.LogLevel.ERROR
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.LogLevel.INFO
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.LogLevel.OFF
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.LogLevel.VERBOSE
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.LogLevel.WARN
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.Diagnostics
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -54,7 +54,7 @@ class LoggingTests {
     @Test
     fun diagnosticsAreSampledEachFrameUnlessPanelsOverridesTheLevel() {
         val diagnostics = TestDiagnostics()
-        Logging.bind(diagnostics)
+        Logging.bind(Diagnostics(diagnostics))
         assertEquals(INFO, Logging.LEVEL)
         assertEquals("Gate", Logging.DISPLAY_FILTER)
         Logging.beginFrame()
@@ -64,12 +64,12 @@ class LoggingTests {
         assertEquals(INFO, Logging.LEVEL)
         assertEquals("Deflector", Logging.DISPLAY_FILTER)
 
-        diagnostics.level = DiagnosticsConfig.Level.WARN
+        diagnostics.level = Diagnostics.Level.WARN
         Logging.beginFrame()
         assertEquals(WARN, Logging.LEVEL)
 
         Logging.LEVEL = ERROR
-        diagnostics.level = DiagnosticsConfig.Level.INFO
+        diagnostics.level = Diagnostics.Level.INFO
         Logging.beginFrame()
         assertEquals(ERROR, Logging.LEVEL)
 
@@ -96,9 +96,9 @@ class LoggingTests {
     }
 
     private class TestDiagnostics(
-        override var level: DiagnosticsConfig.Level = DiagnosticsConfig.Level.INFO,
-        override var filter: String = "Gate"
-    ) : DiagnosticsConfig
+        var level: Diagnostics.Level = Diagnostics.Level.INFO,
+        var filter: String = "Gate"
+    )
 
     @Test
     fun loggerConvenienceMethodsCreateLevelledEvents() {
@@ -141,9 +141,9 @@ class LoggingTests {
 
     @Test
     fun levelsExposeIndicatorsAndThresholdBehavior() {
-        assertEquals(listOf('V', 'D', 'I', 'W', 'E', 'A', '-'), Level.entries.map { it.indicator })
-        Level.entries.forEach { threshold ->
-            Level.entries.forEach { level ->
+        assertEquals(listOf('V', 'D', 'I', 'W', 'E', 'A', '-'), LogLevel.entries.map { it.indicator })
+        LogLevel.entries.forEach { threshold ->
+            LogLevel.entries.forEach { level ->
                 val expected = threshold != OFF && level != OFF && level.ordinal >= threshold.ordinal
                 assertEquals(expected, threshold.accepts(level))
             }

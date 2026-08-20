@@ -4,7 +4,7 @@ import dev.nextftc.core.commands.utility.InstantCommand as NextInstantCommand
 import java.lang.Runnable
 import kotlin.reflect.KProperty
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Subsystem
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Level.DEBUG
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.LogLevel.DEBUG
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Logging
 
 class InstantCommand(

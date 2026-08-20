@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.Servo
 import dev.nextftc.ftc.ActiveOpMode
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Logging
 import com.qualcomm.robotcore.util.RobotLog
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Level.DEBUG
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.LogLevel.DEBUG
 import org.firstinspires.ftc.teamcode.subsystems.Gate.CLOSE
 import org.firstinspires.ftc.teamcode.subsystems.Gate.HOLD
 import org.firstinspires.ftc.teamcode.subsystems.Gate.MAX

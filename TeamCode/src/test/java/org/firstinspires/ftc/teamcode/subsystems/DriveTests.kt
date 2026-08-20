@@ -20,8 +20,8 @@ import dev.nextftc.core.units.inches
 import dev.nextftc.extensions.pedro.PedroComponent
 import dev.nextftc.ftc.ActiveOpMode
 import dev.nextftc.ftc.Gamepads.gamepad1
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Level.VERBOSE
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.TelemetryComponent as TeamTelemetry
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.TelemetryLevel.VERBOSE
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Telemetry as TeamTelemetry
 import org.firstinspires.ftc.teamcode.adaptations.pedropathing.pct
 import org.firstinspires.ftc.teamcode.adaptations.pedropathing.pctT
 import org.firstinspires.ftc.teamcode.adaptations.pedropathing.axial

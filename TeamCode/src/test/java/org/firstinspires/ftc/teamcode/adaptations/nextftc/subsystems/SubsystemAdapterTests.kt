@@ -4,10 +4,10 @@ import org.firstinspires.ftc.teamcode.adaptations.nextftc.hardware.Hardware
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.util.RobotLog
 import dev.nextftc.ftc.ActiveOpMode
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Level.OFF
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.LogLevel.OFF
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Logging
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Level.INFO
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.TelemetryComponent as TeamTelemetry
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.TelemetryLevel.INFO
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Telemetry as TeamTelemetry
 import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -59,7 +59,7 @@ class SubsystemAdapterTests {
         Logging.DISPLAY_FILTER = ""
         TeamTelemetry.FILTER = ""
         TeamTelemetry.DISPLAY_FILTER = ""
-        TeamTelemetry.preInit()
+        TeamTelemetry.initialize()
         Logging.LEVEL = OFF
         TeamTelemetry.LEVEL = INFO
     }

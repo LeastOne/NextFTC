@@ -3,9 +3,9 @@ package org.firstinspires.ftc.teamcode.adaptations.nextftc.hardware
 import com.qualcomm.robotcore.hardware.Servo.Direction.FORWARD
 import com.qualcomm.robotcore.hardware.Servo.Direction.REVERSE
 import dev.nextftc.ftc.ActiveOpMode
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Level.VERBOSE
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Level.INFO
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.TelemetryComponent as TeamTelemetry
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.TelemetryLevel.VERBOSE
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.TelemetryLevel.INFO
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Telemetry as TeamTelemetry
 import org.firstinspires.ftc.teamcode.subsystems.SubsystemTests
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertEquals

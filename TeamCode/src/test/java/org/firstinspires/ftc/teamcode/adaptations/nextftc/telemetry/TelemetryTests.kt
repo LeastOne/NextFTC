@@ -4,14 +4,14 @@ import com.bylazar.configurables.annotations.Configurable
 import com.bylazar.configurables.annotations.IgnoreConfigurable
 import org.firstinspires.ftc.robotcore.external.Telemetry as FtcTelemetry
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Logging
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.DiagnosticsConfig
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Level.ASSERT
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Level.DEBUG
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Level.ERROR
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Level.INFO
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Level.OFF
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Level.VERBOSE
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Level.WARN
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.Diagnostics
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.TelemetryLevel.ASSERT
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.TelemetryLevel.DEBUG
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.TelemetryLevel.ERROR
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.TelemetryLevel.INFO
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.TelemetryLevel.OFF
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.TelemetryLevel.VERBOSE
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.TelemetryLevel.WARN
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -23,26 +23,26 @@ import org.mockito.Mockito.never
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 
-class TelemetryComponentApiTests {
+class TelemetryTests {
     private lateinit var output: FtcTelemetry
 
     @Before
     fun setUp() {
         output = mock(FtcTelemetry::class.java)
-        TelemetryComponent.output = output
-        TelemetryComponent.bind(null)
-        TelemetryComponent.LEVEL = VERBOSE
-        TelemetryComponent.FILTER = ""
-        TelemetryComponent.DISPLAY_FILTER = ""
+        Telemetry.output = output
+        Telemetry.bind(null)
+        Telemetry.LEVEL = VERBOSE
+        Telemetry.FILTER = ""
+        Telemetry.DISPLAY_FILTER = ""
         Logging.initialize()
-        TelemetryComponent.beginFrame()
+        Telemetry.beginFrame()
         clearInvocations(output)
     }
 
     @Test
     fun settingsArePanelsConfigurableWithoutExposingRuntimeState() {
-        assertTrue(TelemetryComponent::class.java.isAnnotationPresent(Configurable::class.java))
-        val configurable = TelemetryComponent::class.java.declaredFields
+        assertTrue(Telemetry::class.java.isAnnotationPresent(Configurable::class.java))
+        val configurable = Telemetry::class.java.declaredFields
             .filter { !it.isSynthetic && !java.lang.reflect.Modifier.isFinal(it.modifiers) }
             .filterNot { it.isAnnotationPresent(IgnoreConfigurable::class.java) }
             .map { it.name }.toSet()
@@ -53,30 +53,30 @@ class TelemetryComponentApiTests {
     @Test
     fun diagnosticsAreSampledEachFrameUnlessPanelsOverridesTheLevel() {
         val diagnostics = TestDiagnostics()
-        TelemetryComponent.bind(diagnostics)
-        assertEquals(INFO, TelemetryComponent.LEVEL)
-        assertEquals("Gate", TelemetryComponent.DISPLAY_FILTER)
+        Telemetry.bind(Diagnostics(diagnostics))
+        assertEquals(INFO, Telemetry.LEVEL)
+        assertEquals("Gate", Telemetry.DISPLAY_FILTER)
 
-        diagnostics.level = DiagnosticsConfig.Level.WARN
+        diagnostics.level = Diagnostics.Level.WARN
         diagnostics.filter = "Deflector"
-        TelemetryComponent.beginFrame()
-        assertEquals(WARN, TelemetryComponent.LEVEL)
-        assertEquals("Deflector", TelemetryComponent.DISPLAY_FILTER)
+        Telemetry.beginFrame()
+        assertEquals(WARN, Telemetry.LEVEL)
+        assertEquals("Deflector", Telemetry.DISPLAY_FILTER)
 
-        TelemetryComponent.LEVEL = ERROR
-        diagnostics.level = DiagnosticsConfig.Level.INFO
-        TelemetryComponent.beginFrame()
-        assertEquals(ERROR, TelemetryComponent.LEVEL)
+        Telemetry.LEVEL = ERROR
+        diagnostics.level = Diagnostics.Level.INFO
+        Telemetry.beginFrame()
+        assertEquals(ERROR, Telemetry.LEVEL)
 
-        TelemetryComponent.bind(null)
-        assertEquals(OFF, TelemetryComponent.LEVEL)
-        assertEquals("", TelemetryComponent.DISPLAY_FILTER)
+        Telemetry.bind(null)
+        assertEquals(OFF, Telemetry.LEVEL)
+        assertEquals("", Telemetry.DISPLAY_FILTER)
     }
 
     private class TestDiagnostics(
-        override var level: DiagnosticsConfig.Level = DiagnosticsConfig.Level.INFO,
-        override var filter: String = "Gate"
-    ) : DiagnosticsConfig
+        var level: Diagnostics.Level = Diagnostics.Level.INFO,
+        var filter: String = "Gate"
+    )
 
     @Test
     fun telConvenienceMethodsProduceLevelledCurrentState() {
@@ -97,21 +97,21 @@ class TelemetryComponentApiTests {
         tel.error("Lazy error") { 12 }
         tel.fatal("Lazy fatal") { 13 }
 
-        verify(output).addLine(TelemetryComponent.title("TEL"))
+        verify(output).addLine(Telemetry.title("TEL"))
         verify(output).addData("V | Gate | Verbose", 1 as Any)
         verify(output).addData("D | Gate | Debug", 2 as Any)
         verify(output).addData("I | Gate | Info", 3 as Any)
         verify(output).addData("W | Gate | Warn", 4 as Any)
         verify(output).addData("E | Gate | Error", 5 as Any)
         verify(output).addData("A | Gate | Fatal", 6 as Any)
-        verify(output, times(1)).addLine(TelemetryComponent.title("TEL"))
+        verify(output, times(1)).addLine(Telemetry.title("TEL"))
     }
 
     @Test
     fun levelsExposeIndicatorsAndThresholdBehavior() {
-        assertEquals(listOf('V', 'D', 'I', 'W', 'E', 'A', '-'), Level.entries.map { it.indicator })
-        Level.entries.forEach { threshold ->
-            Level.entries.forEach { level ->
+        assertEquals(listOf('V', 'D', 'I', 'W', 'E', 'A', '-'), TelemetryLevel.entries.map { it.indicator })
+        TelemetryLevel.entries.forEach { threshold ->
+            TelemetryLevel.entries.forEach { level ->
                 val expected = threshold != OFF && level != OFF && level.ordinal >= threshold.ordinal
                 assertEquals(expected, threshold.accepts(level))
             }
@@ -120,12 +120,12 @@ class TelemetryComponentApiTests {
 
     @Test
     fun commonAndSpecificFiltersMustBothMatch() {
-        TelemetryComponent.DISPLAY_FILTER = "Gate"
-        TelemetryComponent.FILTER = "Position"
+        Telemetry.DISPLAY_FILTER = "Gate"
+        Telemetry.FILTER = "Position"
 
-        assertTrue(TelemetryComponent.add("Gate", INFO, "Position", 0.5))
-        assertFalse(TelemetryComponent.add("Gate", INFO, "Reversed", true))
-        assertFalse(TelemetryComponent.add("Deflector", INFO, "Position", 0.5))
+        assertTrue(Telemetry.add("Gate", INFO, "Position", 0.5))
+        assertFalse(Telemetry.add("Gate", INFO, "Reversed", true))
+        assertFalse(Telemetry.add("Deflector", INFO, "Position", 0.5))
 
         verify(output).addData("I | Gate | Position", 0.5 as Any)
     }
@@ -133,7 +133,7 @@ class TelemetryComponentApiTests {
     @Test
     fun levelsFilterBeforeLazyValuesAreRead() {
         var evaluations = 0
-        TelemetryComponent.LEVEL = INFO
+        Telemetry.LEVEL = INFO
         val tel = Tel("Gate")
 
         tel.debug("Hidden") { ++evaluations }
@@ -146,26 +146,26 @@ class TelemetryComponentApiTests {
 
     @Test
     fun configurationIsAlwaysVisibleAndStartsItsOwnSection() {
-        TelemetryComponent.LEVEL = ASSERT
-        TelemetryComponent.DISPLAY_FILTER = "Hidden"
-        TelemetryComponent.FILTER = "Hidden"
+        Telemetry.LEVEL = ASSERT
+        Telemetry.DISPLAY_FILTER = "Hidden"
+        Telemetry.FILTER = "Hidden"
 
-        TelemetryComponent.config("Alliance", "BLUE")
+        Telemetry.config("Alliance", "BLUE")
 
-        verify(output).addLine(TelemetryComponent.title("CONFIG"))
+        verify(output).addLine(Telemetry.title("CONFIG"))
         verify(output).addData("Alliance", "BLUE" as Any)
     }
 
     @Test
     fun framesClearOutputAndSectionState() {
-        TelemetryComponent.section("CONFIG")
-        TelemetryComponent.beginFrame()
-        TelemetryComponent.section("CONFIG")
+        Telemetry.section("CONFIG")
+        Telemetry.beginFrame()
+        Telemetry.section("CONFIG")
 
         verify(output).clear()
-        verify(output, times(2)).addLine(TelemetryComponent.title("CONFIG"))
-        assertEquals(61, TelemetryComponent.title("CONFIG").length)
-        assertTrue(with(TelemetryComponent) { "Deflector".matches("FLECT") })
-        assertFalse(with(TelemetryComponent) { "Deflector".matches("Gate") })
+        verify(output, times(2)).addLine(Telemetry.title("CONFIG"))
+        assertEquals(61, Telemetry.title("CONFIG").length)
+        assertTrue(with(Telemetry) { "Deflector".matches("FLECT") })
+        assertFalse(with(Telemetry) { "Deflector".matches("Gate") })
     }
 }

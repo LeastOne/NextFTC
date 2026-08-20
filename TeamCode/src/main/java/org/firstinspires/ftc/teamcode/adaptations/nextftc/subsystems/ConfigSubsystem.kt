@@ -4,7 +4,7 @@ import dev.nextftc.ftc.ActiveOpMode
 import dev.nextftc.ftc.Gamepads.gamepad1
 import dev.nextftc.ftc.Gamepads.gamepad2
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.ConfigComponent
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.DiagnosticsConfig
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.Diagnostics
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.SettingItem
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.settings
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Logging
@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.adaptations.nextftc.opmodes.isAutonomous
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.opmodes.isTeleop
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.ConfigSubsystem.Change.NEXT
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.ConfigSubsystem.Change.PREV
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.TelemetryComponent
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Telemetry
 
 abstract class ConfigSubsystem : Subsystem() {
     abstract val config: Any
@@ -37,8 +37,8 @@ abstract class ConfigSubsystem : Subsystem() {
     val nextValue by instant { changeValue(NEXT) }
 
     override fun initialize() {
-        val diagnostics = config as? DiagnosticsConfig
-        TelemetryComponent.bind(diagnostics)
+        val diagnostics = Diagnostics(config)
+        Telemetry.bind(diagnostics)
         Logging.bind(diagnostics)
 
         state.auto = ActiveOpMode.isAutonomous
@@ -58,7 +58,7 @@ abstract class ConfigSubsystem : Subsystem() {
     }
 
     override fun periodic() {
-        items.forEach { TelemetryComponent.config(caption(it), it.value()) }
+        items.forEach { Telemetry.config(caption(it), it.value()) }
     }
 
     override fun start() {

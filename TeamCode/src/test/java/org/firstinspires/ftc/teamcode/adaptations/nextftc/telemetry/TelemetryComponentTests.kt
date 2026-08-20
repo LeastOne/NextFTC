@@ -8,10 +8,10 @@ import dev.nextftc.core.commands.utility.LambdaCommand
 import dev.nextftc.ftc.ActiveOpMode
 import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Logging
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Level.DEBUG
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Level.INFO
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Level.VERBOSE
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.TelemetryComponent as TeamTelemetry
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.LogLevel.DEBUG
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.LogLevel.INFO
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.LogLevel.VERBOSE
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Telemetry as TeamTelemetry
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -46,10 +46,10 @@ class TelemetryComponentTests {
         TeamTelemetry.FILTER = ""
         PanelsTelemetry.telemetry.lines = mutableListOf()
         robotLog = mockStatic(RobotLog::class.java)
-        TeamTelemetry.preInit()
+        TelemetryComponent.preInit()
         TeamTelemetry.output = telemetry
         Logging.LEVEL = DEBUG
-        TeamTelemetry.LEVEL = org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Level.INFO
+        TeamTelemetry.LEVEL = org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.TelemetryLevel.INFO
         Logging.beginFrame()
         clearInvocations(telemetryLog)
     }
@@ -63,10 +63,10 @@ class TelemetryComponentTests {
 
     @Test
     fun componentRebuildsAndUpdatesBothLoopPhases() {
-        TeamTelemetry.preWaitForStart()
-        TeamTelemetry.preUpdate()
-        TeamTelemetry.postWaitForStart()
-        TeamTelemetry.postUpdate()
+        TelemetryComponent.preWaitForStart()
+        TelemetryComponent.preUpdate()
+        TelemetryComponent.postWaitForStart()
+        TelemetryComponent.postUpdate()
 
         verify(telemetry, times(2)).clear()
         verify(telemetry, times(2)).update()
@@ -77,7 +77,7 @@ class TelemetryComponentTests {
         Logging.add("Gate", INFO, "Opened")
         clearInvocations(telemetry)
 
-        TeamTelemetry.postUpdate()
+        TelemetryComponent.postUpdate()
 
         verify(telemetry).addLine(TeamTelemetry.title("LOG"))
         verify(telemetry).update()
@@ -92,7 +92,7 @@ class TelemetryComponentTests {
         Logging.DISPLAY_FILTER = "Gate"
         Logging.FILTER = "Open"
 
-        TeamTelemetry.preUpdate()
+        TelemetryComponent.preUpdate()
 
         verify(telemetryLog).clear()
         verify(telemetryLog).add("I | Gate | Opened")
@@ -106,7 +106,7 @@ class TelemetryComponentTests {
         clearInvocations(telemetryLog)
         Logging.FILTER = "Deflector"
 
-        TeamTelemetry.preUpdate()
+        TelemetryComponent.preUpdate()
         Logging.add("Gate", INFO, "Closed")
 
         verify(telemetryLog).clear()
@@ -117,13 +117,13 @@ class TelemetryComponentTests {
     @Test
     fun levelChangesRebuildHistory() {
         Logging.LEVEL = VERBOSE
-        TeamTelemetry.preUpdate()
+        TelemetryComponent.preUpdate()
         Logging.add("Gate", VERBOSE, "Position")
         Logging.add("Gate", INFO, "Opened")
         clearInvocations(telemetryLog)
         Logging.LEVEL = INFO
 
-        TeamTelemetry.preUpdate()
+        TelemetryComponent.preUpdate()
 
         verify(telemetryLog).clear()
         verify(telemetryLog, never()).add("V | Gate | Position")
@@ -151,11 +151,11 @@ class TelemetryComponentTests {
         CommandManager.scheduleCommand(drive)
         CommandManager.run()
 
-        TeamTelemetry.preUpdate()
-        TeamTelemetry.preUpdate()
+        TelemetryComponent.preUpdate()
+        TelemetryComponent.preUpdate()
         CommandManager.cancelCommand(drive)
         CommandManager.run()
-        TeamTelemetry.preUpdate()
+        TelemetryComponent.preUpdate()
 
         verify(telemetryLog).add("D | Commands | Running | Drive")
         verify(telemetryLog).add("D | Commands | Idle")
@@ -169,7 +169,7 @@ class TelemetryComponentTests {
         CommandManager.scheduleCommand(nullCommand)
         CommandManager.run()
 
-        TeamTelemetry.preUpdate()
+        TelemetryComponent.preUpdate()
 
         verify(telemetryLog, never()).add("D | Commands | Running | NullCommand")
     }

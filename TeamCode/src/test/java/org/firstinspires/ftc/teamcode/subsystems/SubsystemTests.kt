@@ -4,9 +4,9 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.hardware.HardwareMap
 import dev.nextftc.ftc.ActiveOpMode
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Logging
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Level.OFF
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Level.INFO
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.TelemetryComponent as TeamTelemetry
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.LogLevel.OFF
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.TelemetryLevel.INFO
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Telemetry as TeamTelemetry
 import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.mockito.Answers.RETURNS_DEFAULTS
 import org.mockito.Mockito.mock
@@ -18,7 +18,7 @@ abstract class SubsystemTests {
         Logging.DISPLAY_FILTER = ""
         TeamTelemetry.FILTER = ""
         TeamTelemetry.DISPLAY_FILTER = ""
-        TeamTelemetry.preInit()
+        TeamTelemetry.initialize()
         Logging.LEVEL = OFF
         TeamTelemetry.LEVEL = INFO
     }
