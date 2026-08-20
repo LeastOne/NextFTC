@@ -7,8 +7,6 @@ import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Subsystem
 
 @Configurable
 object Timing : Subsystem() {
-    override val order = 1
-
     var ENDGAME_SECONDS = 75.0
 
     var playTimer = ElapsedTime()
@@ -25,14 +23,17 @@ object Timing : Subsystem() {
 
     override fun periodic() {
         val milliseconds = periodicTimer.milliseconds()
+
         if (!rumbled && playTimer.seconds() >= ENDGAME_SECONDS) {
             ActiveOpMode.gamepad1.rumble(1.0, 1.0, 1000)
             ActiveOpMode.gamepad2.rumble(1.0, 1.0, 1000)
             rumbled = true
         }
+
         tel.debug("Runtime (s)", "%.1f".format(playTimer.seconds()))
         tel.debug("Loop (ms)", "%.0f".format(milliseconds))
         tel.debug("Rate (Hz)", "%.1f".format(1000 / milliseconds))
+
         periodicTimer.reset()
     }
 }

@@ -46,14 +46,13 @@ class TimingTests : SubsystemTests() {
     }
 
     @Test
-    fun periodicDisplaysLoopTimingAndRunsLast() {
+    fun periodicDisplaysLoopTiming() {
         `when`(playTimer.seconds()).thenReturn(10.06)
         `when`(periodicTimer.milliseconds()).thenReturn(20.04)
         clearInvocations(ActiveOpMode.telemetry)
 
         Timing.periodic()
 
-        assertEquals(1, Timing.order)
         verify(ActiveOpMode.telemetry).addLine(TeamTelemetry.title("TEL"))
         verify(ActiveOpMode.telemetry).addData("D | Timing | Runtime (s)", "10.1" as Any)
         verify(ActiveOpMode.telemetry).addData("D | Timing | Loop (ms)", "20" as Any)
