@@ -28,7 +28,7 @@ object Quanomous : Subsystem() {
             if (it == 0) Int.MAX_VALUE else it
         })) },
         "park" to { step -> Auto.park(
-            step.boolean("gate"),
+            step.boolean("gate", config.parkGate),
             step.axial(),
             step.lateral()
         ) },

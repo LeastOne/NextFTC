@@ -38,6 +38,10 @@ class NavTests : SubsystemTests() {
         `when`(follower.pose).thenReturn(Pose())
         Vision.element = null
         Vision.botpose = null
+        Config.config.goalDistanceOffsetNorth = 0.0
+        Config.config.goalDistanceOffsetSouth = 0.0
+        Config.config.goalAngleOffsetNorth = 0.0
+        Config.config.goalAngleOffsetSouth = 0.0
     }
 
     @After
@@ -49,8 +53,8 @@ class NavTests : SubsystemTests() {
 
     @Test
     fun createsCenteredPosesFromDistances() {
-        listOf(Nav.GOAL_DISTANCE_OFFSET_NORTH, Nav.GOAL_DISTANCE_OFFSET_SOUTH,
-            Nav.GOAL_ANGLE_OFFSET_NORTH, Nav.GOAL_ANGLE_OFFSET_SOUTH)
+        listOf(Config.config.goalDistanceOffsetNorth, Config.config.goalDistanceOffsetSouth,
+            Config.config.goalAngleOffsetNorth, Config.config.goalAngleOffsetSouth)
             .forEach { assertFalse(it.isNaN()) }
         assertEquals(14.25, Nav.robotLength.inIn, 0.0001)
         assertEquals(11.375, Nav.robotWidth.inIn, 0.0001)
@@ -210,10 +214,10 @@ class NavTests : SubsystemTests() {
         Config.config.side = SOUTH
         assertFalse(Nav.parking(false, BACK, RIGHT).x.isNaN())
 
-        Nav.GOAL_DISTANCE_OFFSET_NORTH = 1.0
-        Nav.GOAL_DISTANCE_OFFSET_SOUTH = 2.0
-        Nav.GOAL_ANGLE_OFFSET_NORTH = 3.0
-        Nav.GOAL_ANGLE_OFFSET_SOUTH = 4.0
+        Config.config.goalDistanceOffsetNorth = 1.0
+        Config.config.goalDistanceOffsetSouth = 2.0
+        Config.config.goalAngleOffsetNorth = 3.0
+        Config.config.goalAngleOffsetSouth = 4.0
         `when`(follower.pose).thenReturn(Pose(60.0, 20.0, 0.5))
         Vision.botpose = Pose(59.0, 19.0, 0.5)
         assertEquals(1.0, Nav.goalDistanceOffset, 0.0)

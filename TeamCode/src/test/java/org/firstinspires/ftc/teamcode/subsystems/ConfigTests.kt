@@ -29,11 +29,13 @@ import org.firstinspires.ftc.teamcode.subsystems.Config.state
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.After
 import org.junit.Test
 import org.mockito.Mockito.clearInvocations
+import org.mockito.Mockito.inOrder
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
@@ -50,6 +52,11 @@ class ConfigTests : SubsystemTests() {
         config.delay = 0.0
         config.responsiveness = 1.0
         config.robotCentric = false
+        config.parkGate = false
+        config.goalDistanceOffsetSouth = 0.0
+        config.goalDistanceOffsetNorth = 0.0
+        config.goalAngleOffsetSouth = 0.0
+        config.goalAngleOffsetNorth = 0.0
         config.level = INFO
         config.filter = ""
         state.auto = false
@@ -72,6 +79,8 @@ class ConfigTests : SubsystemTests() {
     @Test
     fun initializesTeleopRuntimeStateAndControls() {
         ActiveOpMode.it = TestTeleop()
+        config.alliance = BLUE
+        config.side = SOUTH
         state.started = true
         state.setting = 4
         state.configurable = true
@@ -84,6 +93,8 @@ class ConfigTests : SubsystemTests() {
         assertFalse(state.started)
         assertEquals(0, state.setting)
         assertFalse(state.configurable)
+        assertEquals(BLUE, alliance)
+        assertEquals(SOUTH, side)
     }
 
     @TeleOp
@@ -97,14 +108,20 @@ class ConfigTests : SubsystemTests() {
     }
 
     @Test
-    fun recognizesAutonomousOpModes() {
+    fun initializesAutonomousStateWithFreshFieldSelection() {
         ActiveOpMode.it = TestAuto()
+        config.alliance = BLUE
+        config.side = SOUTH
+        config.quanomous = "routine"
 
         Config.initialize()
 
         assertTrue(state.auto)
         assertFalse(state.teleop)
         assertFalse(state.interrupt)
+        assertEquals(UNKNOWN, alliance)
+        assertEquals(UNKNOWN_SIDE, side)
+        assertEquals(null, config.quanomous)
     }
 
     @Test
@@ -115,6 +132,11 @@ class ConfigTests : SubsystemTests() {
         config.delay = 1.0
         config.responsiveness = 0.5
         config.robotCentric = true
+        config.parkGate = true
+        config.goalDistanceOffsetSouth = 1.0
+        config.goalDistanceOffsetNorth = 2.0
+        config.goalAngleOffsetSouth = 3.0
+        config.goalAngleOffsetNorth = 4.0
 
         assertEquals(BLUE, config.alliance)
         assertEquals(SOUTH, config.side)
@@ -122,6 +144,11 @@ class ConfigTests : SubsystemTests() {
         assertEquals(1.0, config.delay, 0.0)
         assertEquals(0.5, config.responsiveness, 0.0)
         assertTrue(config.robotCentric)
+        assertTrue(config.parkGate)
+        assertEquals(1.0, config.goalDistanceOffsetSouth, 0.0)
+        assertEquals(2.0, config.goalDistanceOffsetNorth, 0.0)
+        assertEquals(3.0, config.goalAngleOffsetSouth, 0.0)
+        assertEquals(4.0, config.goalAngleOffsetNorth, 0.0)
     }
 
     @Test
@@ -167,13 +194,18 @@ class ConfigTests : SubsystemTests() {
         Config.periodic()
 
         assertEquals(
-            listOf("Alliance", "Side", "Delay", "Responsiveness", "Robot Centric",
-                "Level", "Quanomous"),
+            listOf("Alliance", "Side", "Quanomous", "Delay", "Responsiveness",
+                "Robot Centric", "Park Gate", "Goal Distance Offset South",
+                "Goal Distance Offset North", "Goal Angle Offset South",
+                "Goal Angle Offset North", "Level"),
             Config.items.map { it.key }
         )
-        assertEquals("0.0s", Config.items[2].value())
-        assertEquals("1.00", Config.items[3].value())
-        assertEquals(false, Config.items[4].value())
+        assertEquals("0.0s", Config.items[3].value())
+        assertEquals("1.00", Config.items[4].value())
+        assertEquals(false, Config.items[5].value())
+        assertEquals(false, Config.items[6].value())
+        assertEquals("0.0 in", Config.items[7].value())
+        assertEquals("0.0 deg", Config.items[9].value())
         verify(ActiveOpMode.telemetry).addLine(TeamTelemetry.title("CONFIG"))
         verify(ActiveOpMode.telemetry).addData("Alliance", UNKNOWN as Any)
     }
@@ -186,6 +218,46 @@ class ConfigTests : SubsystemTests() {
         Config.periodic()
 
         verify(ActiveOpMode.telemetry).addLine(TeamTelemetry.title("CONFIG"))
+    }
+
+    @Test
+    fun autonomousWarningAppearsAboveConfigUntilRequiredSettingsAreSelected() {
+        state.auto = true
+        clearInvocations(ActiveOpMode.telemetry)
+
+        Config.periodic()
+
+        inOrder(ActiveOpMode.telemetry).apply {
+            verify(ActiveOpMode.telemetry).addLine(
+                "<b><font color='#FFC107'>WARNING: Select Alliance, Side, Quanomous before starting Auto</font></b>")
+            verify(ActiveOpMode.telemetry).addLine()
+            verify(ActiveOpMode.telemetry).addLine(TeamTelemetry.title("CONFIG"))
+        }
+
+        config.alliance = RED
+        config.side = NORTH
+        config.quanomous = "routine"
+        clearInvocations(ActiveOpMode.telemetry)
+
+        Config.periodic()
+
+        verify(ActiveOpMode.telemetry, never()).addLine(
+            "<b><font color='#FFC107'>WARNING: Select Alliance, Side, Quanomous before starting Auto</font></b>")
+    }
+
+    @Test
+    fun autonomousReadinessRejectsBlankQuanomousSelections() {
+        config.alliance = RED
+        config.side = NORTH
+
+        config.quanomous = ""
+        assertEquals(listOf("Quanomous"), Config.missingAutoSettings())
+
+        config.quanomous = " "
+        assertEquals(listOf("Quanomous"), Config.missingAutoSettings())
+
+        config.quanomous = "routine"
+        assertTrue(Config.missingAutoSettings().isEmpty())
     }
 
     @Test
@@ -203,11 +275,18 @@ class ConfigTests : SubsystemTests() {
         Config.prevValue.start()
         assertEquals(UNKNOWN_SIDE, config.side)
 
-        state.setting = 3
+        state.setting = 4
         Config.nextValue.start()
         assertEquals(1.0, config.responsiveness, 0.0)
         Config.prevValue.start()
         assertEquals(0.95, config.responsiveness, 0.0)
+
+        state.setting = 6
+        Config.nextValue.start()
+        assertFalse(config.parkGate)
+        state.setting = 7
+        Config.nextValue.start()
+        assertEquals(6.0, config.goalDistanceOffsetSouth, 0.0)
 
         Config.done.start()
         assertFalse(state.configurable)
@@ -227,13 +306,18 @@ class ConfigTests : SubsystemTests() {
         assertEquals(0.5, config.delay, 0.0)
         assertEquals(1.0, config.responsiveness, 0.0)
         assertTrue(config.robotCentric)
+        assertTrue(config.parkGate)
+        assertEquals(6.0, config.goalDistanceOffsetSouth, 0.0)
+        assertEquals(6.0, config.goalDistanceOffsetNorth, 0.0)
+        assertEquals(1.0, config.goalAngleOffsetSouth, 0.0)
+        assertEquals(1.0, config.goalAngleOffsetNorth, 0.0)
         assertEquals(WARN, config.level)
 
         state.setting = 0
         Config.changeValue(NEXT)
         state.setting = 1
         Config.changeValue(NEXT)
-        state.setting = 4
+        state.setting = 5
         Config.changeValue(NEXT)
         assertEquals(BLUE, config.alliance)
         assertEquals(SOUTH, config.side)
@@ -251,7 +335,7 @@ class ConfigTests : SubsystemTests() {
         verify(follower).setPose(org.mockito.ArgumentMatchers.any(Pose::class.java))
 
         clearInvocations(follower)
-        state.setting = 2
+        state.setting = 3
         Config.changeValue(NEXT)
         verify(follower, never()).setStartingPose(org.mockito.ArgumentMatchers.any())
     }
@@ -261,7 +345,7 @@ class ConfigTests : SubsystemTests() {
         var changes = 0
         ConfigComponent.onChange = { changes++ }
         state.configurable = true
-        state.setting = 2
+        state.setting = 3
 
         Config.changeValue(NEXT)
         assertEquals(1, changes)
@@ -270,7 +354,7 @@ class ConfigTests : SubsystemTests() {
         Config.changeValue(NEXT)
         assertEquals(1, changes)
 
-        state.setting = 3
+        state.setting = 4
         config.responsiveness = 1.0
         Config.changeValue(NEXT)
         assertEquals(1, changes)
@@ -279,7 +363,7 @@ class ConfigTests : SubsystemTests() {
     @Test
     fun captionsIdentifySelectionAndLockedSettings() {
         val alliance = Config.items.first()
-        val responsiveness = Config.items[3]
+        val responsiveness = Config.items[4]
 
         assertEquals("Alliance", Config.caption(alliance))
         state.configurable = true
@@ -287,7 +371,7 @@ class ConfigTests : SubsystemTests() {
         assertEquals(">Alliance", Config.caption(alliance))
         state.started = true
         assertEquals("xAlliance", Config.caption(alliance))
-        state.setting = 3
+        state.setting = 4
         assertEquals(">Responsiveness", Config.caption(responsiveness))
     }
 
@@ -299,20 +383,47 @@ class ConfigTests : SubsystemTests() {
     }
 
     @Test
+    fun autonomousRequiresAllianceSideAndQuanomousBeforeStarting() {
+        ActiveOpMode.it = TestAuto()
+        Config.initialize()
+
+        val missingBoth = assertThrows(IllegalStateException::class.java) {
+            Config.start()
+        }
+        assertEquals("Select Alliance, Side, Quanomous before starting Auto",
+            missingBoth.message)
+        assertFalse(state.started)
+
+        config.alliance = RED
+        assertThrows(IllegalStateException::class.java) { Config.start() }
+        assertFalse(state.started)
+
+        config.side = NORTH
+        assertThrows(IllegalStateException::class.java) { Config.start() }
+        assertFalse(state.started)
+
+        config.quanomous = "routine"
+        Config.start()
+        assertTrue(state.started)
+    }
+
+    @Test
     fun configurationStructureSeparatesPersistentAndRuntimeState() {
         assertTrue(Config::class.java.isAnnotationPresent(Configurable::class.java))
         assertEquals(-1, PREV.sign)
         assertEquals(1, NEXT.sign)
         assertEquals(
-            listOf("alliance", "side", "delay", "responsiveness", "robotCentric",
-                "level", "filter", "quanomous"),
+            listOf("alliance", "side", "quanomous", "delay", "responsiveness", "robotCentric",
+                "parkGate", "goalDistanceOffsetSouth", "goalDistanceOffsetNorth",
+                "goalAngleOffsetSouth", "goalAngleOffsetNorth", "level", "filter"),
             Config.Config::class.java.declaredFields
                 .filterNot { it.isSynthetic }
                 .map { it.name }
         )
         assertEquals(
-            listOf("alliance", "side", "delay", "responsiveness", "robotCentric",
-                "level", "quanomous"),
+            listOf("alliance", "side", "quanomous", "delay", "responsiveness", "robotCentric",
+                "parkGate", "goalDistanceOffsetSouth", "goalDistanceOffsetNorth",
+                "goalAngleOffsetSouth", "goalAngleOffsetNorth", "level"),
             Config.Config::class.java.declaredFields
                 .filter { it.isAnnotationPresent(Setting::class.java) }
                 .map { it.name }

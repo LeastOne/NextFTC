@@ -6,6 +6,7 @@ import com.bylazar.telemetry.JoinedTelemetry
 import com.bylazar.telemetry.PanelsTelemetry
 import dev.nextftc.ftc.ActiveOpMode
 import org.firstinspires.ftc.robotcore.external.Telemetry as FtcTelemetry
+import org.firstinspires.ftc.robotcore.external.Telemetry.DisplayFormat.HTML
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.Diagnostics
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.toTelLevel
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Logging
@@ -32,6 +33,7 @@ object Telemetry {
     fun initialize() {
         diagnostics = null
         bind(null)
+        ActiveOpMode.telemetry.setDisplayFormat(HTML)
         output = JoinedTelemetry(ActiveOpMode.telemetry, PanelsTelemetry.ftcTelemetry)
         sections.clear()
         Logging.initialize()
@@ -70,6 +72,14 @@ object Telemetry {
     fun config(caption: String, value: Any?) {
         section("CONFIG")
         output.addData(caption, value)
+    }
+
+    fun configWarning(message: String) {
+        val warning = "WARNING: $message"
+        ActiveOpMode.telemetry.addLine("<b><font color='#FFC107'>$warning</font></b>")
+        ActiveOpMode.telemetry.addLine()
+        PanelsTelemetry.ftcTelemetry.addLine(warning)
+        PanelsTelemetry.ftcTelemetry.addLine()
     }
 
     fun add(source: String, level: TelemetryLevel, caption: String, value: Any?): Boolean {

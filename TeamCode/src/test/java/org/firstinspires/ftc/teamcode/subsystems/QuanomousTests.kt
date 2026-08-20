@@ -18,6 +18,7 @@ class QuanomousTests {
     fun parsesOptionalArguments() {
         val empty = JsonObject()
         assertFalse(with(Quanomous) { empty.boolean("gate") })
+        assertTrue(with(Quanomous) { empty.boolean("gate", true) })
         assertEquals("center", with(Quanomous) { empty.text("axial") })
         assertEquals("other", with(Quanomous) { empty.text("missing", "other") })
         val nullableText = mock(JsonObject::class.java)

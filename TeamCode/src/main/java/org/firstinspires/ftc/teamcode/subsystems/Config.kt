@@ -7,6 +7,7 @@ import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.Diagnostics.Lev
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.Setting
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.SettingItem
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.ConfigSubsystem
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Telemetry
 import org.firstinspires.ftc.teamcode.adaptations.pedropathing.resetStartingPose
 import org.firstinspires.ftc.teamcode.adaptations.quanomous.Quanomous as QuanomousData
 import org.firstinspires.ftc.teamcode.game.Alliance
@@ -24,6 +25,9 @@ object Config : ConfigSubsystem() {
         @Setting
         var side: Side = Side.UNKNOWN,
 
+        @Setting(options = QuanomousData::class)
+        var quanomous: String? = null,
+
         @Setting(inc = 0.5, min = 0.0, max = 30.0, format = "%.1fs")
         var delay: Double = 0.0,
 
@@ -33,17 +37,62 @@ object Config : ConfigSubsystem() {
         @Setting(live = true)
         var robotCentric: Boolean = true,
 
+        @Setting
+        var parkGate: Boolean = false,
+
+        @Setting(inc = 6.0, format = "%.1f in", live = true)
+        var goalDistanceOffsetSouth: Double = 0.0,
+
+        @Setting(inc = 6.0, format = "%.1f in", live = true)
+        var goalDistanceOffsetNorth: Double = 0.0,
+
+        @Setting(inc = 1.0, format = "%.1f deg", live = true)
+        var goalAngleOffsetSouth: Double = 0.0,
+
+        @Setting(inc = 1.0, format = "%.1f deg", live = true)
+        var goalAngleOffsetNorth: Double = 0.0,
+
         @Setting(live = true)
         var level: Level = INFO,
 
         @Transient
-        var filter: String = "",
-
-        @Setting(options = QuanomousData::class)
-        var quanomous: String? = null
+        var filter: String = ""
     )
 
-    override fun onChange(item: SettingItem) {
-        if (item.key == "Alliance" || item.key == "Side") follower.resetStartingPose(Nav.start)
+    override fun initialize() {
+        super.initialize()
+
+        if (state.auto) {
+            config.alliance = Alliance.UNKNOWN
+            config.side = Side.UNKNOWN
+            config.quanomous = null
+        }
     }
+
+    override fun periodic() {
+        val missing = missingAutoSettings()
+        if (state.auto && missing.isNotEmpty())
+            Telemetry.configWarning("Select ${missing.joinToString(", ")} before starting Auto")
+        super.periodic()
+    }
+
+    override fun start() {
+        val missing = missingAutoSettings()
+        check(!state.auto || missing.isEmpty()) {
+            "Select ${missing.joinToString(", ")} before starting Auto"
+        }
+
+        super.start()
+    }
+
+    override fun onChange(item: SettingItem) {
+        if (item.key == "Alliance" || item.key == "Side")
+            follower.resetStartingPose(Nav.start)
+    }
+
+    fun missingAutoSettings() = listOfNotNull(
+        if (config.alliance == Alliance.UNKNOWN) "Alliance" else null,
+        if (config.side == Side.UNKNOWN) "Side" else null,
+        if (config.quanomous.isNullOrBlank()) "Quanomous" else null
+    )
 }

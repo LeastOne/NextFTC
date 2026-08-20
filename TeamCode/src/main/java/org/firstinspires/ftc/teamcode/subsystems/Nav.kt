@@ -29,11 +29,6 @@ object Nav : NavSubsystem() {
     override val robotLength = 14.25.inches
     override val robotWidth = 11.375.inches
 
-    var GOAL_DISTANCE_OFFSET_NORTH = 0.0
-    var GOAL_DISTANCE_OFFSET_SOUTH = 0.0
-    var GOAL_ANGLE_OFFSET_NORTH = 0.0
-    var GOAL_ANGLE_OFFSET_SOUTH = 0.0
-
     val start get() = when {
         config.alliance == UNKNOWN || config.side == UNKNOWN_SIDE -> pose(0.tiles, 0.tiles)
         config.side == NORTH -> pose(2.7.tiles, (config.alliance.sign * -0.8).tiles)
@@ -148,10 +143,10 @@ object Nav : NavSubsystem() {
     )
 
     val goalDistanceOffset get() = if (follower.pose.x > 1.tiles.inIn)
-        GOAL_DISTANCE_OFFSET_NORTH else GOAL_DISTANCE_OFFSET_SOUTH
+        config.goalDistanceOffsetNorth else config.goalDistanceOffsetSouth
     val goalDistance get() = (Vision.botpose ?: follower.pose).distanceFrom(goal) + goalDistanceOffset
     val goalHeadingOffset get() = Math.toRadians(if (follower.pose.x > 1.tiles.inIn)
-        GOAL_ANGLE_OFFSET_NORTH else GOAL_ANGLE_OFFSET_SOUTH)
+        config.goalAngleOffsetNorth else config.goalAngleOffsetSouth)
     val goalHeadingRemaining get() = (
         follower.pose.heading - (atan2(goal.y - (Vision.botpose ?: follower.pose).y,
             goal.x - (Vision.botpose ?: follower.pose).x) + goalHeadingOffset)
