@@ -21,6 +21,7 @@
 - Use the project's delegated `instant` adaptation when declaring reusable instant commands so their subsystem-qualified names and execution logs are inferred automatically.
 - Do not manually name or log every command when the adaptation can derive that information.
 - Implement subsystem hardware with the project's `Hardware` wrappers. The adapted `SubsystemComponent` discovers and initializes them automatically, disabling only the subsystem containing failed hardware.
+- Use a subsystem's lifecycle `stop()` for immediate, minimal, idempotent cleanup. Directly stop powered hardware there rather than relying on another `periodic()` call; keep command-level `stop` behavior distinct for normal operation.
 - Put reusable NextFTC integration code under the appropriate concern-specific `adaptations.nextftc` subpackage, such as `commands`, `hardware`, `logging`, or `subsystems`.
 
 ## OpModes

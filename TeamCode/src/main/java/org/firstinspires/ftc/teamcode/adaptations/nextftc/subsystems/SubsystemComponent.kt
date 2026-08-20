@@ -56,7 +56,13 @@ class SubsystemComponent private constructor(
         subsystems.reversed()
             .filterIsInstance<Subsystem>()
             .filterNot { it.disabled }
-            .forEach { it.stop() }
+            .forEach {
+                try {
+                    it.stop()
+                } catch (exception: Exception) {
+                    it.log.error("Stop | $exception")
+                }
+            }
     }
 
     fun updateSubsystems(scheduleDefaults: Boolean) {

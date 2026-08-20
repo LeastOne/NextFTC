@@ -312,6 +312,32 @@ class SubsystemComponentTests {
     }
 
     @Test
+    fun continuesStoppingAfterASubsystemFails() {
+        val stops = mutableListOf<Int>()
+        val component = SubsystemComponent(
+            object : Subsystem() {
+                override val order = -1
+                override fun stop() { stops += order }
+            },
+            object : Subsystem() {
+                override val order = 0
+                override fun stop() {
+                    stops += order
+                    error("failed")
+                }
+            },
+            object : Subsystem() {
+                override val order = 1
+                override fun stop() { stops += order }
+            }
+        )
+
+        component.preStop()
+
+        assertEquals(listOf(1, 0, -1), stops)
+    }
+
+    @Test
     fun defaultStopRequiresNoSpecialHandling() {
         object : Subsystem() {}.stop()
     }

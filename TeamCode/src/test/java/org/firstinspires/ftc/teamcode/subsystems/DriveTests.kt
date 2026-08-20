@@ -331,7 +331,7 @@ class DriveTests : SubsystemTests() {
     }
 
     @Test
-    fun holdAndStopCommandsControlPedro() {
+    fun holdAndStopCommandAndLifecycleControlPedro() {
         val pose = Pose(1.0, 2.0, 0.5)
         `when`(follower.pose).thenReturn(pose)
 
@@ -343,6 +343,9 @@ class DriveTests : SubsystemTests() {
         verify(follower).holdPoint(pose)
         stop.start()
         verify(follower).breakFollowing()
+
+        Drive.stop()
+        verify(follower, times(2)).breakFollowing()
     }
 
     @Test

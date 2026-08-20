@@ -27,6 +27,10 @@ abstract class DriveSubsystem : Subsystem() {
     val hold by instant { follower.holdPoint(follower.pose) }
     val stop by instant { follower.breakFollowing() }
 
+    override fun stop() {
+        follower.breakFollowing()
+    }
+
     fun follow(path: Path, holdEnd: Boolean? = null, maxPower: Double? = null) =
         FollowPath(path, holdEnd, maxPower).requires(this)
 
