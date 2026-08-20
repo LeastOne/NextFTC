@@ -15,54 +15,47 @@ import org.firstinspires.ftc.teamcode.adaptations.nextftc.commands.times
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Axial
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Lateral
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Subsystem
-import org.firstinspires.ftc.teamcode.adaptations.pedropathing.pct
 import org.firstinspires.ftc.teamcode.adaptations.pedropathing.tiles
 import org.firstinspires.ftc.teamcode.game.Side
 import org.firstinspires.ftc.teamcode.game.Side.NORTH
-import org.firstinspires.ftc.teamcode.game.Side.SOUTH
 import org.firstinspires.ftc.teamcode.subsystems.Config.config
 
 object Auto : Subsystem() {
     const val TIMEOUT = 29.5
+
+    fun execute() = Delay(config.delay.seconds)
+        .then(Quanomous.load(config.quanomous!!))
+        .endAfter(TIMEOUT)
+        .then(stopAll())
 
     fun intakeStart() = goalLock(false).then(
         Intake.forward, Conveyor.forward, Gate.close
     )
 
     fun intakeStop() = goalLock(true).then(
-        Flywheel.forward,
-        Conveyor.reverse,
-        Gate.hold
+        Flywheel.forward, Conveyor.reverse, Gate.hold
     ).thenWait(0.8).then(
-        Conveyor.stop,
-        Intake.hold
+        Conveyor.stop, Intake.hold
     )
 
     fun intake(spike: Int) = depositStop().then(
-        intakeStart(),
-        Drive.intakePower,
-        Drive.toSpike(spike)
+        intakeStart(), Drive.intakePower, Drive.toSpike(spike)
     ).thenWait(0.2)
 
     fun depositStart() = goalLock(true).then(
-        Gate.open,
-        Intake.forward,
-        Flywheel.forward,
-        Conveyor.launch
+        Gate.open, Intake.forward, Flywheel.forward, Conveyor.launch
     )
 
     fun depositStop() = goalLock(false).then(
-        Conveyor.stop,
-        Flywheel.stop,
-        Intake.reset,
-        Intake.stop
+        Conveyor.stop, Flywheel.stop, Intake.reset, Intake.stop
     )
 
     fun deposit(side: Side, axial: Distance = 0.inches, lateral: Distance = 0.inches) = deferred(
         Drive, Intake, Conveyor, Flywheel, Gate, Vision
     ) {
-        val trigger = if (side == NORTH) (-9).inches else
-            (if (follower.pose.x < -2.tiles.inIn) (-24).inches else (-48).inches)
+        val trigger =
+            if (side == NORTH) (-9).inches
+            else (if (follower.pose.x < -2.tiles.inIn) (-24).inches else (-48).inches)
         intakeStop().then(
             Drive.autoPower,
             Drive.toDeposit(side, axial, lateral).alongWith(
@@ -83,47 +76,42 @@ object Auto : Subsystem() {
     fun releaseGate() = Drive.toGate.alongWith(Gate.close)
 
     fun gateIntake() = intakeStart().then(
-        Drive.toGate,
-        Drive.high,
-        Drive.toGateIntake.endAfter(1.5)
+        Drive.toGate, Drive.high, Drive.toGateIntake.endAfter(1.5)
     ).thenWait(1.5).then(
         Intake.untilFull().endAfter(2.0),
-        Drive.low,
-        Drive.toGateIntakeDepart.endAfter(0.4),
-        Drive.autoPower
+        Drive.low, Drive.toGateIntakeDepart.endAfter(0.4), Drive.autoPower
     )
 
-    fun goalLock(enabled: Boolean) =
-        (if (enabled) Vision.goalLock else Vision.goalUnlock).alongWith(
-            if (enabled) Drive.goalLock else Drive.goalUnlock
-        )
+    fun goalLock(enabled: Boolean) = (if (enabled) Vision.goalLock else Vision.goalUnlock).alongWith(
+        if (enabled) Drive.goalLock else Drive.goalUnlock
+    )
 
-    fun drive(pose: Pose) = depositStop().then(Drive.curve(pose))
+    fun drive(pose: Pose) = depositStop().then(
+        Drive.curve(pose)
+    )
 
     fun chase(cycles: Int) = Intake.reset.then(
         chaseCycle().times(cycles)
     )
 
-    fun chaseCycle() = chaseIntake().times(4).raceWith(chaseComplete()).then(chaseDeposit())
+    fun chaseCycle() = chaseIntake().times(4)
+        .raceWith(chaseComplete())
+        .then(chaseDeposit())
 
     fun chaseIntake() = Drive.toChaseScan.alongWith(
-        Vision.chaseLock,
-        Vision.waitForElement().endAfter(2.0)
+        Vision.chaseLock, Vision.waitForElement().endAfter(2.0)
     ).then(
-        Vision.backup,
-        intakeStart(),
-        Drive.chaseLock,
+        Vision.backup, intakeStart(), Drive.chaseLock,
         Drive.chaseControlled.raceWith(
-            Intake.untilElement(),
-            Drive.untilStill(0.4),
-            Drive.untilAtElement()
-        ),
-        Vision.reset
+            Intake.untilElement(), Drive.untilStill(0.4), Drive.untilAtElement()
+        ), Vision.reset
     )
 
     fun chaseComplete() = Intake.untilFull().raceWith(
         Intake.untilArtifacts(2),
-        Intake.untilArtifacts(1).then(Drive.untilDepositNorth((-0.75).tiles))
+        Intake.untilArtifacts(1).then(
+            Drive.untilDepositNorth(-0.75.tiles)
+        )
     )
 
     fun chaseDeposit() = Drive.chaseUnlock.then(
@@ -139,28 +127,9 @@ object Auto : Subsystem() {
 
     fun canPark() = !Drive.goalLocked
 
-    fun sample() = Gate.close.then(
-        Drive.toScore.alongWith(Drive.until(50.pct).then(Deflector.up)),
-        Gate.open.thenWait(0.5).then(Gate.close),
-        Drive.toPark.alongWith(Drive.until(25.pct).then(Deflector.down))
-    )
-
-    fun selected() = if (config.quanomous == null) sample()
-        else Quanomous.load(config.quanomous!!)
-
     fun stopAll() = goalLock(false).then(
-        Drive.chaseUnlock,
-        Drive.stop,
-        Intake.stop,
-        Conveyor.stop,
-        Gate.close,
-        Flywheel.stop
+        Drive.chaseUnlock, Drive.stop, Intake.stop, Conveyor.stop, Gate.close, Flywheel.stop
     )
-
-    fun execute() = Delay(config.delay.seconds)
-        .then(selected())
-        .endAfter(TIMEOUT)
-        .then(stopAll())
 
     fun remaining(command: Command) = deferred(*command.requirements.toTypedArray()) {
         command.endAfter(max(0.0, TIMEOUT - Timing.playTimer.seconds()))

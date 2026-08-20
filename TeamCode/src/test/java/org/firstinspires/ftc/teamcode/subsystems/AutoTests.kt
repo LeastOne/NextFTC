@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.subsystems
 import com.pedropathing.follower.Follower
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.hardware.HardwareMap
-import dev.nextftc.core.commands.groups.ParallelGroup
 import dev.nextftc.core.commands.groups.CommandGroup
 import dev.nextftc.core.commands.Command
 import com.google.gson.JsonParser
@@ -11,7 +10,7 @@ import dev.nextftc.extensions.pedro.PedroComponent
 import dev.nextftc.ftc.ActiveOpMode
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotSame
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.After
 import org.junit.Before
@@ -48,20 +47,8 @@ class AutoTests {
     }
 
     @Test
-    fun executeCreatesAComposableSampleRoutine() {
-        val first = Auto.execute()
-        val second = Auto.execute()
-
-        assertNotSame(first, second)
-        assertTrue(first.requirements.containsAll(
-            listOf(Drive, Gate, Deflector, Intake, Conveyor, Flywheel)
-        ))
-
-        val commands = flatten(first)
-        assertTrue(commands.filterIsInstance<ParallelGroup>().size >= 2)
-        assertTrue(commands.any { it.name.contains("Gate.open") })
-        assertNotSame(Auto.sample(), Auto.sample())
-        assertTrue(Auto.selected().requirements.contains(Gate))
+    fun executeFailsWithoutAQuanomousRoutine() {
+        assertThrows(NullPointerException::class.java) { Auto.execute() }
         verify(follower, never()).setStartingPose(org.mockito.ArgumentMatchers.any())
         verify(follower, never()).setPose(org.mockito.ArgumentMatchers.any())
     }
@@ -81,10 +68,10 @@ class AutoTests {
         QuanomousData.storage.save("routine.json", steps)
         Config.config.quanomous = "routine.json"
 
-        val selected = Auto.selected() as dev.nextftc.core.commands.groups.SequentialGroup
+        val selected = Auto.execute()
 
-        assertEquals(8, selected.commands.size)
         assertTrue(selected.requirements.containsAll(listOf(Drive, Intake, Conveyor, Flywheel, Gate, Vision)))
+        assertTrue(flatten(selected).size > 8)
         assertTrue(Auto.stopAll().requirements.containsAll(listOf(Drive, Intake, Conveyor, Flywheel)))
     }
 
