@@ -37,12 +37,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Config.state
 
 @Configurable
 object Vision : Subsystem() {
-    enum class Pipeline(val index: Int) {
-        QR_CODE(0),
-        APRIL_TAG(1),
-        GREEN(2),
-        PURPLE(3)
-    }
+    const val INCHES_PER_METER = 39.3701
 
     var CAMERA_UPSIDE_DOWN = true
     var CAMERA_X_INCHES = 3.93701
@@ -205,5 +200,10 @@ object Vision : Subsystem() {
 
     fun distance(first: Pose, second: Pose) = hypot(first.x - second.x, first.y - second.y)
 
-    const val INCHES_PER_METER = 39.3701
+    enum class Pipeline(val index: Int) {
+        QR_CODE(0),
+        APRIL_TAG(1),
+        GREEN(2),
+        PURPLE(3)
+    }
 }
