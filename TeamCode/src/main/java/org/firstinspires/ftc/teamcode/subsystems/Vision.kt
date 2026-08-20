@@ -72,6 +72,7 @@ object Vision : Subsystem() {
     val chaseLock by instant { chaseLock(true) }
     val chaseUnlock by instant { chaseLock(false) }
     val reset by instant { resetElement() }
+    val backup by instant { setBackupElement() }
 
     override fun initialize() {
         pipeline = QR_CODE
