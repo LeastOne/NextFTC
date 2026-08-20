@@ -7,6 +7,14 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class SettingsTests {
+    object Options : SettingOptions {
+        override fun options() = listOf("First", "Second")
+    }
+
+    class ConstructedOptions : SettingOptions {
+        override fun options() = listOf("Constructed")
+    }
+
     enum class Choice {
         UNKNOWN, FIRST, SECOND
     }
@@ -28,6 +36,9 @@ class SettingsTests {
         @Setting(name = "Gain", inc = 0.25)
         var gain = 0.5
 
+        @Setting(options = Options::class)
+        var routine: String? = null
+
         var hidden = "hidden"
     }
 
@@ -41,11 +52,12 @@ class SettingsTests {
         val example = Example()
         val settings = example.settings()
 
-        assertEquals(listOf("Choice", "Robot Centric", "Speed", "Gain"), settings.map { it.key })
+        assertEquals(listOf("Choice", "Robot Centric", "Speed", "Gain", "Routine"), settings.map { it.key })
         assertEquals(Choice.UNKNOWN, settings[0].value())
         assertTrue(settings[1].live)
         assertEquals("0.5", settings[2].value())
         assertEquals(0.5, settings[3].value())
+        assertEquals("None", settings[4].value())
 
         settings[0].change(1)
         assertEquals(Choice.FIRST, example.choice)
@@ -71,6 +83,11 @@ class SettingsTests {
 
         assertTrue(settings[3].change(1))
         assertEquals(0.75, example.gain, 0.0)
+        assertTrue(settings[4].change(1))
+        assertEquals("First", example.routine)
+        assertEquals("First", settings[4].value())
+        assertTrue(settings[4].change(-1))
+        assertEquals("Second", example.routine)
         assertEquals("", "".humanize())
         assertEquals("Already", "Already".humanize())
     }
@@ -103,7 +120,17 @@ class SettingsTests {
 
     class Unsupported {
         @Setting
-        var text = ""
+        var number = 1
+    }
+
+    class EmptyStringOptions {
+        @Setting
+        var text: String? = null
+    }
+
+    class ConstructedStringOptions {
+        @Setting(options = ConstructedOptions::class)
+        var text: String? = null
     }
 
     class MissingIncrement {
@@ -133,7 +160,7 @@ class SettingsTests {
     @Test
     fun rejectsInvalidSettingDeclarations() {
         assertEquals(
-            "Unsupported @Setting type for text: String",
+            "Unsupported @Setting type for number: int",
             assertThrows(IllegalStateException::class.java) { Unsupported().settings() }.message
         )
         assertEquals(
@@ -152,5 +179,15 @@ class SettingsTests {
             "@Setting enum choice has no selectable values",
             assertThrows(IllegalArgumentException::class.java) { EmptyEnum().settings() }.message
         )
+        assertFalse(EmptyStringOptions().settings().single().change(1))
+        assertFalse(EmptyStringOptions().settings().single().change(-1))
+        val constructed = ConstructedStringOptions()
+        assertTrue(constructed.settings().single().change(1))
+        assertEquals("Constructed", constructed.text)
+        assertFalse(constructed.settings().single().change(1))
+
+        val reverse = Example()
+        assertTrue(reverse.settings().last().change(-1))
+        assertEquals("Second", reverse.routine)
     }
 }

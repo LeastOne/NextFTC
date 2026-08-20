@@ -162,7 +162,7 @@ class ConfigTests : SubsystemTests() {
 
         assertEquals(
             listOf("Alliance", "Side", "Delay", "Responsiveness", "Robot Centric",
-                "Level"),
+                "Level", "Quanomous"),
             Config.items.map { it.key }
         )
         assertEquals("0.0s", Config.items[2].value())
@@ -306,7 +306,7 @@ class ConfigTests : SubsystemTests() {
         )
         assertEquals(
             listOf("alliance", "side", "delay", "responsiveness", "robotCentric",
-                "level"),
+                "level", "quanomous"),
             Config.Config::class.java.declaredFields
                 .filter { it.isAnnotationPresent(Setting::class.java) }
                 .map { it.name }

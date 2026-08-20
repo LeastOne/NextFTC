@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.adaptations.nextftc.config
 
+import kotlin.reflect.KClass
+
 @Target(AnnotationTarget.FIELD)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class Setting(
@@ -8,5 +10,6 @@ annotation class Setting(
     val min: Double = Double.NEGATIVE_INFINITY,
     val max: Double = Double.POSITIVE_INFINITY,
     val format: String = "",
-    val live: Boolean = false
+    val live: Boolean = false,
+    val options: KClass<out SettingOptions> = NoSettingOptions::class
 )

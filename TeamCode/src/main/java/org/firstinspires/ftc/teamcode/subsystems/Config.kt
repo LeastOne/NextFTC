@@ -9,6 +9,7 @@ import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.DiagnosticsConf
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.ConfigSubsystem
 import org.firstinspires.ftc.teamcode.game.Alliance
 import org.firstinspires.ftc.teamcode.game.Side
+import org.firstinspires.ftc.teamcode.adaptations.quanomous.Quanomous
 
 @Configurable
 object Config : ConfigSubsystem() {
@@ -37,6 +38,7 @@ object Config : ConfigSubsystem() {
         @Transient
         override var filter: String = "",
 
+        @Setting(options = Quanomous::class)
         var quanomous: String? = null
     ) : DiagnosticsConfig
 

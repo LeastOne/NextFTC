@@ -26,8 +26,31 @@ fun Field.toSettingItem(owner: Any, setting: Setting): SettingItem {
         type.isEnum -> enumSetting(owner, key, setting)
         type == Boolean::class.javaPrimitiveType -> booleanSetting(owner, key, setting)
         type == Double::class.javaPrimitiveType -> doubleSetting(owner, key, setting)
+        type == String::class.java -> stringSetting(owner, key, setting)
         else -> error("Unsupported @Setting type for $name: ${type.simpleName}")
     }
+}
+
+fun Field.stringSetting(owner: Any, key: String, setting: Setting): SettingItem {
+    val provider = setting.options.objectInstance
+        ?: setting.options.java.getDeclaredConstructor().newInstance()
+
+    return SettingItem(
+        key,
+        { get(owner) ?: "None" },
+        { direction ->
+            val values = provider.options()
+            if (values.isEmpty()) return@SettingItem false
+            val before = get(owner) as String?
+            val index = values.indexOf(before)
+            val after = values[if (index < 0) {
+                if (direction > 0) 0 else values.lastIndex
+            } else Math.floorMod(index + direction, values.size)]
+            set(owner, after)
+            before != after
+        },
+        setting.live
+    )
 }
 
 fun Field.enumSetting(owner: Any, key: String, setting: Setting): SettingItem {
