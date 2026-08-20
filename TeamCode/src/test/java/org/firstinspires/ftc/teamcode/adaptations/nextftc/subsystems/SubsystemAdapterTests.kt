@@ -7,7 +7,7 @@ import dev.nextftc.ftc.ActiveOpMode
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Level.OFF
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Logging
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Level.INFO
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Telemetry as TeamTelemetry
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.TelemetryComponent as TeamTelemetry
 import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse

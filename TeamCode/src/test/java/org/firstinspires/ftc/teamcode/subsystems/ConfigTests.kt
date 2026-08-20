@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Logging
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.ConfigSubsystem
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.ConfigSubsystem.Change.NEXT
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.ConfigSubsystem.Change.PREV
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Telemetry as TeamTelemetry
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.TelemetryComponent as TeamTelemetry
 import org.firstinspires.ftc.teamcode.game.Alliance.BLUE
 import org.firstinspires.ftc.teamcode.game.Alliance.RED
 import org.firstinspires.ftc.teamcode.game.Alliance.UNKNOWN

@@ -6,7 +6,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGREES
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit.AMPS
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Level.DEBUG
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Level.VERBOSE
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Telemetry.add
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.TelemetryComponent.add
 
 fun ServoEx.tel() {
     val source = name.humanize()

@@ -15,7 +15,7 @@ import dev.nextftc.core.subsystems.Subsystem as NextSubsystem
 import java.util.Collections
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.hardware.Hardware
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Logging
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Telemetry as TeamTelemetry
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.TelemetryComponent as TeamTelemetry
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.fixtures.DiscoveredSubsystem
 import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.junit.After

@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.adaptations.nextftc.opmodes.isAutonomous
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.opmodes.isTeleop
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.ConfigSubsystem.Change.NEXT
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.ConfigSubsystem.Change.PREV
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Telemetry
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.TelemetryComponent
 
 abstract class ConfigSubsystem : Subsystem() {
     abstract val config: Any
@@ -38,7 +38,7 @@ abstract class ConfigSubsystem : Subsystem() {
 
     override fun initialize() {
         val diagnostics = config as? DiagnosticsConfig
-        Telemetry.bind(diagnostics)
+        TelemetryComponent.bind(diagnostics)
         Logging.bind(diagnostics)
 
         state.auto = ActiveOpMode.isAutonomous
@@ -58,7 +58,7 @@ abstract class ConfigSubsystem : Subsystem() {
     }
 
     override fun periodic() {
-        items.forEach { Telemetry.config(caption(it), it.value()) }
+        items.forEach { TelemetryComponent.config(caption(it), it.value()) }
     }
 
     override fun start() {

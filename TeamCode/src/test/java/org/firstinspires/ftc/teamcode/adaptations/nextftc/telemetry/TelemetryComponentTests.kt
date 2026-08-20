@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Logging
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Level.DEBUG
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Level.INFO
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Level.VERBOSE
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Telemetry as TeamTelemetry
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.TelemetryComponent as TeamTelemetry
 import org.junit.After
 import org.junit.Before
 import org.junit.Test

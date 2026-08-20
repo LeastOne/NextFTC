@@ -4,7 +4,7 @@ import dev.nextftc.extensions.pedro.PedroComponent
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.bindings.BindingsComponent
 import org.firstinspires.ftc.teamcode.adaptations.pedropathing.PedroDrawingComponent
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.ConfigComponent
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Telemetry
+import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.TelemetryComponent
 import org.firstinspires.ftc.teamcode.subsystems.Config
 import org.firstinspires.ftc.teamcode.subsystems.Config.config
 import org.junit.Assert.assertEquals
@@ -19,7 +19,7 @@ class OpModeTests {
         val opMode = object : OpMode() {}
 
         assertNotNull(opMode)
-        assertTrue(opMode.components.contains(Telemetry))
+        assertTrue(opMode.components.contains(TelemetryComponent))
         assertEquals(1, opMode.components.count { it === BindingsComponent })
         assertTrue(opMode.components.any { it is PedroComponent })
         assertTrue(opMode.components.any { it is PedroDrawingComponent })

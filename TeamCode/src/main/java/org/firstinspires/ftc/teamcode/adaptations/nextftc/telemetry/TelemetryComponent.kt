@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Logging
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Level.OFF
 
 @Configurable
-object Telemetry : Component {
+object TelemetryComponent : Component {
     var LEVEL = OFF
     var FILTER = ""
     @field:IgnoreConfigurable
@@ -101,7 +101,7 @@ object Telemetry : Component {
 }
 
 class Tel(val source: String) {
-    fun add(level: Level, caption: String, value: Any?) = Telemetry.add(source, level, caption, value)
+    fun add(level: Level, caption: String, value: Any?) = TelemetryComponent.add(source, level, caption, value)
     fun verbose(caption: String, value: Any?) = add(Level.VERBOSE, caption, value)
     fun debug(caption: String, value: Any?) = add(Level.DEBUG, caption, value)
     fun info(caption: String, value: Any?) = add(Level.INFO, caption, value)
@@ -110,7 +110,7 @@ class Tel(val source: String) {
     fun fatal(caption: String, value: Any?) = add(Level.ASSERT, caption, value)
 
     fun add(level: Level, caption: String, value: () -> Any?) {
-        if (Telemetry.LEVEL.accepts(level)) add(level, caption, value())
+        if (TelemetryComponent.LEVEL.accepts(level)) add(level, caption, value())
     }
 
     fun verbose(caption: String, value: () -> Any?) = add(Level.VERBOSE, caption, value)
