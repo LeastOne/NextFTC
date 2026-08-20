@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.adaptations.gobilda.prism.PrismAnimations
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.hardware.device
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Subsystem
 import org.firstinspires.ftc.teamcode.game.Alliance
-import org.firstinspires.ftc.teamcode.subsystems.Config.config
+import org.firstinspires.ftc.teamcode.subsystems.Config.alliance
 import org.firstinspires.ftc.teamcode.subsystems.Config.state
 
 object Lights : Subsystem() {
@@ -30,8 +30,8 @@ object Lights : Subsystem() {
             state.started && state.teleop && Timing.playTimer.seconds() > 110 -> show(RED)
             state.started && state.teleop && Timing.playTimer.seconds() > 100 -> show(ORANGE)
             state.started && state.teleop && Timing.playTimer.seconds() > 80 -> show(WHITE)
-            config.alliance == Alliance.RED -> show(RED)
-            config.alliance == Alliance.BLUE -> show(BLUE)
+            alliance == Alliance.RED -> show(RED)
+            alliance == Alliance.BLUE -> show(BLUE)
         }
 
         tel.debug("LEDs", prism.numberOfLEDs)

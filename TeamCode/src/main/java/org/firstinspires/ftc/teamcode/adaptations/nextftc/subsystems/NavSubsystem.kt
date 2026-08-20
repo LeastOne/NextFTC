@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems
 import com.pedropathing.geometry.BezierLine
 import com.pedropathing.geometry.Pose
 import com.pedropathing.paths.Path
+import dev.nextftc.core.units.Angle
 import dev.nextftc.core.units.Distance
 import dev.nextftc.core.units.inches
 import kotlin.math.PI
@@ -34,6 +35,16 @@ abstract class NavSubsystem {
             heading.normalizeHeading()
         )
     }
+
+    fun pose(
+        x: Distance,
+        y: Distance,
+        heading: Angle,
+        axial: Axial = Axial.CENTER,
+        lateral: Lateral = Lateral.CENTER,
+        axialOffset: Distance = 0.inches,
+        lateralOffset: Distance = 0.inches
+    ) = pose(x, y, heading.inRad, axial, lateral, axialOffset, lateralOffset)
 
     fun line(start: Pose, end: Pose) = Path(BezierLine(start, end)).apply {
         setLinearHeadingInterpolation(start.heading, end.heading)

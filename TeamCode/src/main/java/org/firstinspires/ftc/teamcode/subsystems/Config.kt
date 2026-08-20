@@ -18,6 +18,9 @@ object Config : ConfigSubsystem() {
     override var config = Config()
         private set
 
+    val alliance get() = config.alliance
+    val side get() = config.side
+
     data class Config(
         @Setting
         var alliance: Alliance = Alliance.UNKNOWN,
@@ -91,8 +94,8 @@ object Config : ConfigSubsystem() {
     }
 
     fun missingAutoSettings() = listOfNotNull(
-        if (config.alliance == Alliance.UNKNOWN) "Alliance" else null,
-        if (config.side == Side.UNKNOWN) "Side" else null,
+        if (alliance == Alliance.UNKNOWN) "Alliance" else null,
+        if (side == Side.UNKNOWN) "Side" else null,
         if (config.quanomous.isNullOrBlank()) "Quanomous" else null
     )
 }

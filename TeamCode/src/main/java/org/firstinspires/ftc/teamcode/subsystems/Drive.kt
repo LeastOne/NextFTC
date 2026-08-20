@@ -11,6 +11,7 @@ import dev.nextftc.control.feedback.AngleType.RADIANS
 import dev.nextftc.control.feedback.PIDCoefficients
 import dev.nextftc.core.commands.delays.WaitUntil
 import dev.nextftc.core.units.Distance
+import dev.nextftc.core.units.deg
 import dev.nextftc.core.units.inches
 import dev.nextftc.extensions.pedro.PedroComponent.Companion.follower
 import dev.nextftc.ftc.Gamepads.gamepad1
@@ -28,7 +29,9 @@ import org.firstinspires.ftc.teamcode.game.Alliance.UNKNOWN
 import org.firstinspires.ftc.teamcode.game.Side
 import org.firstinspires.ftc.teamcode.game.Side.NORTH
 import org.firstinspires.ftc.teamcode.game.Side.UNKNOWN as UNKNOWN_SIDE
+import org.firstinspires.ftc.teamcode.subsystems.Config.alliance
 import org.firstinspires.ftc.teamcode.subsystems.Config.config
+import org.firstinspires.ftc.teamcode.subsystems.Config.side
 import org.firstinspires.ftc.teamcode.subsystems.Config.state
 
 @Configurable
@@ -68,8 +71,8 @@ object Drive : DriveSubsystem() {
         { -strafeInput.get() },
         { -turnInput.get() },
         { config.robotCentric && !chaseLocked },
-        { if (config.robotCentric || chaseLocked || config.alliance == UNKNOWN) 0.0
-          else Math.toRadians(config.alliance.sign * -90) }
+        { if (config.robotCentric || chaseLocked || alliance == UNKNOWN) 0.0
+          else alliance(-90).deg.inRad }
     ).apply {
         drive = ::calculateForward
         strafe = ::calculateStrafe
@@ -133,8 +136,8 @@ object Drive : DriveSubsystem() {
     fun setGoalLock(enabled: Boolean) {
         goalLocked =
             state.started && !config.robotCentric &&
-            config.alliance != UNKNOWN &&
-            config.side != UNKNOWN_SIDE && enabled
+            alliance != UNKNOWN &&
+            side != UNKNOWN_SIDE && enabled
     }
 
     fun setChaseLock(enabled: Boolean) {
@@ -184,7 +187,7 @@ object Drive : DriveSubsystem() {
     fun isAtElement() = Vision.element == null || follower.pose.distanceFrom(Nav.artifact) < Vision.ELEMENT_RADIUS
     fun isTooFar(pose: Pose?) = state.teleop && pose != null && follower.pose.distanceFrom(pose) > TO_FAR
     fun until(pose: Pose, distance: Distance) = WaitUntil { follower.pose.distanceFrom(pose) < distance.inIn }
-    fun untilHeading(degrees: Double) = WaitUntil { abs(Nav.goalHeadingRemaining) < Math.toRadians(degrees) }
+    fun untilHeading(degrees: Double) = WaitUntil { abs(Nav.goalHeadingRemaining) < degrees.deg.inRad }
     fun untilStill(seconds: Double) = WaitUntil { isStill(seconds) }
     fun untilAtElement() = WaitUntil(::isAtElement).thenWait(1.5)
     fun untilDepositNorth(distance: Distance) = WaitUntil {
@@ -205,11 +208,11 @@ object Drive : DriveSubsystem() {
     val toSpike0 by deferred {
         curve(
             if (follower.pose.x > 1.tiles.inIn)
-                Nav.spike0.axial(1.tiles).lateral((config.alliance.sign * 0.8).tiles)
-            else Nav.spike0.axial((-3.25).tiles).lateral((config.alliance.sign * 2.15).tiles),
+                Nav.spike0.axial(1.tiles).lateral(alliance(0.8).tiles)
+            else Nav.spike0.axial((-3.25).tiles).lateral(alliance(2.15).tiles),
             if (follower.pose.x > 1.tiles.inIn)
-                Nav.spike0.axial((-1).tiles).lateral((config.alliance.sign * -0.2).tiles)
-            else Nav.spike0.axial((-1.5).tiles).lateral((config.alliance.sign * -0.5).tiles),
+                Nav.spike0.axial((-1).tiles).lateral(alliance(-0.2).tiles)
+            else Nav.spike0.axial((-1.5).tiles).lateral(alliance(-0.5).tiles),
             Nav.spike0.axial(0.45.tiles)
         ).endAfter(3.0)
     }
@@ -218,31 +221,29 @@ object Drive : DriveSubsystem() {
         curve(
             Nav.spike1.axial(if (follower.pose.x > 1.tiles.inIn) (-0.9).tiles else (-1.85).tiles)
                 .axial(if (abs(follower.pose.y) > 1.75.tiles.inIn) (-0.75).tiles else 0.inches)
-                .lateral(if (follower.pose.x > 1.tiles.inIn) 0.inches else (config.alliance.sign * 0.3).tiles),
+                .lateral(if (follower.pose.x > 1.tiles.inIn) 0.inches else alliance(0.3).tiles),
             Nav.spike1.axial(1.4.tiles), holdEnd = false
         )
     }
 
     val toSpike2 by deferred {
         if (abs(follower.pose.y) < 1.75.tiles.inIn) curve(
-            Nav.spike2.axial((-1.1).tiles)
-                .lateral((config.alliance.sign * follower.pose.x.sign * -0.3).tiles),
+            Nav.spike2.axial((-1.1).tiles).lateral(alliance(follower.pose.x.sign * -0.3).tiles),
             Nav.spike2.axial(1.3.tiles), holdEnd = false
         ) else curve(
-            Nav.spike2.axial((-0.4).tiles).lateral((config.alliance.sign * -0.7).tiles),
-            Nav.spike2.axial((-0.4).tiles).lateral((config.alliance.sign * 0.2).tiles),
+            Nav.spike2.axial((-0.4).tiles).lateral(alliance(-0.7).tiles),
+            Nav.spike2.axial((-0.4).tiles).lateral(alliance(0.2).tiles),
             Nav.spike2.axial(1.3.tiles), holdEnd = false
         )
     }
 
     val toSpike3 by deferred {
         if (abs(follower.pose.y) < 1.75.tiles.inIn) curve(
-            Nav.spike3.axial((-1.5).tiles)
-                .lateral((config.alliance.sign * follower.pose.x.sign * -0.2).tiles),
+            Nav.spike3.axial((-1.5).tiles).lateral(alliance(follower.pose.x.sign * -0.2).tiles),
             Nav.spike3.axial(1.tiles), holdEnd = false
         ) else curve(
-            Nav.spike3.axial((-0.4).tiles).lateral((config.alliance.sign * 0.7).tiles),
-            Nav.spike3.axial((-0.4).tiles).lateral((config.alliance.sign * -0.2).tiles),
+            Nav.spike3.axial((-0.4).tiles).lateral(alliance(0.7).tiles),
+            Nav.spike3.axial((-0.4).tiles).lateral(alliance(-0.2).tiles),
             Nav.spike3.axial(1.tiles), holdEnd = false
         )
     }
@@ -254,7 +255,7 @@ object Drive : DriveSubsystem() {
             ) else {
                 curve(
                     if (follower.pose.x > -1.tiles.inIn)
-                        Pose(follower.pose.x, config.alliance.sign * -0.5)
+                        Pose(follower.pose.x, alliance(-0.5))
                     else follower.pose.midpoint(Nav.depositSouth(axial, lateral)),
                     Nav.depositSouth(axial, lateral)
                 )
@@ -272,14 +273,14 @@ object Drive : DriveSubsystem() {
 
     val toGateIntake by deferred {
         curve(
-            Nav.gateIntake.axial(-0.1.tiles).lateral((config.alliance.sign * -0.3).tiles),
+            Nav.gateIntake.axial(-0.1.tiles).lateral(alliance(-0.3).tiles),
             Nav.gateIntake
         )
     }
 
     val toGateIntakeDepart by deferred {
         curve(
-            Nav.gateIntakeDepart.axial((config.side.sign * -0.05).tiles).lateral(-0.1.tiles),
+            Nav.gateIntakeDepart.axial(side(-0.05).tiles).lateral(-0.1.tiles),
             Nav.gateIntakeDepart,
             holdEnd = false
         )

@@ -19,6 +19,7 @@ import org.firstinspires.ftc.teamcode.adaptations.pedropathing.tiles
 import org.firstinspires.ftc.teamcode.game.Side
 import org.firstinspires.ftc.teamcode.game.Side.NORTH
 import org.firstinspires.ftc.teamcode.subsystems.Config.config
+import org.firstinspires.ftc.teamcode.subsystems.Config.side
 
 object Auto : Subsystem() {
     const val TIMEOUT = 29.5
@@ -115,8 +116,10 @@ object Auto : Subsystem() {
     )
 
     fun chaseDeposit() = Drive.chaseUnlock.then(
-        deposit(config.side),
-    ).thenWait(0.8).then(depositStop())
+        deposit(side),
+    ).thenWait(0.8).then(
+        depositStop()
+    )
 
     fun park(gate: Boolean, axial: Axial, lateral: Lateral) =
         WaitUntil(::canPark).endAfter(0.8).then(

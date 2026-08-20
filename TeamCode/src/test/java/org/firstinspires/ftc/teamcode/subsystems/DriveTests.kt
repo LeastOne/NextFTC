@@ -63,6 +63,7 @@ import org.mockito.Mockito.`when`
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KVisibility.PUBLIC
 import kotlin.reflect.full.memberProperties
+import org.firstinspires.ftc.teamcode.game.Alliance.BLUE
 import org.firstinspires.ftc.teamcode.game.Alliance.RED
 import org.firstinspires.ftc.teamcode.game.Side.NORTH
 import org.firstinspires.ftc.teamcode.game.Side.SOUTH
@@ -165,10 +166,16 @@ class DriveTests : SubsystemTests() {
 
         verify(follower).setTeleOpDrive(-0.25, 0.5, -0.75, true, 0.0)
 
+        config.alliance = RED
         config.robotCentric = false
         driverControlled.update()
 
-        verify(follower).setTeleOpDrive(-0.25, 0.5, -0.75, false, 0.0)
+        verify(follower).setTeleOpDrive(-0.25, 0.5, -0.75, false, Math.PI / 2)
+
+        config.alliance = BLUE
+        driverControlled.update()
+
+        verify(follower).setTeleOpDrive(-0.25, 0.5, -0.75, false, -Math.PI / 2)
     }
 
     @Test
@@ -454,7 +461,7 @@ class DriveTests : SubsystemTests() {
 
         Drive.setGoalLock(true)
         assertTrue(Drive.goalLocked)
-        assertTrue(driverControlled.headingOffset() != 0.0)
+        assertEquals(Math.PI / 2, driverControlled.headingOffset(), 0.0)
         assertFalse(Drive.calculateTurn(0.0).isNaN())
         Drive.setGoalLock(false)
         assertEquals(0.25, Drive.calculateTurn(0.25), 0.0)

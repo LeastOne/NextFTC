@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Subsystem
 import org.firstinspires.ftc.teamcode.adaptations.util.Debounce
 import org.firstinspires.ftc.teamcode.adaptations.pedropathing.tiles
 import org.firstinspires.ftc.teamcode.game.Alliance.RED
-import org.firstinspires.ftc.teamcode.subsystems.Config.config
+import org.firstinspires.ftc.teamcode.subsystems.Config.alliance
 import org.firstinspires.ftc.teamcode.subsystems.Config.state
 import kotlin.math.abs
 import kotlin.math.hypot
@@ -78,7 +78,7 @@ object Intake : Subsystem() {
         val bumperPosition = if (
             hypot(follower.pose.x - Nav.gateIntake.x, follower.pose.y - Nav.gateIntake.y) < 1.tiles.inIn
         ) {
-            if (config.alliance == RED) 1.0 else 0.0
+            if (alliance == RED) 1.0 else 0.0
         } else {
             1 - max(0.0, follower.pose.y.sign * (abs(follower.pose.y) - abs(follower.pose.x)).sign)
         }

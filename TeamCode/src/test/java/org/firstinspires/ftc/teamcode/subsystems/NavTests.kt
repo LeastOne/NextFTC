@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.subsystems
 
 import com.pedropathing.geometry.Pose
 import com.pedropathing.follower.Follower
+import dev.nextftc.core.units.deg
 import dev.nextftc.extensions.pedro.PedroComponent
 import dev.nextftc.core.units.inches
 import kotlin.math.PI
@@ -62,6 +63,9 @@ class NavTests : SubsystemTests() {
         assertEquals(1.0, centered.x, 0.0)
         assertEquals(2.0, centered.y, 0.0)
         assertEquals(0.0, centered.heading, 0.0)
+
+        val angled = Nav.pose(1.inches, 2.inches, 90.deg)
+        assertEquals(PI / 2, angled.heading, 0.0)
     }
 
     @Test

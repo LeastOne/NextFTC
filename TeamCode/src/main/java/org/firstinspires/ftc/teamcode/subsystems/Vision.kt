@@ -6,6 +6,7 @@ import com.qualcomm.hardware.limelightvision.LLResult
 import com.qualcomm.hardware.limelightvision.Limelight3A
 import com.qualcomm.robotcore.util.ElapsedTime
 import dev.nextftc.core.commands.delays.WaitUntil
+import dev.nextftc.core.units.deg
 import dev.nextftc.extensions.pedro.PedroComponent.Companion.follower
 import kotlin.math.PI
 import kotlin.math.abs
@@ -24,6 +25,7 @@ import org.firstinspires.ftc.teamcode.adaptations.pedropathing.axial
 import org.firstinspires.ftc.teamcode.adaptations.pedropathing.lateral
 import org.firstinspires.ftc.teamcode.adaptations.pedropathing.tiles
 import org.firstinspires.ftc.teamcode.adaptations.quanomous.Quanomous as QuanomousData
+import org.firstinspires.ftc.teamcode.subsystems.Config.alliance
 import org.firstinspires.ftc.teamcode.subsystems.Vision.Pipeline.APRIL_TAG
 import org.firstinspires.ftc.teamcode.subsystems.Vision.Pipeline.GREEN
 import org.firstinspires.ftc.teamcode.subsystems.Vision.Pipeline.PURPLE
@@ -147,7 +149,7 @@ object Vision : Subsystem() {
     }
 
     fun setBackupElement() {
-        if (element == null) element = Pose(2.5.tiles.inIn, config.alliance.sign * -2.9.tiles.inIn)
+        if (element == null) element = Pose(2.5.tiles.inIn, alliance(-2.9.tiles.inIn))
     }
 
     fun waitForElement() = WaitUntil { element != null }
@@ -163,8 +165,8 @@ object Vision : Subsystem() {
     fun processAprilTag(result: LLResult) {
         val fiducial = result.fiducialResults.firstOrNull() ?: return
 
-        if ((config.alliance == BLUE && fiducial.fiducialId != 20) ||
-            (config.alliance == RED && fiducial.fiducialId != 24)) return
+        if ((alliance == BLUE && fiducial.fiducialId != 20) ||
+            (alliance == RED && fiducial.fiducialId != 24)) return
 
         val pose = result.botpose_MT2
 
@@ -193,8 +195,8 @@ object Vision : Subsystem() {
 
     fun elementPose(targetYawDegrees: Double, targetPitchDegrees: Double): Pose {
         val height = CAMERA_Z_INCHES - ELEMENT_RADIUS / 2
-        val elevation = Math.toRadians(CAMERA_PITCH_DEGREES + targetPitchDegrees)
-        val bearing = Math.toRadians(CAMERA_YAW_DEGREES - targetYawDegrees)
+        val elevation = (CAMERA_PITCH_DEGREES + targetPitchDegrees).deg.inRad
+        val bearing = (CAMERA_YAW_DEGREES - targetYawDegrees).deg.inRad
         val distance = abs(height / tan(elevation * ELEVATION_SCALAR))
         val x = CAMERA_X_INCHES + distance * cos(bearing * BEARING_X_SCALAR)
         val y = CAMERA_Y_INCHES + distance * sin(bearing * BEARING_Y_SCALAR)

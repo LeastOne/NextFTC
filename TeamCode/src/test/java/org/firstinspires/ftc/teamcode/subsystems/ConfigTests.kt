@@ -24,7 +24,9 @@ import org.firstinspires.ftc.teamcode.game.Alliance.UNKNOWN
 import org.firstinspires.ftc.teamcode.game.Side.NORTH
 import org.firstinspires.ftc.teamcode.game.Side.SOUTH
 import org.firstinspires.ftc.teamcode.game.Side.UNKNOWN as UNKNOWN_SIDE
+import org.firstinspires.ftc.teamcode.subsystems.Config.alliance
 import org.firstinspires.ftc.teamcode.subsystems.Config.config
+import org.firstinspires.ftc.teamcode.subsystems.Config.side
 import org.firstinspires.ftc.teamcode.subsystems.Config.state
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -93,6 +95,15 @@ class ConfigTests : SubsystemTests() {
         assertFalse(state.started)
         assertEquals(0, state.setting)
         assertFalse(state.configurable)
+        assertEquals(BLUE, alliance)
+        assertEquals(SOUTH, side)
+    }
+
+    @Test
+    fun exposesCurrentAllianceAndSide() {
+        config.alliance = BLUE
+        config.side = SOUTH
+
         assertEquals(BLUE, alliance)
         assertEquals(SOUTH, side)
     }

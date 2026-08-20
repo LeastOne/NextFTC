@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.subsystems
 
 import com.google.gson.JsonObject
 import dev.nextftc.core.commands.delays.Delay
+import dev.nextftc.core.units.deg
 import kotlin.math.abs
 import kotlin.time.Duration.Companion.seconds
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Axial
@@ -11,6 +12,7 @@ import org.firstinspires.ftc.teamcode.adaptations.pedropathing.tiles
 import org.firstinspires.ftc.teamcode.adaptations.quanomous.QuanomousCompiler
 import org.firstinspires.ftc.teamcode.game.Side.NORTH
 import org.firstinspires.ftc.teamcode.game.Side.SOUTH
+import org.firstinspires.ftc.teamcode.subsystems.Config.alliance
 import org.firstinspires.ftc.teamcode.subsystems.Config.config
 
 object Quanomous : Subsystem() {
@@ -34,8 +36,8 @@ object Quanomous : Subsystem() {
         ) },
         "drive" to { step -> Auto.remaining(Auto.drive(Nav.pose(
             step["tx"].asDouble.tiles,
-            (abs(step["ty"].asDouble) * -config.alliance.sign).tiles,
-            Math.toRadians(step["h"].asDouble),
+            alliance(-abs(step["ty"].asDouble)).tiles,
+            step["h"].asDouble.deg,
             step.axial(),
             step.lateral()
         ))) }
