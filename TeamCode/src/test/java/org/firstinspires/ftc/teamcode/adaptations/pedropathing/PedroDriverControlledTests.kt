@@ -23,8 +23,9 @@ class PedroDriverControlledTests : SubsystemTests() {
         val command = PedroDriverControlled(
             Supplier { 0.5 },
             Supplier { -0.25 },
-            Supplier { 1.0 }
-        ) { robotCentric }.apply { scalar = 0.5 }
+            Supplier { 1.0 },
+            { robotCentric }
+        ).apply { scalar = 0.5 }
 
         command.start()
         command.update()
@@ -32,8 +33,8 @@ class PedroDriverControlledTests : SubsystemTests() {
         command.update()
 
         verify(follower).startTeleopDrive()
-        verify(follower).setTeleOpDrive(0.25, -0.125, 0.5, false)
-        verify(follower).setTeleOpDrive(0.25, -0.125, 0.5, true)
+        verify(follower).setTeleOpDrive(0.25, -0.125, 0.5, false, 0.0)
+        verify(follower).setTeleOpDrive(0.25, -0.125, 0.5, true, 0.0)
     }
 
     @Test
@@ -41,8 +42,9 @@ class PedroDriverControlledTests : SubsystemTests() {
         val command = PedroDriverControlled(
             Supplier { 0.0 },
             Supplier { 0.0 },
-            Supplier { 0.0 }
-        ) { false }
+            Supplier { 0.0 },
+            { false }
+        )
 
         command.stop(false)
         verify(follower, never()).breakFollowing()

@@ -6,11 +6,14 @@ import com.pedropathing.geometry.BezierCurve
 import com.pedropathing.geometry.BezierLine
 import com.pedropathing.geometry.Curve
 import com.pedropathing.geometry.Pose
+import com.pedropathing.math.Vector
 import com.pedropathing.paths.Path
 import com.pedropathing.paths.PathBuilder
 import com.pedropathing.paths.PathChain
 import com.qualcomm.robotcore.hardware.Gamepad
 import dev.nextftc.bindings.Variable
+import dev.nextftc.control.builder.controlSystem
+import dev.nextftc.control.feedback.PIDCoefficients
 import dev.nextftc.core.commands.CommandManager
 import dev.nextftc.core.commands.utility.NullCommand
 import dev.nextftc.core.units.inches
@@ -45,6 +48,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
+import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentCaptor
@@ -59,6 +63,9 @@ import org.mockito.Mockito.`when`
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KVisibility.PUBLIC
 import kotlin.reflect.full.memberProperties
+import org.firstinspires.ftc.teamcode.game.Alliance.RED
+import org.firstinspires.ftc.teamcode.game.Side.NORTH
+import org.firstinspires.ftc.teamcode.game.Side.SOUTH
 
 class DriveTests : SubsystemTests() {
     lateinit var follower: Follower
@@ -74,6 +81,8 @@ class DriveTests : SubsystemTests() {
         builder = mock(PathBuilder::class.java)
         chain = mock(PathChain::class.java)
         `when`(follower.pathBuilder()).thenReturn(builder)
+        `when`(follower.velocity).thenReturn(Vector())
+        `when`(follower.acceleration).thenReturn(Vector())
         `when`(builder.addPath(any(Curve::class.java))).thenReturn(builder)
         `when`(builder.setLinearHeadingInterpolation(anyDouble(), anyDouble(), anyDouble())).thenReturn(builder)
         `when`(builder.build()).thenReturn(chain)
@@ -85,7 +94,12 @@ class DriveTests : SubsystemTests() {
         config.robotCentric = false
         state.started = false
         state.teleop = false
+        state.auto = false
         driverControlled.scalar = POWER_HIGH
+        Vision.element = null
+        Vision.ELEMENT_RADIUS = 2.5
+        Drive.goalLocked = false
+        Drive.chaseLocked = false
         controls()
     }
 
@@ -99,14 +113,30 @@ class DriveTests : SubsystemTests() {
     @Test
     fun settingsArePanelsConfigurableWithoutExposingState() {
         assertTrue(Drive::class.java.isAnnotationPresent(Configurable::class.java))
-        assertEquals(
-            setOf("POWER_LOW", "POWER_MEDIUM", "POWER_HIGH"),
-            Drive::class.memberProperties
-                .filterIsInstance<KMutableProperty<*>>()
-                .filter { it.visibility == PUBLIC }
-                .map { it.name }
-                .toSet()
-        )
+        val settings = Drive::class.memberProperties
+            .filterIsInstance<KMutableProperty<*>>()
+            .filter { it.visibility == PUBLIC }
+            .map { it.name }
+            .toSet()
+        assertTrue(settings.containsAll(setOf("POWER_LOW", "POWER_MEDIUM", "POWER_HIGH",
+            "POWER_INTAKE", "POWER_AUTO", "ALLOWABLE_STILL", "TO_FAR")))
+        assertEquals(18, listOf(Drive.FORWARD_PID, Drive.STRAFE_PID, Drive.HEADING_PID,
+            Drive.FORWARD_KS, Drive.STRAFE_KS, Drive.TURN_KS,
+            Drive.HEADING_KS, Drive.HEADING_KV, Drive.HEADING_KA,
+            Drive.ALLOWABLE_STILL, Drive.POWER_INTAKE, Drive.POWER_AUTO,
+            Drive.TO_FAR, Drive.GOAL_LOCK_MAX_TURN, Drive.forwardController,
+            Drive.strafeController, Drive.turnController, Drive.stillTimer).size)
+        Drive.FORWARD_KS = Drive.FORWARD_KS
+        Drive.STRAFE_KS = Drive.STRAFE_KS
+        Drive.TURN_KS = Drive.TURN_KS
+        Drive.HEADING_KS = Drive.HEADING_KS
+        Drive.HEADING_KV = Drive.HEADING_KV
+        Drive.HEADING_KA = Drive.HEADING_KA
+        Drive.ALLOWABLE_STILL = Drive.ALLOWABLE_STILL
+        Drive.POWER_LOW = Drive.POWER_LOW
+        Drive.POWER_MEDIUM = Drive.POWER_MEDIUM
+        Drive.TO_FAR = Drive.TO_FAR
+        Drive.GOAL_LOCK_MAX_TURN = Drive.GOAL_LOCK_MAX_TURN
     }
 
     @Test
@@ -153,6 +183,12 @@ class DriveTests : SubsystemTests() {
         assertEquals(0.6, driverControlled.scalar, 0.0)
         high.start()
         assertEquals(0.8, driverControlled.scalar, 0.0)
+        Drive.POWER_INTAKE = 0.3
+        Drive.intakePower.start()
+        assertEquals(0.3, driverControlled.scalar, 0.0)
+        Drive.POWER_AUTO = 0.9
+        Drive.autoPower.start()
+        assertEquals(0.9, driverControlled.scalar, 0.0)
         assertTrue(low.requirements.contains(Drive))
         assertEquals("Drive.low", low.name)
         assertEquals("Drive.medium", medium.name)
@@ -400,5 +436,190 @@ class DriveTests : SubsystemTests() {
 
         periodic()
         assertSame(original, driverControlled)
+    }
+
+    @Test
+    fun lockModesTransformDriverInputs() {
+        state.started = true
+        state.teleop = true
+        config.alliance = RED
+        config.side = NORTH
+        config.robotCentric = false
+        `when`(follower.pose).thenReturn(Pose(10.0, 10.0, 0.0))
+        `when`(follower.velocity).thenReturn(Vector())
+        `when`(follower.acceleration).thenReturn(Vector())
+
+        Drive.setGoalLock(true)
+        assertTrue(Drive.goalLocked)
+        assertTrue(driverControlled.headingOffset() != 0.0)
+        assertFalse(Drive.calculateTurn(0.0).isNaN())
+        Drive.setGoalLock(false)
+        assertEquals(0.25, Drive.calculateTurn(0.25), 0.0)
+
+        Vision.element = Pose(30.0, 30.0, 0.0)
+        Drive.setChaseLock(true)
+        assertEquals(0.0, driverControlled.headingOffset(), 0.0)
+        config.robotCentric = true
+        assertFalse(driverControlled.robotCentric())
+        config.robotCentric = false
+        verify(follower).startTeleopDrive()
+        assertTrue(Drive.chaseLocked)
+        assertFalse(Drive.calculateForward(0.0).isNaN())
+        `when`(follower.pose).thenReturn(Pose(10.0, 0.0, 0.0))
+        assertFalse(Drive.calculateStrafe(0.0).isNaN())
+        assertFalse(Drive.calculateTurn(0.0).isNaN())
+
+        Vision.element = Pose(10.5, 10.5, 0.0)
+        `when`(follower.pose).thenReturn(Nav.artifact)
+        assertEquals(0.3, Drive.calculateForward(0.3), 0.0)
+        assertEquals(0.2, Drive.calculateStrafe(0.2), 0.0)
+        assertEquals(0.1, Drive.calculateTurn(0.1), 0.0)
+        Vision.element = null
+        assertEquals(0.4, Drive.calculateForward(0.4), 0.0)
+        assertEquals(0.5, Drive.calculateStrafe(0.5), 0.0)
+        assertEquals(0.6, Drive.calculateTurn(0.6), 0.0)
+        Drive.setChaseLock(false)
+
+        Vision.element = Pose(60.0, 60.0, 0.0)
+        `when`(follower.pose).thenReturn(Pose(60.0, 68.0, Math.PI / 2))
+        Drive.chaseLocked = true
+        assertEquals(0.0, Drive.calculateStrafe(0.0), 0.0)
+        assertEquals(0.0, Drive.calculateTurn(0.0), 0.0)
+        Drive.chaseLocked = false
+
+        config.robotCentric = true
+        assertTrue(driverControlled.robotCentric())
+        assertEquals(0.0, driverControlled.headingOffset(), 0.0)
+        Drive.setGoalLock(true)
+        assertFalse(Drive.goalLocked)
+        config.robotCentric = false
+        config.alliance = org.firstinspires.ftc.teamcode.game.Alliance.UNKNOWN
+        assertEquals(0.0, driverControlled.headingOffset(), 0.0)
+        Drive.setGoalLock(true)
+        assertFalse(Drive.goalLocked)
+        config.alliance = RED
+        config.side = org.firstinspires.ftc.teamcode.game.Side.UNKNOWN
+        Drive.setGoalLock(true)
+        assertFalse(Drive.goalLocked)
+        state.started = false
+        config.robotCentric = false
+        Drive.setGoalLock(true)
+        assertFalse(Drive.goalLocked)
+    }
+
+    @Test
+    fun nextControlCorrectsRemainingDistanceTowardZero() {
+        val controller = controlSystem { posPid(PIDCoefficients(0.1, 0.0, 0.0)) }
+
+        assertEquals(-1.05, Drive.correction(controller, 10.0, 0.0, 0.05), 0.0001)
+        controller.reset()
+        assertEquals(1.05, Drive.correction(controller, -10.0, 0.0, 0.05), 0.0001)
+    }
+
+    @Test
+    fun statusHelpersTrackMotionElementsAndDistance() {
+        `when`(follower.pose).thenReturn(Pose())
+        `when`(follower.acceleration).thenReturn(Vector(3.0, 0.0), Vector(), Vector(3.0, 0.0), Vector())
+        assertFalse(Drive.isStill())
+        assertTrue(Drive.isStill())
+        assertFalse(Drive.isStill(-1.0))
+        assertTrue(Drive.isStill(-1.0))
+
+        Vision.element = null
+        assertTrue(Drive.isAtElement())
+        Vision.element = Pose(100.0, 100.0)
+        assertFalse(Drive.isAtElement())
+        Config.config.alliance = RED
+        Vision.ELEMENT_RADIUS = 2.5
+        Vision.element = Pose(60.0, 60.0)
+        `when`(follower.pose).thenReturn(Pose(60.0, 68.0, Math.PI / 2))
+        assertTrue(Drive.isAtElement())
+
+        `when`(follower.pose).thenReturn(Pose())
+
+        state.teleop = false
+        assertFalse(Drive.isTooFar(Pose(100.0, 100.0)))
+        state.teleop = true
+        assertFalse(Drive.isTooFar(null))
+        assertTrue(Drive.isTooFar(Pose(100.0, 100.0)))
+        assertFalse(Drive.isTooFar(Pose()))
+
+        Config.config.alliance = RED
+        Config.config.side = NORTH
+        `when`(follower.pose).thenReturn(Nav.depositNorth())
+        assertTrue(Drive.untilDepositNorth((-1).inches).isDone)
+        assertFalse(Drive.untilDepositNorth(1.inches).isDone)
+        assertFalse(Drive.untilHeading(0.0).isDone)
+        assertTrue(Drive.untilHeading(360.0).isDone)
+        assertTrue(Drive.untilStill(-1.0).isDone)
+        assertFalse(Drive.until(Pose(), 1.inches).isDone)
+        assertTrue(Drive.until(Nav.depositNorth(), 1.inches).isDone)
+        assertTrue(Drive.untilDepositNorth(1.inches).isDone.not())
+        `when`(follower.pose).thenReturn(Pose())
+        assertFalse(Drive.untilDepositNorth((-1).inches).isDone)
+        assertTrue(Drive.untilDepositNorth(1.inches).isDone)
+    }
+
+    @Test
+    fun autonomousRoutesCoverEveryFieldEntry() {
+        Config.config.alliance = RED
+        Config.config.side = NORTH
+        listOf(
+            Pose(60.0, -60.0),
+            Pose(0.0, -60.0),
+            Pose(60.0, -20.0),
+            Pose(0.0, -20.0)
+        ).forEachIndexed { index, pose ->
+            `when`(follower.pose).thenReturn(pose)
+            val command = Drive.toSpike(index)
+            command.start()
+            command.stop(true)
+        }
+        listOf(Pose(60.0, -60.0), Pose(0.0, -60.0), Pose(0.0, 0.0)).forEach { pose ->
+            `when`(follower.pose).thenReturn(pose)
+            listOf(Drive.toSpike0, Drive.toSpike1, Drive.toSpike2, Drive.toSpike3)
+                .forEach { it.start(); it.stop(true) }
+        }
+        val invalid = Drive.toSpike(4)
+        assertThrows(IllegalStateException::class.java) { invalid.start() }
+
+        `when`(follower.pose).thenReturn(Pose(-60.0, -20.0))
+        listOf(
+            Drive.toDeposit(SOUTH),
+            Drive.toDeposit(NORTH),
+            Drive.toGate,
+            Drive.toGateIntake,
+            Drive.toGateIntakeDepart,
+            Drive.toBase,
+            Drive.toParking(true, org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Axial.CENTER,
+                org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Lateral.CENTER),
+            Drive.toChaseScan,
+            Drive.toChase(1)
+        ).forEach { command ->
+            command.start()
+            command.stop(true)
+        }
+
+        `when`(follower.pose).thenReturn(Pose(0.0, -20.0))
+        Drive.toDeposit(SOUTH).run { start(); stop(true) }
+        `when`(follower.pose).thenReturn(Pose(60.0, -20.0))
+        Drive.toDeposit(SOUTH).run { start(); stop(true) }
+    }
+
+    @Test
+    fun autonomousInitializationAndChaseCommandUseAutoPower() {
+        state.auto = true
+        Drive.POWER_AUTO = 0.85
+        initialize()
+        assertEquals(0.85, driverControlled.scalar, 0.0)
+
+        Drive.chaseControlled.start()
+        Drive.chaseControlled.update()
+        Drive.chaseControlled.stop(false)
+        Drive.goalLock.start()
+        Drive.goalUnlock.start()
+        Drive.chaseLock.start()
+        Drive.chaseUnlock.start()
+        assertEquals("Drive.chaseControlled", Drive.chaseControlled.name)
     }
 }

@@ -47,6 +47,10 @@ captures/
 !.idea/dictionaries/
 .idea/dictionaries/*
 !.idea/dictionaries/3DRD.xml
+!.idea/inspectionProfiles/
+.idea/inspectionProfiles/*
+!.idea/inspectionProfiles/NextFTC.xml
+!.idea/inspectionProfiles/profiles_settings.xml
 
 # For Mac users
 .DS_Store

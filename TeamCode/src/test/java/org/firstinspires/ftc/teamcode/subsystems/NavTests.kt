@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
 import com.pedropathing.geometry.Pose
+import com.pedropathing.follower.Follower
+import dev.nextftc.extensions.pedro.PedroComponent
 import dev.nextftc.core.units.inches
 import kotlin.math.PI
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Axial.BACK
@@ -18,17 +20,38 @@ import org.firstinspires.ftc.teamcode.game.Side.SOUTH
 import org.firstinspires.ftc.teamcode.game.Side.UNKNOWN as UNKNOWN_SIDE
 import org.junit.Assert.assertEquals
 import org.junit.After
+import org.junit.Before
 import org.junit.Test
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.`when`
 
-class NavTests {
+class NavTests : SubsystemTests() {
+    lateinit var follower: Follower
+    lateinit var component: PedroComponent
+
+    @Before
+    fun setUp() {
+        follower = mock(Follower::class.java)
+        component = PedroComponent { follower }.apply { preInit() }
+        `when`(follower.pose).thenReturn(Pose())
+        Vision.element = null
+        Vision.botpose = null
+    }
+
     @After
     fun resetConfig() {
         Config.config.alliance = UNKNOWN
         Config.config.side = UNKNOWN_SIDE
+        component.postStop()
     }
 
     @Test
     fun createsCenteredPosesFromDistances() {
+        listOf(Nav.GOAL_DISTANCE_OFFSET_NORTH, Nav.GOAL_DISTANCE_OFFSET_SOUTH,
+            Nav.GOAL_ANGLE_OFFSET_NORTH, Nav.GOAL_ANGLE_OFFSET_SOUTH)
+            .forEach { assertFalse(it.isNaN()) }
         assertEquals(14.25, Nav.robotLength.inIn, 0.0001)
         assertEquals(11.375, Nav.robotWidth.inIn, 0.0001)
         val centered = Nav.pose(1.inches, 2.inches)
@@ -125,5 +148,84 @@ class NavTests {
         assertEquals(end, path.lastControlPoint)
         assertEquals(start.heading, path.getHeadingGoal(0.0), 0.0)
         assertEquals(end.heading, path.getHeadingGoal(1.0), 0.0)
+    }
+
+    @Test
+    fun seasonPosesReflectAllianceSideAndApproach() {
+        Config.config.alliance = RED
+        Config.config.side = NORTH
+        `when`(follower.pose).thenReturn(Pose(0.0, 0.0))
+        listOf(Nav.spike0, Nav.spike1, Nav.spike2, Nav.spike3, Nav.gate,
+            Nav.gateIntake, Nav.gateIntakeDepart, Nav.goal, Nav.chaseScan, Nav.base)
+            .forEach { assertFalse(it.x.isNaN()) }
+        assertFalse(Nav.depositSouth().heading.isNaN())
+        assertFalse(Nav.depositNorth().heading.isNaN())
+
+        Config.config.alliance = BLUE
+        Config.config.side = SOUTH
+        assertFalse(Nav.gate.x.isNaN())
+        `when`(follower.pose).thenReturn(Pose(-60.0, 0.0))
+        assertFalse(Nav.spike0.heading.isNaN())
+        assertFalse(Nav.depositSouth(1.inches, 2.inches).heading.isNaN())
+        assertFalse(Nav.depositNorth().heading.isNaN())
+
+        `when`(follower.pose).thenReturn(Pose(60.0, 0.0))
+        assertFalse(Nav.depositSouth().heading.isNaN())
+    }
+
+    @Test
+    fun artifactsUseVisionOrAStableBackup() {
+        Config.config.alliance = RED
+        `when`(follower.pose).thenReturn(Pose(50.0, -10.0, 0.2))
+        assertEquals(Nav.backupArtifact.x, Nav.artifact.x, 0.0)
+        assertEquals(Nav.backupArtifact.y, Nav.artifact.y, 0.0)
+        assertFalse(Nav.chase(2).x.isNaN())
+
+        Vision.element = Pose(60.0, -65.0, -PI / 2)
+        assertEquals(60.0, Nav.chase(2).x, 0.0)
+        assertEquals(60.0, Nav.artifact.x, 0.0)
+        assertFalse(Nav.artifactForwardRemaining.isNaN())
+        assertFalse(Nav.artifactStrafeRemaining.isNaN())
+        assertFalse(Nav.artifactHeadingRemaining.isNaN())
+
+        `when`(follower.pose).thenReturn(Nav.artifact)
+        assertEquals(Nav.artifact.y, Nav.artifactApproachY(Nav.artifact), 0.0)
+        `when`(follower.pose).thenReturn(Pose(0.0, 0.0))
+        assertEquals(Nav.robotLength.inIn / 2, Nav.artifactApproachY(Nav.artifact), 0.0)
+        `when`(follower.pose).thenReturn(Pose(0.0, 70.0))
+        assertTrue(Nav.artifactApproachY(Nav.artifact) < 70.0)
+        `when`(follower.pose).thenReturn(Pose(0.0, 30.0))
+        assertEquals(30.0, Nav.artifactApproachY(Nav.artifact), 0.0)
+        assertEquals(-70.0, Nav.allianceSideY(-70.0), 0.0)
+    }
+
+    @Test
+    fun parkingAndGoalTargetingCoverFieldVariations() {
+        Config.config.alliance = RED
+        Config.config.side = NORTH
+        assertFalse(Nav.parking(true).x.isNaN())
+        assertFalse(Nav.parking(false, FRONT, LEFT).x.isNaN())
+
+        Config.config.alliance = BLUE
+        Config.config.side = SOUTH
+        assertFalse(Nav.parking(false, BACK, RIGHT).x.isNaN())
+
+        Nav.GOAL_DISTANCE_OFFSET_NORTH = 1.0
+        Nav.GOAL_DISTANCE_OFFSET_SOUTH = 2.0
+        Nav.GOAL_ANGLE_OFFSET_NORTH = 3.0
+        Nav.GOAL_ANGLE_OFFSET_SOUTH = 4.0
+        `when`(follower.pose).thenReturn(Pose(60.0, 20.0, 0.5))
+        Vision.botpose = Pose(59.0, 19.0, 0.5)
+        assertEquals(1.0, Nav.goalDistanceOffset, 0.0)
+        assertFalse(Nav.goalDistance.isNaN())
+        assertFalse(Nav.goalHeadingOffset.isNaN())
+        assertFalse(Nav.goalHeadingRemaining.isNaN())
+
+        `when`(follower.pose).thenReturn(Pose(-60.0, 20.0, 0.5))
+        Vision.botpose = null
+        assertEquals(2.0, Nav.goalDistanceOffset, 0.0)
+        assertFalse(Nav.goalDistance.isNaN())
+        assertFalse(Nav.goalHeadingRemaining.isNaN())
+        assertTrue(Nav.goalHeadingOffset != 0.0)
     }
 }
