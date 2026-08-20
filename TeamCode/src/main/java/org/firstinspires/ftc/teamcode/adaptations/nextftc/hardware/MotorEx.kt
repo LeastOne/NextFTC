@@ -27,6 +27,9 @@ class MotorEx private constructor(
     )
 
     val motor get() = motorEx.motor
+    var velocityPercentage: Double
+        get() = velocity / motor.motorType.achieveableMaxTicksPerSecond
+        set(value) { motor.velocity = motor.motorType.achieveableMaxTicksPerSecond * value }
 
     override fun initialize() {
         motor

@@ -15,6 +15,7 @@ import org.mockito.Mockito.clearInvocations
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
+import org.junit.Assert.assertEquals
 
 class MotorExTests : SubsystemTests() {
     @Before
@@ -68,5 +69,20 @@ class MotorExTests : SubsystemTests() {
         verify(telemetry).addData("D | Test Motor | Position", 42 as Any)
         verify(telemetry).addData("V | Test Motor | Velocity (%)", "50.3" as Any)
         verify(telemetry).addData("V | Test Motor | RPM", "121" as Any)
+    }
+
+    @Test
+    fun getsAndSetsVelocityAsAPercentageOfTheConfiguredMaximum() {
+        val motor = MotorEx("percentage")
+        motor.initialize()
+        val type = mock(MotorConfigurationType::class.java)
+        `when`(motor.motor.motorType).thenReturn(type)
+        `when`(type.achieveableMaxTicksPerSecond).thenReturn(500.0)
+        `when`(motor.motor.velocity).thenReturn(125.0)
+
+        assertEquals(0.25, motor.velocityPercentage, 0.0)
+        motor.velocityPercentage = 0.5
+
+        verify(motor.motor).velocity = 250.0
     }
 }
