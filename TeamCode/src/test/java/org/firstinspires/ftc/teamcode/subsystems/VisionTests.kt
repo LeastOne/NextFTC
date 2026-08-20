@@ -15,7 +15,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Position
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.ConfigComponent
-import org.firstinspires.ftc.teamcode.adaptations.quanomous.Quanomous
+import org.firstinspires.ftc.teamcode.adaptations.quanomous.Quanomous as QuanomousData
 import org.firstinspires.ftc.teamcode.adaptations.quanomous.QuanomousStorage
 import org.firstinspires.ftc.teamcode.adaptations.vision.Pipeline.APRIL_TAG
 import org.firstinspires.ftc.teamcode.adaptations.vision.Pipeline.GREEN
@@ -59,10 +59,10 @@ class VisionTests : SubsystemTests() {
         state.started = false
         state.teleop = false
         ConfigComponent.onChange = {}
-        Quanomous.storage = QuanomousStorage(Files.createTempDirectory("vision-quanomous").toFile())
-        Quanomous.decoder = { Base64.getDecoder().decode(it) }
-        Quanomous.lastHash = null
-        Quanomous.lastName = null
+        QuanomousData.storage = QuanomousStorage(Files.createTempDirectory("vision-quanomous").toFile())
+        QuanomousData.decoder = { Base64.getDecoder().decode(it) }
+        QuanomousData.lastHash = null
+        QuanomousData.lastName = null
         clearInvocations(Vision.limelight)
     }
 
@@ -70,10 +70,10 @@ class VisionTests : SubsystemTests() {
     fun tearDown() {
         pedro.postStop()
         Vision.timer = ElapsedTime()
-        Quanomous.storage = QuanomousStorage()
-        Quanomous.decoder = { android.util.Base64.decode(it, android.util.Base64.NO_WRAP) }
-        Quanomous.lastHash = null
-        Quanomous.lastName = null
+        QuanomousData.storage = QuanomousStorage()
+        QuanomousData.decoder = { android.util.Base64.decode(it, android.util.Base64.NO_WRAP) }
+        QuanomousData.lastHash = null
+        QuanomousData.lastName = null
     }
 
     @Test
@@ -225,7 +225,7 @@ class VisionTests : SubsystemTests() {
         Vision.processQrCode(result)
 
         assertEquals(1, changes)
-        assertEquals(Quanomous.options().single(), config.quanomous)
+        assertEquals(QuanomousData.options().single(), config.quanomous)
     }
 
     @Test

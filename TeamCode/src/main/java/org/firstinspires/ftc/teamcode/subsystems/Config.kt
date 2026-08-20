@@ -6,9 +6,9 @@ import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.Diagnostics.Lev
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.Setting
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.SettingItem
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.ConfigSubsystem
-import org.firstinspires.ftc.teamcode.adaptations.quanomous.Quanomous
 import org.firstinspires.ftc.teamcode.game.Alliance
 import org.firstinspires.ftc.teamcode.game.Side
+import org.firstinspires.ftc.teamcode.adaptations.quanomous.Quanomous as QuanomousData
 
 @Configurable
 object Config : ConfigSubsystem() {
@@ -37,7 +37,7 @@ object Config : ConfigSubsystem() {
         @Transient
         var filter: String = "",
 
-        @Setting(options = Quanomous::class)
+        @Setting(options = QuanomousData::class)
         var quanomous: String? = null
     )
 

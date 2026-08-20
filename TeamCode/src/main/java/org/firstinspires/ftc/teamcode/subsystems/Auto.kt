@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
-import com.google.gson.JsonObject
 import com.pedropathing.geometry.Pose
 import dev.nextftc.core.commands.Command
 import dev.nextftc.core.commands.delays.Delay
@@ -8,7 +7,6 @@ import dev.nextftc.core.commands.delays.WaitUntil
 import dev.nextftc.core.units.Distance
 import dev.nextftc.core.units.inches
 import dev.nextftc.extensions.pedro.PedroComponent.Companion.follower
-import kotlin.math.abs
 import kotlin.math.max
 import kotlin.time.Duration.Companion.seconds
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.commands.alongWith
@@ -20,7 +18,6 @@ import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Subsystem
 import org.firstinspires.ftc.teamcode.adaptations.pedropathing.pct
 import org.firstinspires.ftc.teamcode.adaptations.pedropathing.resetStartingPose
 import org.firstinspires.ftc.teamcode.adaptations.pedropathing.tiles
-import org.firstinspires.ftc.teamcode.adaptations.quanomous.QuanomousCompiler
 import org.firstinspires.ftc.teamcode.game.Side
 import org.firstinspires.ftc.teamcode.game.Side.NORTH
 import org.firstinspires.ftc.teamcode.game.Side.SOUTH
@@ -28,33 +25,6 @@ import org.firstinspires.ftc.teamcode.subsystems.Config.config
 
 object Auto : Subsystem() {
     const val TIMEOUT = 29.5
-
-    val compiler by lazy { QuanomousCompiler(mapOf(
-        "delay" to { step -> Delay(step["seconds"].asDouble.seconds) },
-        "intake" to { step -> remaining(intake(step["spike"].asInt)) },
-        "intake_gate" to { remaining(gateIntake()) },
-        "deposit" to { step -> remaining(deposit(
-            if (step["locale"].asString == "near") SOUTH else NORTH,
-            step["txo"].asDouble.tiles,
-            step["tyo"].asDouble.tiles
-        )) },
-        "release" to { remaining(releaseGate()) },
-        "chase" to { step -> remaining(chase(step["cycles"].asInt.let {
-            if (it == 0) Int.MAX_VALUE else it
-        })) },
-        "park" to { step -> park(
-            step.boolean("gate"),
-            step.axial(),
-            step.lateral()
-        ) },
-        "drive" to { step -> remaining(drive(Nav.pose(
-            step["tx"].asDouble.tiles,
-            (abs(step["ty"].asDouble) * -config.alliance.sign).tiles,
-            Math.toRadians(step["h"].asDouble),
-            step.axial(),
-            step.lateral()
-        ))) }
-    )) }
 
     val locate by instant { follower.resetStartingPose(Nav.start) }
 
@@ -178,7 +148,8 @@ object Auto : Subsystem() {
         Drive.toPark.alongWith(Drive.until(25.pct).then(Deflector.down))
     )
 
-    fun selected() = if (config.quanomous == null) sample() else compiler.load(config.quanomous!!)
+    fun selected() = if (config.quanomous == null) sample()
+        else Quanomous.load(config.quanomous!!)
 
     fun stopAll() = goalLock(false).then(
         Drive.chaseUnlock,
@@ -197,23 +168,5 @@ object Auto : Subsystem() {
 
     fun remaining(command: Command) = deferred(*command.requirements.toTypedArray()) {
         command.endAfter(max(0.0, TIMEOUT - Timing.playTimer.seconds()))
-    }
-
-    fun JsonObject.boolean(name: String, default: Boolean = false) =
-        get(name)?.asBoolean ?: default
-
-    fun JsonObject.text(name: String, default: String = "center") =
-        get(name)?.asString ?: default
-
-    fun JsonObject.axial() = when (text("axial").lowercase()) {
-        "front" -> Axial.FRONT
-        "back" -> Axial.BACK
-        else -> Axial.CENTER
-    }
-
-    fun JsonObject.lateral() = when (text("lateral").lowercase()) {
-        "left" -> Lateral.LEFT
-        "right" -> Lateral.RIGHT
-        else -> Lateral.CENTER
     }
 }

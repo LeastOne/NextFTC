@@ -23,7 +23,7 @@ import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Subsystem
 import org.firstinspires.ftc.teamcode.adaptations.pedropathing.axial
 import org.firstinspires.ftc.teamcode.adaptations.pedropathing.lateral
 import org.firstinspires.ftc.teamcode.adaptations.pedropathing.tiles
-import org.firstinspires.ftc.teamcode.adaptations.quanomous.Quanomous
+import org.firstinspires.ftc.teamcode.adaptations.quanomous.Quanomous as QuanomousData
 import org.firstinspires.ftc.teamcode.adaptations.vision.Pipeline
 import org.firstinspires.ftc.teamcode.adaptations.vision.Pipeline.APRIL_TAG
 import org.firstinspires.ftc.teamcode.adaptations.vision.Pipeline.GREEN
@@ -151,7 +151,7 @@ object Vision : Subsystem() {
 
     fun processQrCode(result: LLResult) {
         result.barcodeResults.forEach { barcode ->
-            config.quanomous = Quanomous.process(barcode.data)
+            config.quanomous = QuanomousData.process(barcode.data)
             ConfigComponent.changed()
             log.info("QR Code | ${barcode.family} | ${barcode.data}")
         }

@@ -7,8 +7,6 @@ import dev.nextftc.core.commands.groups.ParallelGroup
 import dev.nextftc.core.commands.groups.CommandGroup
 import dev.nextftc.core.commands.Command
 import com.google.gson.JsonParser
-import com.google.gson.JsonObject
-import com.google.gson.JsonElement
 import dev.nextftc.extensions.pedro.PedroComponent
 import dev.nextftc.ftc.ActiveOpMode
 import org.junit.Assert.assertEquals
@@ -24,7 +22,7 @@ import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.mockito.ArgumentCaptor
 import java.nio.file.Files
-import org.firstinspires.ftc.teamcode.adaptations.quanomous.Quanomous
+import org.firstinspires.ftc.teamcode.adaptations.quanomous.Quanomous as QuanomousData
 import org.firstinspires.ftc.teamcode.adaptations.quanomous.QuanomousStorage
 
 class AutoTests {
@@ -41,13 +39,13 @@ class AutoTests {
         component.preInit()
         Config.config.delay = 0.0
         Config.config.quanomous = null
-        Quanomous.storage = QuanomousStorage(Files.createTempDirectory("auto-quanomous").toFile())
+        QuanomousData.storage = QuanomousStorage(Files.createTempDirectory("auto-quanomous").toFile())
     }
 
     @After
     fun tearDown() {
         component.postStop()
-        Quanomous.storage = QuanomousStorage()
+        QuanomousData.storage = QuanomousStorage()
     }
 
     @Test
@@ -98,7 +96,7 @@ class AutoTests {
             {"cmd":"park","gate":true,"axial":"front","lateral":"right"},
             {"cmd":"drive","tx":1,"ty":2,"h":90,"axial":"back","lateral":"left"}
         ]""").asJsonArray
-        Quanomous.storage.save("routine.json", steps)
+        QuanomousData.storage.save("routine.json", steps)
         Config.config.quanomous = "routine.json"
 
         val selected = Auto.selected() as dev.nextftc.core.commands.groups.SequentialGroup
@@ -139,45 +137,7 @@ class AutoTests {
     }
 
     @Test
-    fun parsesOptionalQuanomousArguments() {
-        val empty = JsonObject()
-        assertFalse(with(Auto) { empty.boolean("gate") })
-        assertEquals("center", with(Auto) { empty.text("axial") })
-        assertEquals("other", with(Auto) { empty.text("missing", "other") })
-        val nullableText = mock(JsonObject::class.java)
-        val nullableElement = mock(JsonElement::class.java)
-        `when`(nullableText.get("value")).thenReturn(nullableElement)
-        `when`(nullableElement.asString).thenReturn(null)
-        assertEquals("fallback", with(Auto) { nullableText.text("value", "fallback") })
-        assertEquals(org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Axial.CENTER,
-            with(Auto) { empty.axial() })
-        assertEquals(org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Lateral.CENTER,
-            with(Auto) { empty.lateral() })
-
-        fun options(axial: String, lateral: String) = JsonObject().apply {
-            addProperty("gate", true)
-            addProperty("axial", axial)
-            addProperty("lateral", lateral)
-        }
-        val frontLeft = options("FRONT", "LEFT")
-        assertTrue(with(Auto) { frontLeft.boolean("gate") })
-        assertEquals(org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Axial.FRONT,
-            with(Auto) { frontLeft.axial() })
-        assertEquals(org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Lateral.LEFT,
-            with(Auto) { frontLeft.lateral() })
-        val backRight = options("back", "right")
-        assertEquals(org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Axial.BACK,
-            with(Auto) { backRight.axial() })
-        assertEquals(org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Lateral.RIGHT,
-            with(Auto) { backRight.lateral() })
-
-        val variants = JsonParser().parse("""[
-            {"cmd":"deposit","locale":"far","txo":0,"tyo":0},
-            {"cmd":"chase","cycles":0}
-        ]""").asJsonArray
-        assertEquals(2, Auto.compiler.compile(variants)
-            .let { it as dev.nextftc.core.commands.groups.SequentialGroup }.commands.size)
-
+    fun parkWaitsUntilGoalLockIsReleased() {
         Drive.goalLocked = true
         assertFalse(Auto.canPark())
         assertFalse(Auto.park(false,
