@@ -4,12 +4,17 @@
 
 - Favor the smallest straightforward implementation that remains readable to student programmers.
 - Prefer concise, idiomatic Kotlin over Java-style ceremony.
+- Prefer a small set of recognizable local precedents over showcasing every valid Kotlin form. Format neighboring declarations that serve the same role consistently, even when one could be made marginally shorter.
+- Keep simple expression-bodied functions, properties, short argument lists, and trivial command lambdas on one line. Expand them when the logic has meaningful structure, then use a consistent multiline shape across analogous declarations.
+- A short lambda containing only a few obvious assignments may remain on one line with semicolons; use a multiline body once branching, sequencing, or side effects would become easy to miss.
+- Use blank lines to separate conceptual groups and phases, such as hardware, state, commands, lifecycle methods, calculations, and telemetry. Avoid blank lines that fragment a single logical operation.
+- Prefer direct delegated hardware declarations and direct expressions over one-use intermediary properties or local aliases, unless the intermediary provides meaningful naming, snapshot semantics, reuse, or readability.
 - Introduce encapsulation, indirection, lazy evaluation, naming ceremony, or new abstractions only when they solve a demonstrated problem.
 - Do not add visibility modifiers merely by habit. Use restricted visibility when it prevents a concrete misuse or clarifies an important boundary.
 - Prefer direct imports of frequently used singleton members, such as `gamepad2`, over repeated qualified references.
 - Keep Panels-adjustable configuration as plainly visible mutable subsystem properties. Do not turn those values into constants merely to silence IDE suggestions.
 - Mark Panels-configurable singleton objects with `@Configurable`; their mutable Kotlin properties are discoverable without `@JvmField`.
-- Mark mutable implementation state in a configurable object with `@field:IgnoreConfigurable` so Panels exposes only intentional settings.
+- Do not add `@field:IgnoreConfigurable` to implementation state preemptively. Use it only when Panels exposure causes a demonstrated technical or usability problem.
 
 ## Subsystems and commands
 
