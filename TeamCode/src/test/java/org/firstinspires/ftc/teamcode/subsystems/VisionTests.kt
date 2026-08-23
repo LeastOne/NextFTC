@@ -14,9 +14,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.RADIANS
 import org.firstinspires.ftc.robotcore.external.navigation.Position
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.ConfigComponent
-import org.firstinspires.ftc.teamcode.adaptations.quanomous.Quanomous as QuanomousData
-import org.firstinspires.ftc.teamcode.adaptations.quanomous.QuanomousStorage
+import org.firstinspires.ftc.threedrd.nextftc.config.ConfigComponent
+import org.firstinspires.ftc.threedrd.quanomous.Quanomous as QuanomousData
+import org.firstinspires.ftc.threedrd.quanomous.QuanomousStorage
 import org.firstinspires.ftc.teamcode.game.Alliance.BLUE
 import org.firstinspires.ftc.teamcode.game.Alliance.RED
 import org.firstinspires.ftc.teamcode.subsystems.Config.config

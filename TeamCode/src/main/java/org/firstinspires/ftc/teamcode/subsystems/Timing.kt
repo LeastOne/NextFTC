@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.subsystems
 import com.bylazar.configurables.annotations.Configurable
 import com.qualcomm.robotcore.util.ElapsedTime
 import dev.nextftc.ftc.ActiveOpMode
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Subsystem
+import org.firstinspires.ftc.threedrd.nextftc.subsystems.Subsystem
 
 @Configurable
 object Timing : Subsystem() {

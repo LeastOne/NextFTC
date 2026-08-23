@@ -1,9 +1,9 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
 import com.bylazar.configurables.annotations.Configurable
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.hardware.ServoEx
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.hardware.update
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Subsystem
+import org.firstinspires.ftc.threedrd.nextftc.hardware.ServoEx
+import org.firstinspires.ftc.threedrd.nextftc.hardware.update
+import org.firstinspires.ftc.threedrd.nextftc.subsystems.Subsystem
 
 import dev.nextftc.ftc.Gamepads.gamepad2
 

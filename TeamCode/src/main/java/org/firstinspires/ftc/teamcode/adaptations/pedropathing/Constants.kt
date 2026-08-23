@@ -10,8 +10,14 @@ import com.pedropathing.ftc.localization.constants.PinpointConstants
 import com.pedropathing.paths.PathConstraints
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver.EncoderDirection.FORWARD
 import com.qualcomm.robotcore.hardware.HardwareMap
+import dev.nextftc.core.units.inches
+import kotlin.math.max
 
 object Constants {
+    val robotLength = 14.25.inches
+    val robotWidth = 11.375.inches
+    val robotRadius = max(robotLength.inIn, robotWidth.inIn) / 2
+
     var followerConstants = FollowerConstants()
         .mass(12.5628)
         .forwardZeroPowerAcceleration(-24.591773413810188)

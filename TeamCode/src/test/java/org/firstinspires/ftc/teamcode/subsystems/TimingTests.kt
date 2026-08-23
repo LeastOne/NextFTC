@@ -3,8 +3,8 @@ package org.firstinspires.ftc.teamcode.subsystems
 import com.qualcomm.robotcore.util.ElapsedTime
 import com.qualcomm.robotcore.hardware.Gamepad
 import dev.nextftc.ftc.ActiveOpMode
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.TelemetryLevel.DEBUG
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Telemetry as TeamTelemetry
+import org.firstinspires.ftc.threedrd.nextftc.telemetry.TelemetryLevel.DEBUG
+import org.firstinspires.ftc.threedrd.nextftc.telemetry.Telemetry as TeamTelemetry
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

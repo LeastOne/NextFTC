@@ -3,9 +3,8 @@ package org.firstinspires.ftc.teamcode.subsystems
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
-import dev.nextftc.core.commands.groups.SequentialGroup
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Axial
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Lateral
+import org.firstinspires.ftc.threedrd.nextftc.subsystems.Axial
+import org.firstinspires.ftc.threedrd.nextftc.subsystems.Lateral
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -50,7 +49,7 @@ class QuanomousTests {
             {"cmd":"chase","cycles":0}
         ]""").asJsonArray
 
-        val commands = (Quanomous.compiler.compile(variants) as SequentialGroup).commands
+        val commands = Quanomous.compiler.compile(variants)
 
         assertEquals(2, commands.size)
     }

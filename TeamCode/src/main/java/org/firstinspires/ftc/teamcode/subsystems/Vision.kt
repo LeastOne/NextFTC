@@ -16,15 +16,15 @@ import kotlin.math.hypot
 import kotlin.math.sin
 import kotlin.math.tan
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.RADIANS
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.ConfigComponent
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.hardware.ServoEx
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.hardware.device
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.hardware.update
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Subsystem
-import org.firstinspires.ftc.teamcode.adaptations.pedropathing.axial
-import org.firstinspires.ftc.teamcode.adaptations.pedropathing.lateral
-import org.firstinspires.ftc.teamcode.adaptations.pedropathing.tiles
-import org.firstinspires.ftc.teamcode.adaptations.quanomous.Quanomous as QuanomousData
+import org.firstinspires.ftc.threedrd.nextftc.config.ConfigComponent
+import org.firstinspires.ftc.threedrd.nextftc.hardware.ServoEx
+import org.firstinspires.ftc.threedrd.nextftc.hardware.device
+import org.firstinspires.ftc.threedrd.nextftc.hardware.update
+import org.firstinspires.ftc.threedrd.nextftc.subsystems.Subsystem
+import org.firstinspires.ftc.threedrd.pedropathing.axial
+import org.firstinspires.ftc.threedrd.pedropathing.lateral
+import org.firstinspires.ftc.threedrd.pedropathing.tiles
+import org.firstinspires.ftc.threedrd.quanomous.Quanomous as QuanomousData
 import org.firstinspires.ftc.teamcode.subsystems.Config.alliance
 import org.firstinspires.ftc.teamcode.subsystems.Vision.Pipeline.APRIL_TAG
 import org.firstinspires.ftc.teamcode.subsystems.Vision.Pipeline.GREEN

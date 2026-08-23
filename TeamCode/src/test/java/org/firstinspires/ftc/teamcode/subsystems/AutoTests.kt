@@ -20,8 +20,8 @@ import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import java.nio.file.Files
-import org.firstinspires.ftc.teamcode.adaptations.quanomous.Quanomous as QuanomousData
-import org.firstinspires.ftc.teamcode.adaptations.quanomous.QuanomousStorage
+import org.firstinspires.ftc.threedrd.quanomous.Quanomous as QuanomousData
+import org.firstinspires.ftc.threedrd.quanomous.QuanomousStorage
 
 class AutoTests {
     lateinit var follower: Follower
@@ -87,8 +87,8 @@ class AutoTests {
             Auto.drive(Nav.score), Auto.chase(1), Auto.chaseCycle(), Auto.chaseIntake(),
             Auto.chaseComplete(), Auto.chaseDeposit(),
             Auto.park(true,
-                org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Axial.CENTER,
-                org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Lateral.CENTER)
+                org.firstinspires.ftc.threedrd.nextftc.subsystems.Axial.CENTER,
+                org.firstinspires.ftc.threedrd.nextftc.subsystems.Lateral.CENTER)
         ).forEach { assertTrue(it.requirements.isNotEmpty() || it.name.isNotEmpty()) }
 
         listOf(
@@ -110,13 +110,13 @@ class AutoTests {
         Drive.goalLocked = true
         assertFalse(Auto.canPark())
         assertFalse(Auto.park(false,
-            org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Axial.CENTER,
-            org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Lateral.CENTER).isDone)
+            org.firstinspires.ftc.threedrd.nextftc.subsystems.Axial.CENTER,
+            org.firstinspires.ftc.threedrd.nextftc.subsystems.Lateral.CENTER).isDone)
         Drive.goalLocked = false
         assertTrue(Auto.canPark())
         val wait = Auto.park(false,
-            org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Axial.CENTER,
-            org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Lateral.CENTER)
+            org.firstinspires.ftc.threedrd.nextftc.subsystems.Axial.CENTER,
+            org.firstinspires.ftc.threedrd.nextftc.subsystems.Lateral.CENTER)
             .let { it.commands.first() }
         wait.start()
         wait.isDone

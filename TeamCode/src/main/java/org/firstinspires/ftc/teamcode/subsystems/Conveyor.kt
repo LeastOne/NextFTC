@@ -8,9 +8,9 @@ import dev.nextftc.extensions.pedro.PedroComponent.Companion.follower
 import dev.nextftc.ftc.Gamepads.gamepad2
 import kotlin.math.hypot
 import kotlin.math.pow
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.hardware.MotorEx
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.hardware.update
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Subsystem
+import org.firstinspires.ftc.threedrd.nextftc.hardware.MotorEx
+import org.firstinspires.ftc.threedrd.nextftc.hardware.update
+import org.firstinspires.ftc.threedrd.nextftc.subsystems.Subsystem
 
 @Configurable
 object Conveyor : Subsystem() {

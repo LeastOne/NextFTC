@@ -4,9 +4,21 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE as CR_REV
 import com.qualcomm.robotcore.hardware.Servo.Direction.REVERSE
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGREES
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit.AMPS
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.TelemetryLevel.DEBUG
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.TelemetryLevel.VERBOSE
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Telemetry.add
+import org.firstinspires.ftc.threedrd.nextftc.hardware.CRServoEx
+import org.firstinspires.ftc.threedrd.nextftc.hardware.IMUEx
+import org.firstinspires.ftc.threedrd.nextftc.hardware.HardwareTelemetry
+import org.firstinspires.ftc.threedrd.nextftc.hardware.MotorEx
+import org.firstinspires.ftc.threedrd.nextftc.hardware.ServoEx
+import org.firstinspires.ftc.threedrd.nextftc.telemetry.Telemetry.add
+import org.firstinspires.ftc.threedrd.nextftc.telemetry.TelemetryLevel.DEBUG
+import org.firstinspires.ftc.threedrd.nextftc.telemetry.TelemetryLevel.VERBOSE
+
+fun configureHardwareTelemetry() {
+    HardwareTelemetry.servo = { tel() }
+    HardwareTelemetry.continuousServo = { tel() }
+    HardwareTelemetry.motor = { tel() }
+    HardwareTelemetry.imu = { tel() }
+}
 
 fun ServoEx.tel() {
     val source = name.humanize()

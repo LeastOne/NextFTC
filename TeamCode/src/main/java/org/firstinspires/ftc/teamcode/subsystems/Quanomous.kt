@@ -1,22 +1,24 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
 import com.google.gson.JsonObject
+import dev.nextftc.core.commands.Command
+import dev.nextftc.core.commands.groups.SequentialGroup
 import dev.nextftc.core.commands.delays.Delay
 import dev.nextftc.core.units.deg
 import kotlin.math.abs
 import kotlin.time.Duration.Companion.seconds
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Axial
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Lateral
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Subsystem
-import org.firstinspires.ftc.teamcode.adaptations.pedropathing.tiles
-import org.firstinspires.ftc.teamcode.adaptations.quanomous.QuanomousCompiler
+import org.firstinspires.ftc.threedrd.nextftc.subsystems.Axial
+import org.firstinspires.ftc.threedrd.nextftc.subsystems.Lateral
+import org.firstinspires.ftc.threedrd.nextftc.subsystems.Subsystem
+import org.firstinspires.ftc.threedrd.pedropathing.tiles
+import org.firstinspires.ftc.threedrd.quanomous.QuanomousCompiler
 import org.firstinspires.ftc.teamcode.game.Side.NORTH
 import org.firstinspires.ftc.teamcode.game.Side.SOUTH
 import org.firstinspires.ftc.teamcode.subsystems.Config.alliance
 import org.firstinspires.ftc.teamcode.subsystems.Config.config
 
 object Quanomous : Subsystem() {
-    val compiler by lazy { QuanomousCompiler(mapOf(
+    val compiler by lazy { QuanomousCompiler<Command>(mapOf(
         "delay" to { step -> Delay(step["seconds"].asDouble.seconds) },
         "intake" to { step -> Auto.remaining(Auto.intake(step["spike"].asInt)) },
         "intake_gate" to { Auto.remaining(Auto.gateIntake()) },
@@ -43,7 +45,7 @@ object Quanomous : Subsystem() {
         ))) }
     )) }
 
-    fun load(name: String) = compiler.load(name)
+    fun load(name: String) = SequentialGroup(*compiler.load(name).toTypedArray())
 
     fun JsonObject.boolean(name: String, default: Boolean = false) = get(name)?.asBoolean ?: default
 

@@ -10,8 +10,8 @@ import org.firstinspires.ftc.teamcode.adaptations.gobilda.prism.GoBildaPrismDriv
 import org.firstinspires.ftc.teamcode.adaptations.gobilda.prism.GoBildaPrismDriver.Artboard.ARTBOARD_0
 import org.firstinspires.ftc.teamcode.adaptations.gobilda.prism.GoBildaPrismDriver.LayerHeight.LAYER_0
 import org.firstinspires.ftc.teamcode.adaptations.gobilda.prism.PrismAnimations
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.hardware.device
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Subsystem
+import org.firstinspires.ftc.threedrd.nextftc.hardware.device
+import org.firstinspires.ftc.threedrd.nextftc.subsystems.Subsystem
 import org.firstinspires.ftc.teamcode.game.Alliance
 import org.firstinspires.ftc.teamcode.subsystems.Config.alliance
 import org.firstinspires.ftc.teamcode.subsystems.Config.state

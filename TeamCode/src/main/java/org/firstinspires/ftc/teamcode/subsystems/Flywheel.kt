@@ -12,9 +12,9 @@ import dev.nextftc.ftc.Gamepads.gamepad2
 import kotlin.math.hypot
 import kotlin.math.pow
 import kotlin.math.sign
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.hardware.MotorEx
+import org.firstinspires.ftc.threedrd.nextftc.hardware.MotorEx
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.hardware.tel
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Subsystem
+import org.firstinspires.ftc.threedrd.nextftc.subsystems.Subsystem
 
 @Configurable
 object Flywheel : Subsystem() {

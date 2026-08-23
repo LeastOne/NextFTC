@@ -8,16 +8,16 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import dev.nextftc.ftc.ActiveOpMode
 import dev.nextftc.extensions.pedro.PedroComponent
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.Setting
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.ConfigComponent
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.Diagnostics
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.Diagnostics.Level.INFO
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.Diagnostics.Level.WARN
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.Logging
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.ConfigSubsystem
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.ConfigSubsystem.Change.NEXT
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.ConfigSubsystem.Change.PREV
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Telemetry as TeamTelemetry
+import org.firstinspires.ftc.threedrd.nextftc.config.Setting
+import org.firstinspires.ftc.threedrd.nextftc.config.ConfigComponent
+import org.firstinspires.ftc.threedrd.nextftc.config.Diagnostics
+import org.firstinspires.ftc.threedrd.nextftc.config.Diagnostics.Level.INFO
+import org.firstinspires.ftc.threedrd.nextftc.config.Diagnostics.Level.WARN
+import org.firstinspires.ftc.threedrd.nextftc.logging.Logging
+import org.firstinspires.ftc.threedrd.nextftc.subsystems.ConfigSubsystem
+import org.firstinspires.ftc.threedrd.nextftc.subsystems.ConfigSubsystem.Change.NEXT
+import org.firstinspires.ftc.threedrd.nextftc.subsystems.ConfigSubsystem.Change.PREV
+import org.firstinspires.ftc.threedrd.nextftc.telemetry.Telemetry as TeamTelemetry
 import org.firstinspires.ftc.teamcode.game.Alliance.BLUE
 import org.firstinspires.ftc.teamcode.game.Alliance.RED
 import org.firstinspires.ftc.teamcode.game.Alliance.UNKNOWN
@@ -175,9 +175,9 @@ class ConfigTests : SubsystemTests() {
         config.filter = "Gate"
         Config.initialize()
 
-        assertEquals(org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.TelemetryLevel.INFO,
+        assertEquals(org.firstinspires.ftc.threedrd.nextftc.telemetry.TelemetryLevel.INFO,
             TeamTelemetry.LEVEL)
-        assertEquals(org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.LogLevel.INFO,
+        assertEquals(org.firstinspires.ftc.threedrd.nextftc.logging.LogLevel.INFO,
             Logging.LEVEL)
         assertEquals("Gate", TeamTelemetry.DISPLAY_FILTER)
         assertEquals("Gate", Logging.DISPLAY_FILTER)
@@ -185,9 +185,9 @@ class ConfigTests : SubsystemTests() {
         config.level = WARN
         config.filter = "Deflector"
         TeamTelemetry.beginFrame()
-        assertEquals(org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.TelemetryLevel.WARN,
+        assertEquals(org.firstinspires.ftc.threedrd.nextftc.telemetry.TelemetryLevel.WARN,
             TeamTelemetry.LEVEL)
-        assertEquals(org.firstinspires.ftc.teamcode.adaptations.nextftc.logging.LogLevel.WARN,
+        assertEquals(org.firstinspires.ftc.threedrd.nextftc.logging.LogLevel.WARN,
             Logging.LEVEL)
         assertEquals("Deflector", TeamTelemetry.DISPLAY_FILTER)
         assertEquals("Deflector", Logging.DISPLAY_FILTER)

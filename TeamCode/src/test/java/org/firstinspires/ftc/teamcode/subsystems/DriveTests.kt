@@ -20,13 +20,13 @@ import dev.nextftc.core.units.inches
 import dev.nextftc.extensions.pedro.PedroComponent
 import dev.nextftc.ftc.ActiveOpMode
 import dev.nextftc.ftc.Gamepads.gamepad1
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.TelemetryLevel.VERBOSE
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Telemetry as TeamTelemetry
-import org.firstinspires.ftc.teamcode.adaptations.pedropathing.pct
-import org.firstinspires.ftc.teamcode.adaptations.pedropathing.pctT
-import org.firstinspires.ftc.teamcode.adaptations.pedropathing.axial
-import org.firstinspires.ftc.teamcode.adaptations.pedropathing.lateral
-import org.firstinspires.ftc.teamcode.adaptations.pedropathing.tiles
+import org.firstinspires.ftc.threedrd.nextftc.telemetry.TelemetryLevel.VERBOSE
+import org.firstinspires.ftc.threedrd.nextftc.telemetry.Telemetry as TeamTelemetry
+import org.firstinspires.ftc.threedrd.pedropathing.pct
+import org.firstinspires.ftc.threedrd.pedropathing.pctT
+import org.firstinspires.ftc.threedrd.pedropathing.axial
+import org.firstinspires.ftc.threedrd.pedropathing.lateral
+import org.firstinspires.ftc.threedrd.pedropathing.tiles
 import org.firstinspires.ftc.teamcode.subsystems.Config.config
 import org.firstinspires.ftc.teamcode.subsystems.Config.state
 import org.firstinspires.ftc.teamcode.subsystems.Drive.POWER_HIGH
@@ -601,8 +601,8 @@ class DriveTests : SubsystemTests() {
             Drive.toGateIntake,
             Drive.toGateIntakeDepart,
             Drive.toBase,
-            Drive.toParking(true, org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Axial.CENTER,
-                org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Lateral.CENTER),
+            Drive.toParking(true, org.firstinspires.ftc.threedrd.nextftc.subsystems.Axial.CENTER,
+                org.firstinspires.ftc.threedrd.nextftc.subsystems.Lateral.CENTER),
             Drive.toChaseScan,
             Drive.toChase(1)
         ).forEach { command ->

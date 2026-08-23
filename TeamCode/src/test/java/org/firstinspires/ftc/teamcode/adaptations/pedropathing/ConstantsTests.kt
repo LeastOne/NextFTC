@@ -7,6 +7,7 @@ import com.pedropathing.ftc.drivetrains.MecanumConstants
 import com.pedropathing.ftc.localization.constants.PinpointConstants
 import com.pedropathing.paths.PathConstraints
 import com.qualcomm.robotcore.hardware.HardwareMap
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertSame
 import org.junit.Test
 import org.mockito.Mockito.mock
@@ -15,6 +16,13 @@ import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 
 class ConstantsTests {
+    @Test
+    fun definesTheRobotDimensions() {
+        assertEquals(14.25, Constants.robotLength.inIn, 0.0001)
+        assertEquals(11.375, Constants.robotWidth.inIn, 0.0001)
+        assertEquals(7.125, Constants.robotRadius, 0.0001)
+    }
+
     @Test
     fun buildsTheFollowerFromPedroConstants() {
         val originalFollower = Constants.followerConstants

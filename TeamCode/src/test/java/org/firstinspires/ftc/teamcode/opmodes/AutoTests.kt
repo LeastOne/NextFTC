@@ -15,8 +15,8 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito.mock
 import java.nio.file.Files
-import org.firstinspires.ftc.teamcode.adaptations.quanomous.Quanomous as QuanomousData
-import org.firstinspires.ftc.teamcode.adaptations.quanomous.QuanomousStorage
+import org.firstinspires.ftc.threedrd.quanomous.Quanomous as QuanomousData
+import org.firstinspires.ftc.threedrd.quanomous.QuanomousStorage
 import org.firstinspires.ftc.teamcode.subsystems.Config
 
 class AutoTests {

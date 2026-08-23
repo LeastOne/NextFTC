@@ -47,15 +47,15 @@
 - Rebuild regular Driver Station telemetry as a current snapshot each cycle and retain event history only in its telemetry log.
 - Keep the titled `CONFIG`, `TEL`, and `LOG` sections visually and conceptually distinct.
 
-## TeamCode test coverage
+## Robot and library test coverage
 
-- Every change to executable code under `TeamCode/src/main` must add or update meaningful unit tests for the affected behavior.
-- Maintain 100% line and branch coverage for TeamCode, as enforced by `:TeamCode:verifyUnitTestCoverage`.
+- Every change to executable code under `TeamCode/src/main`, `3drdNextFTC/src/main`, or `3drdQuanomous/src/main` must add or update meaningful unit tests for the affected behavior.
+- Maintain 100% line and branch coverage for TeamCode and both reusable library modules.
 - Do not weaken coverage thresholds or add exclusions merely to make coverage pass. Exclusions are appropriate only for generated code with no independently testable project behavior.
 - Tests must assert observable behavior; executing lines without meaningful assertions is not sufficient.
 - Keep each subsystem's tests in the corresponding subsystem package, with one test class/file per subsystem.
 - Keep the subsystem test harness generic. It may provide hardware mocks by hardware type and configured name, but must not contain knowledge of specific subsystem devices.
-- Before completing a TeamCode change, run `./gradlew :TeamCode:check :TeamCode:unitTestCoverage :TeamCode:assembleDebug` (use `gradlew.bat` on Windows) and report any failures or intentionally untested hardware-only behavior.
+- Before completing robot or library changes, run `./gradlew :3drdNextFTC:check :3drdNextFTC:unitTestCoverage :3drdQuanomous:check :3drdQuanomous:unitTestCoverage :TeamCode:check :TeamCode:unitTestCoverage :TeamCode:assembleDebug` (use `gradlew.bat` on Windows) and report any failures or intentionally untested hardware-only behavior.
 
 ## Git history
 

@@ -4,9 +4,9 @@ import com.bylazar.configurables.annotations.Configurable
 import com.qualcomm.robotcore.hardware.Servo.Direction.REVERSE
 import dev.nextftc.ftc.Gamepads.gamepad1
 import dev.nextftc.ftc.Gamepads.gamepad2
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.hardware.ServoEx
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.hardware.update
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Subsystem
+import org.firstinspires.ftc.threedrd.nextftc.hardware.ServoEx
+import org.firstinspires.ftc.threedrd.nextftc.hardware.update
+import org.firstinspires.ftc.threedrd.nextftc.subsystems.Subsystem
 
 @Configurable
 object Kickstand : Subsystem() {

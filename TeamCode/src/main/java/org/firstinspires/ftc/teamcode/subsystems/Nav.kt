@@ -8,16 +8,17 @@ import dev.nextftc.core.units.inches
 import dev.nextftc.extensions.pedro.PedroComponent.Companion.follower
 import kotlin.math.abs
 import kotlin.math.atan2
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Axial
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Axial.CENTER
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Lateral
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.Lateral.CENTER as LATERAL_CENTER
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.NavSubsystem
-import org.firstinspires.ftc.teamcode.adaptations.pedropathing.axial
-import org.firstinspires.ftc.teamcode.adaptations.pedropathing.face
-import org.firstinspires.ftc.teamcode.adaptations.pedropathing.lateral
-import org.firstinspires.ftc.teamcode.adaptations.pedropathing.normalizeHeading
-import org.firstinspires.ftc.teamcode.adaptations.pedropathing.tiles
+import org.firstinspires.ftc.threedrd.nextftc.subsystems.Axial
+import org.firstinspires.ftc.threedrd.nextftc.subsystems.Axial.CENTER
+import org.firstinspires.ftc.threedrd.nextftc.subsystems.Lateral
+import org.firstinspires.ftc.threedrd.nextftc.subsystems.Lateral.CENTER as LATERAL_CENTER
+import org.firstinspires.ftc.threedrd.nextftc.subsystems.NavSubsystem
+import org.firstinspires.ftc.threedrd.pedropathing.axial
+import org.firstinspires.ftc.threedrd.pedropathing.face
+import org.firstinspires.ftc.threedrd.pedropathing.lateral
+import org.firstinspires.ftc.threedrd.pedropathing.normalizeHeading
+import org.firstinspires.ftc.threedrd.pedropathing.tiles
+import org.firstinspires.ftc.teamcode.adaptations.pedropathing.Constants
 import org.firstinspires.ftc.teamcode.game.Alliance.RED
 import org.firstinspires.ftc.teamcode.game.Alliance.UNKNOWN
 import org.firstinspires.ftc.teamcode.game.Side.NORTH
@@ -28,8 +29,8 @@ import org.firstinspires.ftc.teamcode.subsystems.Config.side
 
 @Configurable
 object Nav : NavSubsystem() {
-    override val robotLength = 14.25.inches
-    override val robotWidth = 11.375.inches
+    override val robotLength = Constants.robotLength
+    override val robotWidth = Constants.robotWidth
 
     val start get() = when {
         alliance == UNKNOWN || side == UNKNOWN_SIDE -> pose(0.tiles, 0.tiles)

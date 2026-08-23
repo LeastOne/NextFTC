@@ -2,14 +2,14 @@ package org.firstinspires.ftc.teamcode.subsystems
 
 import com.bylazar.configurables.annotations.Configurable
 import dev.nextftc.extensions.pedro.PedroComponent.Companion.follower
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.Diagnostics.Level
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.Diagnostics.Level.INFO
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.Setting
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.config.SettingItem
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.subsystems.ConfigSubsystem
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.telemetry.Telemetry
-import org.firstinspires.ftc.teamcode.adaptations.pedropathing.resetStartingPose
-import org.firstinspires.ftc.teamcode.adaptations.quanomous.Quanomous as QuanomousData
+import org.firstinspires.ftc.threedrd.nextftc.config.Diagnostics.Level
+import org.firstinspires.ftc.threedrd.nextftc.config.Diagnostics.Level.INFO
+import org.firstinspires.ftc.threedrd.nextftc.config.Setting
+import org.firstinspires.ftc.threedrd.nextftc.config.SettingItem
+import org.firstinspires.ftc.threedrd.nextftc.subsystems.ConfigSubsystem
+import org.firstinspires.ftc.threedrd.nextftc.telemetry.Telemetry
+import org.firstinspires.ftc.threedrd.pedropathing.resetStartingPose
+import org.firstinspires.ftc.threedrd.quanomous.Quanomous as QuanomousData
 import org.firstinspires.ftc.teamcode.game.Alliance
 import org.firstinspires.ftc.teamcode.game.Side
 
