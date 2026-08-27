@@ -1,5 +1,7 @@
 # Repository Instructions
 
+Read `doc/PROJECT_CONTEXT.md` for the project's purpose, architectural rationale, reference repositories, validation status, and open decisions. This file remains authoritative for working conventions when the two overlap.
+
 ## Design and Kotlin style
 
 - Favor the smallest straightforward implementation that remains readable to student programmers.
