@@ -1,0 +1,102 @@
+apply plugin: 'com.android.library'
+apply plugin: 'org.jetbrains.kotlin.android'
+apply plugin: 'jacoco'
+apply from: '../build.dependencies.gradle'
+
+android {
+    namespace = 'org.firstinspires.ftc.threedrd.nextftc'
+    compileSdk 34
+
+    defaultConfig {
+        minSdkVersion 24
+        //noinspection ExpiredTargetSdkVersion
+        targetSdkVersion 28
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8
+    }
+}
+
+repositories {
+    maven { url = 'https://mymaven.bylazar.com/releases' }
+    maven { url = 'https://maven.pedropathing.com/' }
+}
+
+dependencies {
+    implementation 'org.jetbrains.kotlin:kotlin-reflect:2.4.10'
+    api 'com.bylazar:fullpanels:1.0.12'
+    api 'dev.nextftc:control:1.0.0'
+    api 'dev.nextftc:ftc:1.1.0'
+    api 'dev.nextftc:hardware:1.1.0'
+    api 'dev.nextftc:bindings:1.0.1'
+    api 'dev.nextftc.extensions:pedro:1.0.0'
+    api 'com.pedropathing:ftc:2.0.6'
+
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.mockito:mockito-core:5.23.0'
+}
+
+tasks.withType(Test).configureEach {
+    doFirst {
+        def agent = classpath.files.find { it.name.startsWith('mockito-core') }
+        if (agent) jvmArgs "-javaagent:${agent.absolutePath}"
+    }
+}
+
+def libraryClasses = fileTree("$buildDir/tmp/kotlin-classes/debug") {
+    exclude '**/R.class', '**/R$*.class', '**/BuildConfig.class',
+        '**/*$DefaultImpls.class', '**/*Test*.*'
+}
+def librarySources = files('src/main/java')
+def unitTestExecutionData = fileTree(buildDir) {
+    include 'jacoco/testDebugUnitTest.exec'
+}
+def consumerTestExecutionData = fileTree(rootProject.file('TeamCode/build')) {
+    include 'jacoco/testDebugUnitTest.exec'
+}
+
+tasks.register('unitTestCoverage', JacocoReport) {
+    dependsOn 'testDebugUnitTest', ':TeamCode:testDebugUnitTest'
+    reports {
+        html.required = true
+        xml.required = true
+    }
+    classDirectories.setFrom(libraryClasses)
+    sourceDirectories.setFrom(librarySources)
+    executionData.setFrom(unitTestExecutionData, consumerTestExecutionData)
+}
+
+tasks.register('verifyUnitTestCoverage', JacocoCoverageVerification) {
+    dependsOn 'testDebugUnitTest', ':TeamCode:testDebugUnitTest'
+    classDirectories.setFrom(libraryClasses)
+    sourceDirectories.setFrom(librarySources)
+    executionData.setFrom(unitTestExecutionData, consumerTestExecutionData)
+    violationRules {
+        rule {
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 1.0
+            }
+            limit {
+                counter = 'BRANCH'
+                value = 'COVEREDRATIO'
+                minimum = 1.0
+            }
+        }
+    }
+}
+
+tasks.named('check').configure { dependsOn 'verifyUnitTestCoverage' }

@@ -10,4 +10,6 @@ plugins {
 }
 
 include ':FtcRobotController'
+include ':3drdNextFTC'
+include ':3drdQuanomous'
 include ':TeamCode'
