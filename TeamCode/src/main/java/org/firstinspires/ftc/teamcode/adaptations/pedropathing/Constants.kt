@@ -13,39 +13,33 @@ import com.qualcomm.robotcore.hardware.HardwareMap
 import dev.nextftc.core.units.inches
 import kotlin.math.max
 
-/**
- * Neutral Pedro configuration scaffold for a new robot.
- *
- * Replace these placeholder dimensions, hardware names, localizer geometry, and tuned values
- * in the season-specific robot implementation while preserving Pedro's documented structure.
- */
 object Constants {
-    val robotLength = 1.0.inches
-    val robotWidth = 1.0.inches
+    val robotLength = 14.25.inches
+    val robotWidth = 11.375.inches
     val robotRadius = max(robotLength.inIn, robotWidth.inIn) / 2
 
     var followerConstants = FollowerConstants()
-        .mass(1.0)
-        .forwardZeroPowerAcceleration(-1.0)
-        .lateralZeroPowerAcceleration(-1.0)
-        .translationalPIDFCoefficients(PIDFCoefficients(0.0, 0.0, 0.0, 0.0))
-        .headingPIDFCoefficients(PIDFCoefficients(0.0, 0.0, 0.0, 0.0))
-        .drivePIDFCoefficients(FilteredPIDFCoefficients(0.0, 0.0, 0.0, 0.0, 0.0))
+        .mass(12.5628)
+        .forwardZeroPowerAcceleration(-24.591773413810188)
+        .lateralZeroPowerAcceleration(-76.0984478775747)
+        .translationalPIDFCoefficients(PIDFCoefficients(0.1, 0.0, 0.0, 0.015))
+        .headingPIDFCoefficients(PIDFCoefficients(0.75, 0.0, 0.0, 0.0075))
+        .drivePIDFCoefficients(FilteredPIDFCoefficients(0.02125, 0.0, 0.0000085, 0.51, 0.0085))
 
     var pathConstraints = PathConstraints(0.995, 100.0, 0.9, 1.0)
 
     var driveConstants = MecanumConstants()
         .maxPower(1.0)
-        .xVelocity(1.0)
-        .yVelocity(1.0)
-        .leftFrontMotorName("frontLeft")
-        .rightFrontMotorName("frontRight")
-        .leftRearMotorName("backLeft")
-        .rightRearMotorName("backRight")
+        .xVelocity(73.62513937161664)
+        .yVelocity(56.98721866157111)
+        .leftFrontMotorName("driveFrontLeft")
+        .rightFrontMotorName("driveFrontRight")
+        .leftRearMotorName("driveBackLeft")
+        .rightRearMotorName("driveBackRight")
 
     var localizerConstants = PinpointConstants()
-        .forwardPodY(0.0)
-        .strafePodX(0.0)
+        .forwardPodY(4.7244)
+        .strafePodX(1.996)
         .forwardEncoderDirection(FORWARD)
         .strafeEncoderDirection(FORWARD)
 
