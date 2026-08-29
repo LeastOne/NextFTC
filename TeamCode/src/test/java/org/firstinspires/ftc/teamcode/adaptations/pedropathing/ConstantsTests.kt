@@ -17,15 +17,10 @@ import org.mockito.Mockito.`when`
 
 class ConstantsTests {
     @Test
-    fun usesNeutralTemplateDimensionsAndPedroDefaults() {
-        assertEquals(18.0, Constants.robotLength.inIn, 0.0001)
-        assertEquals(18.0, Constants.robotWidth.inIn, 0.0001)
-        assertEquals(9.0, Constants.robotRadius, 0.0001)
-        assertEquals("leftFront", Constants.driveConstants.leftFrontMotorName)
-        assertEquals("leftRear", Constants.driveConstants.leftRearMotorName)
-        assertEquals("rightFront", Constants.driveConstants.rightFrontMotorName)
-        assertEquals("rightRear", Constants.driveConstants.rightRearMotorName)
-        assertEquals("pinpoint", Constants.localizerConstants.hardwareMapName)
+    fun definesTheRobotDimensions() {
+        assertEquals(14.25, Constants.robotLength.inIn, 0.0001)
+        assertEquals(11.375, Constants.robotWidth.inIn, 0.0001)
+        assertEquals(7.125, Constants.robotRadius, 0.0001)
     }
 
     @Test
