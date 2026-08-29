@@ -7,6 +7,6 @@ import org.firstinspires.ftc.teamcode.subsystems.Auto.execute
 @Suppress("unused")
 class Auto : OpMode() {
     override fun onStartButtonPressed() {
-        execute.schedule()
+        execute().schedule()
     }
 }
