@@ -2,9 +2,9 @@ package org.firstinspires.ftc.teamcode.opmodes
 
 import dev.nextftc.extensions.pedro.PedroComponent
 import org.firstinspires.ftc.threedrd.nextftc.bindings.BindingsComponent
+import org.firstinspires.ftc.threedrd.pedropathing.PedroDrawingComponent
 import org.firstinspires.ftc.threedrd.nextftc.config.ConfigComponent
 import org.firstinspires.ftc.threedrd.nextftc.telemetry.TelemetryComponent
-import org.firstinspires.ftc.threedrd.pedropathing.PedroDrawingComponent
 import org.firstinspires.ftc.teamcode.subsystems.Config
 import org.firstinspires.ftc.teamcode.subsystems.Config.config
 import org.junit.Assert.assertEquals

@@ -4,7 +4,7 @@ import com.pedropathing.follower.Follower
 import com.pedropathing.follower.FollowerConstants
 import com.pedropathing.ftc.FollowerBuilder
 import com.pedropathing.ftc.drivetrains.MecanumConstants
-import com.pedropathing.ftc.localization.constants.DriveEncoderConstants
+import com.pedropathing.ftc.localization.constants.PinpointConstants
 import com.pedropathing.paths.PathConstraints
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.junit.Assert.assertEquals
@@ -17,18 +17,10 @@ import org.mockito.Mockito.`when`
 
 class ConstantsTests {
     @Test
-    fun usesNeutralTemplateDimensionsAndPedroDefaults() {
-        assertEquals(18.0, Constants.robotLength.inIn, 0.0001)
-        assertEquals(18.0, Constants.robotWidth.inIn, 0.0001)
-        assertEquals(9.0, Constants.robotRadius, 0.0001)
-        assertEquals("leftFront", Constants.driveConstants.leftFrontMotorName)
-        assertEquals("leftRear", Constants.driveConstants.leftRearMotorName)
-        assertEquals("rightFront", Constants.driveConstants.rightFrontMotorName)
-        assertEquals("rightRear", Constants.driveConstants.rightRearMotorName)
-        assertEquals("leftFront", Constants.localizerConstants.leftFrontMotorName)
-        assertEquals("leftRear", Constants.localizerConstants.leftRearMotorName)
-        assertEquals("rightFront", Constants.localizerConstants.rightFrontMotorName)
-        assertEquals("rightRear", Constants.localizerConstants.rightRearMotorName)
+    fun definesTheRobotDimensions() {
+        assertEquals(14.25, Constants.robotLength.inIn, 0.0001)
+        assertEquals(11.375, Constants.robotWidth.inIn, 0.0001)
+        assertEquals(7.125, Constants.robotRadius, 0.0001)
     }
 
     @Test
@@ -40,7 +32,7 @@ class ConstantsTests {
         val followerConstants = mock(FollowerConstants::class.java)
         val paths = mock(PathConstraints::class.java)
         val drivetrain = mock(MecanumConstants::class.java)
-        val localizer = mock(DriveEncoderConstants::class.java)
+        val localizer = mock(PinpointConstants::class.java)
         val hardwareMap = mock(HardwareMap::class.java)
         val follower = mock(Follower::class.java)
         var constructorArguments = emptyList<Any?>()
@@ -57,7 +49,7 @@ class ConstantsTests {
                     constructorArguments = context.arguments()
                     `when`(mock.pathConstraints(paths)).thenReturn(mock)
                     `when`(mock.mecanumDrivetrain(drivetrain)).thenReturn(mock)
-                    `when`(mock.driveEncoderLocalizer(localizer)).thenReturn(mock)
+                    `when`(mock.pinpointLocalizer(localizer)).thenReturn(mock)
                     `when`(mock.build()).thenReturn(follower)
                 }
             ).use { construction ->
@@ -68,7 +60,7 @@ class ConstantsTests {
                 assertSame(hardwareMap, constructorArguments[1])
                 verify(builder).pathConstraints(paths)
                 verify(builder).mecanumDrivetrain(drivetrain)
-                verify(builder).driveEncoderLocalizer(localizer)
+                verify(builder).pinpointLocalizer(localizer)
             }
         } finally {
             Constants.followerConstants = originalFollower
