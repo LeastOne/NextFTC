@@ -22,6 +22,7 @@ Read `docs/project-context.md` for the project's purpose, architectural rational
 
 - Keep reusable, season-neutral NextFTC and Pedro adaptations in `3drdNextFTC` under the `org.firstinspires.ftc.threedrd` namespace. This includes common hardware wrappers and updates, command composition, subsystem lifecycle, configuration infrastructure, logging, telemetry, and the reusable drive/navigation foundations.
 - Reusable library modules must not depend on `TeamCode` or contain season-specific types, constants, poses, hardware names, or behavior.
+- Keep `3drdQuanomous` independently reusable. It must not depend on `3drdNextFTC`; integrations between the two belong in the consuming robot project or another explicit integration layer.
 - Keep season-, game-, robot-, and team-policy-specific behavior in `TeamCode`. In particular, hardware telemetry presentation belongs in `TeamCode` because teams may choose different captions, levels, precision, and displayed values, while generic hardware update mechanics belong in `3drdNextFTC`.
 - Before adding code to `TeamCode/adaptations`, decide whether it is genuinely robot-specific. Prefer the reusable library for stable cross-team behavior, but do not force policy or likely customization points into the library merely to reduce TeamCode size.
 - Preserve third-party source code in its supplied language and recognizable form when practical. Do not translate vendor code such as the goBILDA Prism driver into Kotlin or substantially restyle it unless maintaining a deliberate fork.
@@ -71,13 +72,13 @@ Read `docs/project-context.md` for the project's purpose, architectural rational
 
 ## Robot and library test coverage
 
-- Every change to executable code under `TeamCode/src/main` or `3drdNextFTC/src/main` must add or update meaningful unit tests for the affected behavior.
-- Maintain 100% line and branch coverage for TeamCode and the reusable library module.
+- Every change to executable code under `TeamCode/src/main`, `3drdNextFTC/src/main`, or `3drdQuanomous/src/main` must add or update meaningful unit tests for the affected behavior.
+- Maintain 100% line and branch coverage for TeamCode and both reusable library modules.
 - Do not weaken coverage thresholds or add exclusions merely to make coverage pass. Exclusions are appropriate only for generated code with no independently testable project behavior.
 - Tests must assert observable behavior; executing lines without meaningful assertions is not sufficient.
 - Keep each subsystem's tests in the corresponding subsystem package, with one test class/file per subsystem.
 - Keep the subsystem test harness generic. It may provide hardware mocks by hardware type and configured name, but must not contain knowledge of specific subsystem devices.
-- Before completing robot or library changes, run `./gradlew :3drdNextFTC:check :3drdNextFTC:unitTestCoverage :TeamCode:check :TeamCode:unitTestCoverage :TeamCode:assembleDebug` (use `gradlew.bat` on Windows) and report any failures or intentionally untested hardware-only behavior.
+- Before completing robot or library changes, run `./gradlew :3drdNextFTC:check :3drdNextFTC:unitTestCoverage :3drdQuanomous:check :3drdQuanomous:unitTestCoverage :TeamCode:check :TeamCode:unitTestCoverage :TeamCode:assembleDebug` (use `gradlew.bat` on Windows) and report any failures or intentionally untested hardware-only behavior.
 
 ## Documentation
 
