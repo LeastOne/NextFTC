@@ -69,6 +69,7 @@ configurations.configureEach {
 dependencies {
     implementation project(':FtcRobotController')
     implementation project(':3drdNextFTC')
+    implementation project(':3drdQuanomous')
     implementation 'dev.frozenmilk.sinister:Sloth:0.3.2'
 
     testImplementation 'junit:junit:4.13.2'

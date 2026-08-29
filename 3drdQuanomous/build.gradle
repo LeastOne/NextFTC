@@ -1,0 +1,77 @@
+apply plugin: 'com.android.library'
+apply plugin: 'org.jetbrains.kotlin.android'
+apply plugin: 'jacoco'
+apply from: '../build.dependencies.gradle'
+
+android {
+    namespace = 'org.firstinspires.ftc.threedrd.quanomous'
+    compileSdk 34
+
+    defaultConfig {
+        minSdkVersion 24
+        //noinspection ExpiredTargetSdkVersion
+        targetSdkVersion 28
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8
+    }
+}
+
+dependencies {
+    testImplementation 'junit:junit:4.13.2'
+}
+
+def libraryClasses = fileTree("$buildDir/tmp/kotlin-classes/debug") {
+    exclude '**/R.class', '**/R$*.class', '**/BuildConfig.class',
+        '**/*$DefaultImpls.class', '**/*Test*.*'
+}
+def librarySources = files('src/main/java')
+def unitTestExecutionData = fileTree(buildDir) {
+    include 'jacoco/testDebugUnitTest.exec'
+}
+
+tasks.register('unitTestCoverage', JacocoReport) {
+    dependsOn 'testDebugUnitTest'
+    reports {
+        html.required = true
+        xml.required = true
+    }
+    classDirectories.setFrom(libraryClasses)
+    sourceDirectories.setFrom(librarySources)
+    executionData.setFrom(unitTestExecutionData)
+}
+
+tasks.register('verifyUnitTestCoverage', JacocoCoverageVerification) {
+    dependsOn 'testDebugUnitTest'
+    classDirectories.setFrom(libraryClasses)
+    sourceDirectories.setFrom(librarySources)
+    executionData.setFrom(unitTestExecutionData)
+    violationRules {
+        rule {
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 1.0
+            }
+            limit {
+                counter = 'BRANCH'
+                value = 'COVEREDRATIO'
+                minimum = 1.0
+            }
+        }
+    }
+}
+
+tasks.named('check').configure { dependsOn 'verifyUnitTestCoverage' }
