@@ -53,6 +53,8 @@ abstract class SubsystemTests {
             }.apply {
                 this.hardwareMap = hardwareMap
                 this.telemetry = telemetry
+                gamepad1 = Gamepad()
+                gamepad2 = Gamepad()
             }
         }
 
@@ -62,6 +64,8 @@ abstract class SubsystemTests {
             }.apply {
                 hardwareMap = testHardwareMap
                 telemetry = testTelemetry
+                gamepad1 = Gamepad()
+                gamepad2 = Gamepad()
             }
         }
 
