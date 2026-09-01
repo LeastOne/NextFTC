@@ -60,6 +60,7 @@ nav:
       - Add a servo subsystem: guides/subsystem.md
       - Add a motor and sensor subsystem: guides/motor-subsystem.md
       - Deploy robot code: guides/deployment.md
+      - Build autonomous behavior: guides/autonomous.md
       - Document your robot: guides/document-your-robot.md
       - Write implementable requirements: guides/implementable-requirements.md
       - Worked requirements example: guides/requirements-example.md
@@ -68,6 +69,13 @@ nav:
       - Requirements: robot/requirements.md
       - Architecture and subsystems: robot/architecture.md
       - Validation: robot/validation.md
+      - Decode and Osiris: requirements/decode-osiris.md
+      - Osiris system specification: requirements/osiris-system.md
+      - Osiris mechanisms: requirements/osiris-mechanisms.md
+      - Osiris navigation and vision: requirements/osiris-navigation-vision.md
+      - Osiris autonomous: requirements/osiris-autonomous.md
+      - Traceability: requirements/traceability.md
+      - Hardware and controls: reference/hardware-controls.md
   - Platform reference:
       - Overview: reference/platform.md
       - Architecture:
@@ -78,6 +86,7 @@ nav:
           - Telemetry and logging: architecture/diagnostics.md
           - Hardware: architecture/hardware.md
           - Drive and navigation: architecture/drive-navigation.md
+          - Quanomous: architecture/quanomous.md
       - Requirements:
           - requirements/index.md
           - FTC foundation: requirements/foundation.md
@@ -88,6 +97,8 @@ nav:
           - Phase 1: rebuild/phase-1.md
           - Phase 2: rebuild/phase-2.md
           - Verification: rebuild/verification.md
+          - Phase 3 — Decode and Osiris: rebuild/phase-3.md
+          - One-shot clean-room rebuild: rebuild/one-shot.md
       - Reference:
           - Modules and dependencies: reference/modules-dependencies.md
           - BIOBUZZ upgrade review: reference/season-upgrades-review.md
