@@ -24,6 +24,8 @@ The repository has two intentional endpoints:
 - **Start next season:** use [Start a new season](guides/new-season.md).
 - **Build the first robot:** follow the end-to-end [first robot](guides/first-robot.md)
   walkthrough and [hardware worksheet](guides/hardware-worksheet.md).
+- **Audit one-shot reproducibility:** run the
+  [clean-room rebuild protocol](rebuild/one-shot.md).
 - **Add robot behavior:** use [Add a subsystem](guides/subsystem.md) and
   [Build autonomous behavior](guides/autonomous.md).
 - **Find exact values:** use the [Reference](reference/modules-dependencies.md).

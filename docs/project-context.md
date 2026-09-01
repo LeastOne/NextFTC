@@ -17,6 +17,7 @@ template.
 - [Rebuild guide](rebuild/index.md)
 - [Start a new season](guides/new-season.md)
 - [Build the first robot](guides/first-robot.md)
+- [Audit a one-shot rebuild](rebuild/one-shot.md)
 - [Architectural decisions](reference/decisions.md)
 
 ## Non-negotiable boundaries
