@@ -9,7 +9,7 @@ hardware behavior.
 From the repository root on Windows:
 
 ```powershell
-.\gradlew :3drdNextFTC:check :3drdNextFTC:unitTestCoverage :TeamCode:check :TeamCode:unitTestCoverage :TeamCode:assembleDebug
+.\gradlew :3drdNextFTC:check :3drdNextFTC:unitTestCoverage :3drdQuanomous:check :3drdQuanomous:unitTestCoverage :TeamCode:check :TeamCode:unitTestCoverage :TeamCode:assembleDebug
 ```
 
 On a POSIX runner use `./gradlew` with the same tasks.
@@ -62,5 +62,5 @@ Unit tests can prove signs, values, and calls against mocks. They cannot prove:
 - A sensor sees the real field/environment;
 - Network deployment, Driver Station, Panels, and robot firmware interoperate.
 
-Use the [hardware worksheet](../guides/hardware-worksheet.md) as mandatory evidence
-before competition use.
+Treat the hardware checklist on [Phase 3](phase-3.md) as mandatory evidence before
+competition use.

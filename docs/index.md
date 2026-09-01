@@ -1,38 +1,39 @@
-# 3DRD NextFTC Quickstart
+# 3DRD NextFTC
 
-This is the season-neutral starting point for a 3D Robotics Duluth FTC robot. The
-documentation is organized first to help a team get started, followed by the
-architecture, requirements, reconstruction details, and exact reference data that
-explain and constrain those steps.
+This documentation defines **what** the repository must do, **why** each major
+capability exists, and **how** to reconstruct the project from the official FTC
+Robot Controller foundation.
+
+The repository has two intentional endpoints:
+
+| Endpoint | Purpose | Stable reference |
+|---|---|---|
+| Reusable seasonal base | A neutral starting point for a different robot and FTC season | Quickstart `bdfc6ad6` |
+| Decode/Osiris implementation | The current robot, hardware, controls, navigation, vision, and autonomous strategy | `main` |
+
+!!! warning "Do not start a new season from the wrong layer"
+    The reusable libraries remain useful on `main`, but `main` also contains
+    Decode field geometry and Osiris hardware assumptions. Start a new season from
+    [3DRD NextFTC Quickstart](https://github.com/3DRoboticsDuluth/NextFTC-Quickstart),
+    then add the new robot's policy in `TeamCode`.
 
 ## Start Here
 
-1. [Start a new season](guides/new-season.md) explains how to create the repository
-   and identifies every template value that must be replaced.
-2. [Why Kotlin?](guides/why-kotlin.md) explains the language choice, the FTC-specific
-   benefits it provides, and the small set of conventions students should follow.
+1. [Start a new season](guides/new-season.md) explains how to create a season
+   repository from Quickstart without inheriting Decode or Osiris policy.
+2. [Why Kotlin?](guides/why-kotlin.md) explains the language choice, its FTC-specific
+   benefits, and the conventions students should follow.
 3. [Build the first robot](guides/first-robot.md) takes the neutral scaffold through
-   measured Pedro constants, Drive/Nav, one mechanism, deployment, and a safe
-   physical test.
-4. Complete the [hardware worksheet](guides/hardware-worksheet.md) before declaring
-   devices, then follow [Add a subsystem](guides/subsystem.md) for each mechanism.
+   measured Pedro constants, Drive/Nav, a mechanism, deployment, and physical tests.
+4. Use the [hardware worksheet](guides/hardware-worksheet.md), [Add a subsystem](guides/subsystem.md),
+   and [Build autonomous behavior](guides/autonomous.md) as the robot develops.
 
 ## Understand and Reproduce It
 
-- [Architecture](architecture/overview.md) explains how the reusable library,
-  TeamCode scaffold, lifecycle, commands, hardware, diagnostics, and pathing fit
-  together.
-- [Requirements](requirements/index.md) defines the durable **what** and **why** of
-  the platform with acceptance criteria.
-- [Rebuild](rebuild/index.md) reconstructs the project from the official FTC Robot
-  Controller foundation.
-- [Reference](reference/modules-dependencies.md) records exact versions, settings,
-  decisions, terminology, and upstream resources.
-
-Clone this repository and retain it as the `quickstart` remote. The new season then
-preserves the full FTC/platform history and can rebase its work onto later
-Quickstart corrections. The [new-season guide](guides/new-season.md) provides the
-exact commands and collaboration cautions.
+- [Architecture](architecture/overview.md) explains how the pieces work.
+- [Requirements](requirements/index.md) defines the durable what and why.
+- [Rebuild](rebuild/index.md) reproduces both the reusable base and Osiris.
+- [Reference](reference/modules-dependencies.md) records exact values and decisions.
 
 ## Documentation Contract
 
@@ -41,7 +42,9 @@ the same files, not a second source of truth. A GitHub wiki is intentionally not
 used as the canonical store because wiki content has separate history and review.
 If a wiki is enabled, it should contain only a landing page that links here.
 
-Every normative requirement has a stable ID. Architecture pages explain the
+Every normative requirement has a stable ID. The
+[traceability matrix](requirements/traceability.md) connects requirement groups to
+implementation commits, source areas, and tests. Architecture pages explain the
 reasoning that does not fit cleanly in a requirement table.
 
 ## Baseline and Scope
@@ -49,9 +52,10 @@ reasoning that does not fit cleanly in a requirement table.
 - Upstream: `FIRST-Tech-Challenge/FtcRobotController`
 - FTC release: v11.2
 - Local foundation: `26cd1fdd`
-- Seasonal source: Quickstart `main`
-- Android/Kotlin modules: `FtcRobotController`, `3drdNextFTC`, and `TeamCode`
-- Required quality gate: 100% line and branch coverage in the two owned modules
+- Reusable Quickstart base: `bdfc6ad6`
+- Android/Kotlin modules: `FtcRobotController`, `3drdNextFTC`,
+  `3drdQuanomous`, and `TeamCode`
+- Required quality gate: 100% line and branch coverage in the three owned modules
 
 This documentation does not replace FIRST, NextFTC, Pedro Pathing, or Panels
 documentation. It records how and why those systems are assembled here.

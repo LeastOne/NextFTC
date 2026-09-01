@@ -6,6 +6,7 @@
 |---|---|---|---|
 | `FtcRobotController` | Android app/library host from FIRST | FTC application, SDK integration, samples/resources | 3DRD robot policy |
 | `3drdNextFTC` | Android library | Reusable 3DRD NextFTC lifecycle, commands, hardware, config, diagnostics, Pedro helpers | TeamCode imports, hardware-map names, season geometry |
+| `3drdQuanomous` | Android library | Generic Quanomous parsing, storage, options, compilation | NextFTC command types, season step vocabulary |
 | `TeamCode` | Android application | OpModes, robot constants, game model, hardware telemetry policy, mechanisms, controls, vision, strategy | Cross-team reusable fixes that belong in a library |
 
 ## Build Versions
@@ -54,7 +55,7 @@ and robot smoke tests, not as incidental cleanup.
 
 ## Coverage Configuration
 
-Both owned modules apply JaCoCo and require a ratio of `1.0` for line and branch
+All three owned modules apply JaCoCo and require a ratio of `1.0` for line and branch
 counters. Generated Android classes, build configuration, Kotlin default-interface
 artifacts, and test classes are excluded. Reports are generated under each module's
 build reports directory by `unitTestCoverage`.

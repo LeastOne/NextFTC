@@ -11,14 +11,22 @@ Official FTC Robot Controller
         ├── 3drdNextFTC            reusable lifecycle, commands, hardware,
         │                           diagnostics, config, and Pedro helpers
         │
-        └── TeamCode               neutral seasonal scaffold
+        ├── 3drdQuanomous          framework-independent program data/compiler
+        │
+        └── TeamCode               neutral scaffold in Quickstart;
+                                    Decode/Osiris policy on main
 ```
 
 Dependencies point downward toward more reusable behavior:
 
 ```text
 TeamCode ───────► 3drdNextFTC ─────► NextFTC / FTC / Panels / Pedro
+    │
+    └───────────► 3drdQuanomous ───► FTC storage + Gson
 ```
+
+`3drdQuanomous` deliberately does not depend on `3drdNextFTC`. A command framework
+is supplied by the caller through compiler handlers.
 
 ## Ownership Rule
 
@@ -27,7 +35,7 @@ A practical test decides where code belongs:
 > Could another 3DRD team use this next season without inheriting Osiris hardware,
 > Decode coordinates, or our preferred telemetry fields?
 
-- If yes, it belongs in `3drdNextFTC`.
+- If yes, it belongs in `3drdNextFTC` or `3drdQuanomous`.
 - If it is a team-selectable policy, mechanism, field model, hardware map name, or
   tuning value, it belongs in `TeamCode`.
 - Vendor code, such as the GoBilda Prism driver, stays recognizable and close to
@@ -46,9 +54,8 @@ hardware telemetry policy and adds components in an intentional order:
 6. `ConfigComponent` restores and persists settings.
 7. `SubsystemComponent.all()` discovers and runs subsystems.
 
-Teleop inherits this root without extra code. The sample Auto subsystem establishes
-the neutral starting pose during autonomous initialization, and the Auto OpMode
-schedules its top-level deferred command in `onStartButtonPressed()`.
+Teleop inherits this root without extra code. Auto schedules its top-level command
+in `onStartButtonPressed()`.
 
 ## Data and Control Flow
 
@@ -67,8 +74,8 @@ See [Lifecycle](lifecycle.md) for exact callback timing and
 
 ## Reuse Boundary
 
-Quickstart `main` contains real implementations of the generic classes and a
-minimal compilable `TeamCode` scaffold. Its Pedro constants are explicitly
-templates. A new season replaces those values and adds its field/robot
-specializations. This makes the repository a real launch point rather than a
-partially extracted library that requires cherry-picking later fixes.
+Quickstart `main` contains real implementations of the generic classes and a minimal
+compilable `TeamCode` scaffold. Its Pedro constants are explicitly templates. The
+first Decode commit replaces those values and adds field/robot specializations.
+This makes Quickstart a real launch point rather than a partially extracted library
+that requires cherry-picking later fixes.

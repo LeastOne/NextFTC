@@ -1,8 +1,9 @@
-# 3DRD NextFTC Quickstart
+# 3DRD NextFTC
 
-This repository is 3D Robotics Duluth's requirements-driven FTC robot platform.
-It starts from the official FIRST Tech Challenge Robot Controller v11.2 repository
-and adds a reusable Kotlin and NextFTC platform for starting a robot season.
+This repository is 3D Robotics Duluth's requirements-driven FTC robot platform and
+its Decode-season implementation for the Osiris robot. It starts from the official
+FIRST Tech Challenge Robot Controller v11.2 repository, adds a reusable Kotlin and
+NextFTC platform, and then layers the robot- and season-specific code on top.
 
 ## Documentation
 
@@ -29,10 +30,12 @@ python -m venv .venv-docs
 
 ## Start a Season
 
-Clone Quickstart and retain it as the `quickstart` remote so a season preserves the
-complete FTC/platform history and can rebase onto future Quickstart corrections.
-See [Start a new season](docs/guides/new-season.md) for the exact workflow,
-collaboration cautions, and replacement checklist.
+Start a new robot season from
+[3DRD NextFTC Quickstart](https://github.com/3DRoboticsDuluth/NextFTC-Quickstart),
+not from this Decode/Osiris tip. Retain Quickstart as the `quickstart` remote so the
+season preserves the complete FTC/platform history and can rebase onto future
+corrections. See [Start a new season](docs/guides/new-season.md) for the exact
+workflow, collaboration cautions, and replacement checklist.
 
 ## Verification
 
@@ -40,7 +43,7 @@ All reusable modules and TeamCode enforce 100% line and branch coverage. Run the
 repository verification command before merging:
 
 ```powershell
-.\gradlew :3drdNextFTC:check :3drdNextFTC:unitTestCoverage :TeamCode:check :TeamCode:unitTestCoverage :TeamCode:assembleDebug
+.\gradlew :3drdNextFTC:check :3drdNextFTC:unitTestCoverage :3drdQuanomous:check :3drdQuanomous:unitTestCoverage :TeamCode:check :TeamCode:unitTestCoverage :TeamCode:assembleDebug
 ```
 
 The upstream FTC release notes remain available in the Git history at the
