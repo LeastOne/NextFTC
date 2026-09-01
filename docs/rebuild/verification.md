@@ -9,7 +9,7 @@ hardware behavior.
 From the repository root on Windows:
 
 ```powershell
-.\gradlew :3drdNextFTC:check :3drdNextFTC:unitTestCoverage :TeamCode:check :TeamCode:unitTestCoverage :TeamCode:assembleDebug
+.\gradlew :3drdNextFTC:check :3drdNextFTC:unitTestCoverage :3drdQuanomous:check :3drdQuanomous:unitTestCoverage :TeamCode:check :TeamCode:unitTestCoverage :TeamCode:assembleDebug
 ```
 
 On a POSIX runner use `./gradlew` with the same tasks.
@@ -101,3 +101,25 @@ configuration without an active OpMode, original constructors and servo fluent r
 initialization, failure isolation and retry, and telemetry/update behavior.
 No robot deployment or physical test was performed. Consuming teams must rebuild
 and perform a full install for the changed runtime types before using Sloth.
+
+Treat the hardware checklist on [Phase 3](phase-3.md) as mandatory evidence before
+competition use.
+
+## Osiris native-hardware trial rebase — October 24, 2026
+
+The personal NextFTC main branch was rebased locally onto Quickstart's unpublished
+native-hardware adaptation and documentation launchers. Robot declarations and
+behavior were preserved. Conveyor and Intake required explicit imports for the
+new `velocityPercentage` extension; no control logic changed. The verification
+guide retained both the platform validation and Phase 3 hardware checklist.
+
+The full three-module Gradle check/coverage/APK command passes with
+`--max-workers=2 --continue`. Debug and release each pass 138 NextFTC library tests,
+4 Quanomous tests, and 129 TeamCode tests. All modules retain 100% line and branch
+coverage: NextFTC 885/349, Quanomous 50/4, TeamCode 899/349 (lines/branches).
+Strict MkDocs and diff checks pass. No thresholds or exclusions were relaxed.
+
+This remains desktop evidence. A full APK installation and physical verification
+of mechanism directions, initialized configuration, telemetry, and lifecycle Stop
+are still needed before competition use. The trial does not establish robot
+hardware validation or authorize deployment.

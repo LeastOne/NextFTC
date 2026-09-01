@@ -1,16 +1,15 @@
-# Project Context
+# Project context
 
 This page is the concise handoff for mentors, contributors, and coding agents. The
 linked pages are canonical when more detail is needed.
 
 ## Purpose
 
-The repository begins with FTC Robot Controller v11.2 and adds a reusable 3DRD
-Kotlin/NextFTC platform plus a neutral TeamCode scaffold. The first BIOBUZZ upgrade
-track adopts FTC SDK 12 and Pedro 2.1.2 while retaining NextFTC v1; Pedro 3 and
-NextFTC v2 remain future evaluations. Current `main` is the
-season template. Decode/Osiris behavior and Quanomous remain in the separate
-`LeastOne/NextFTC` implementation repository.
+The repository begins with FTC Robot Controller v11.2, inherits the reusable 3DRD
+Kotlin/NextFTC platform and neutral TeamCode scaffold from Quickstart develop,
+then adds the Decode/Osiris robot. The platform adopts FTC SDK 12 and Pedro 2.1.2
+while retaining NextFTC v1; Pedro 3 and NextFTC v2 remain future evaluations.
+Current `main` is not a neutral season template.
 
 ## Read First
 
@@ -29,6 +28,7 @@ season template. Decode/Osiris behavior and Quanomous remain in the separate
 ## Non-Negotiable Boundaries
 
 - Reusable NextFTC behavior belongs in `3drdNextFTC`.
+- Quanomous parsing/storage/compiler belongs in independent `3drdQuanomous`.
 - Hardware names, constants, game concepts, controls, mechanisms, vision, and
   strategy belong in TeamCode.
 - Telemetry is current state; logging is event history.
