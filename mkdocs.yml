@@ -99,11 +99,13 @@ nav:
           - Verification: rebuild/verification.md
           - Phase 3 — Decode and Osiris: rebuild/phase-3.md
           - One-shot clean-room rebuild: rebuild/one-shot.md
+          - Clean-room audit: rebuild/clean-room-audit.md
       - Reference:
           - Modules and dependencies: reference/modules-dependencies.md
           - BIOBUZZ upgrade review: reference/season-upgrades-review.md
           - Upstream resources: reference/upstream.md
           - Settings: reference/settings.md
           - Decisions: reference/decisions.md
+          - Public API contract: reference/public-api-contract.md
           - Glossary: reference/glossary.md
           - Project context: project-context.md
