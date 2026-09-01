@@ -5,9 +5,10 @@ linked pages are canonical when more detail is needed.
 
 ## Purpose
 
-The repository begins with FTC Robot Controller v11.2 and adds a reusable 3DRD
-Kotlin/NextFTC platform. This commit is the neutral seasonal template identified
-by the annotated tag `reusable-season-base`.
+The repository begins with FTC Robot Controller v11.2, adds a reusable 3DRD Kotlin/
+NextFTC platform, then adds the Decode/Osiris robot. The reusable endpoint is the
+annotated tag `reusable-season-base`. Current `main` is not a neutral season
+template.
 
 ## Read first
 
@@ -21,8 +22,7 @@ by the annotated tag `reusable-season-base`.
 ## Non-negotiable boundaries
 
 - Reusable NextFTC behavior belongs in `3drdNextFTC`.
-- Quanomous parsing, storage, and compilation belong in independent
-  `3drdQuanomous`.
+- Quanomous parsing/storage/compiler belongs in independent `3drdQuanomous`.
 - Hardware names, constants, game concepts, controls, mechanisms, vision, and
   strategy belong in TeamCode.
 - Telemetry is current state; logging is event history.

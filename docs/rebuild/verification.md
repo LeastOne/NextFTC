@@ -65,5 +65,5 @@ Unit tests can prove signs, values, and calls against mocks. They cannot prove:
 - a sensor sees the real field/environment;
 - network deployment, Driver Station, Panels, and robot firmware interoperate.
 
-Use the [hardware worksheet](../guides/hardware-worksheet.md) as mandatory evidence
-before competition use.
+Treat the hardware checklist on [Phase 3](phase-3.md) as mandatory evidence before
+competition use.

@@ -39,12 +39,14 @@ a zip file; it loses the upstream ancestry this architecture requires.
 |---|---|---|
 | 1 — FTC foundation | `e4d71312` | FTC project syncs/builds; ADB tools exist; only targeted warning policy changed |
 | 2 — reusable platform | `reusable-season-base` | Full mandated verification passes with neutral TeamCode |
+| 3 — Decode/Osiris | phase-3 implementation commits | Full verification passes and robot hardware tests are completed |
 
 Follow the phase pages in order:
 
 1. [Phase 1 — FTC foundation](phase-1.md)
 2. [Phase 2 — reusable platform](phase-2.md)
-3. [Verification](verification.md)
+3. [Phase 3 — Decode and Osiris](phase-3.md)
+4. [Verification](verification.md)
 
 ## Exact replay
 
@@ -62,5 +64,4 @@ A rebuild is complete only when:
 - no robot-specific values exist before phase 3;
 - final `main` passes all tests, coverage verification, and Android assembly;
 - documentation builds with strict mode;
-- robot-side hardware and control checks are recorded for the resulting physical
-  robot.
+- robot-side hardware and control checks are recorded for the physical robot.

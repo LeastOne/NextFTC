@@ -56,6 +56,12 @@ nav:
       - FTC foundation: requirements/foundation.md
       - Reusable platform: requirements/platform.md
       - Seasonal scaffold: requirements/seasonal-base.md
+      - Decode and Osiris: requirements/decode-osiris.md
+      - Osiris system specification: requirements/osiris-system.md
+      - Osiris mechanism specification: requirements/osiris-mechanisms.md
+      - Osiris navigation and vision: requirements/osiris-navigation-vision.md
+      - Osiris autonomous specification: requirements/osiris-autonomous.md
+      - Traceability: requirements/traceability.md
   - Architecture:
       - architecture/overview.md
       - Lifecycle: architecture/lifecycle.md
@@ -69,15 +75,19 @@ nav:
       - rebuild/index.md
       - Phase 1 — FTC foundation: rebuild/phase-1.md
       - Phase 2 — reusable platform: rebuild/phase-2.md
+      - Phase 3 — Decode and Osiris: rebuild/phase-3.md
+      - One-shot clean-room rebuild: rebuild/one-shot.md
       - Verification: rebuild/verification.md
   - Guides:
       - Start a new season: guides/new-season.md
       - Build the first robot: guides/first-robot.md
       - Hardware worksheet: guides/hardware-worksheet.md
       - Add a subsystem: guides/subsystem.md
+      - Build autonomous behavior: guides/autonomous.md
   - Reference:
       - Modules and dependencies: reference/modules-dependencies.md
       - Upstream resources: reference/upstream.md
+      - Hardware and controls: reference/hardware-controls.md
       - Settings: reference/settings.md
       - Decisions: reference/decisions.md
       - Glossary: reference/glossary.md

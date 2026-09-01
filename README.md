@@ -1,8 +1,9 @@
 # 3DRD NextFTC
 
-This repository is 3D Robotics Duluth's requirements-driven FTC robot platform.
-It starts from the official FIRST Tech Challenge Robot Controller v11.2 repository
-and adds a reusable Kotlin and NextFTC platform for starting a robot season.
+This repository is 3D Robotics Duluth's requirements-driven FTC robot platform and
+its Decode-season implementation for the Osiris robot. It starts from the official
+FIRST Tech Challenge Robot Controller v11.2 repository, adds a reusable Kotlin and
+NextFTC platform, and then layers the robot- and season-specific code on top.
 
 ## Documentation
 
