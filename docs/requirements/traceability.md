@@ -18,6 +18,8 @@ Individual test methods provide finer-grained behavior examples.
 | `REQ-PLT-020`–`022` | `8b70be56` | `config`, `ConfigSubsystem`, `Persistence`, `Storage` | Settings, config component/subsystem, persistence, and storage tests |
 | `REQ-PLT-033`–`037` | `19604a24` | `DriveSubsystem`, `NavSubsystem`, `pedropathing` helpers | Drive/Nav and Pedro helper test suites |
 | `REQ-PLT-042` | `4b3855f1` | `util.Debounce` | `DebounceTests` |
+| `REQ-PLT-045` | Velocity-profile utilities | `nextftc.control.interpolators`; [control architecture](../architecture/control.md) | `VelocityInterpolatorTests` |
+| `REQ-PLT-046` | Software-current feedback | `nextftc.control.CurrentLimiter` | `CurrentLimiterTests` |
 | `REQ-PLT-040`–`041` | `d7441bc7` | `3drdQuanomous` | Quanomous parse, compile, and storage tests |
 | `REQ-SCF-001`–`006` | `29075d09` | Neutral `TeamCode` at the base tag | TeamCode OpMode, config, timing, constants, and telemetry tests |
 | `REQ-SCF-007`, `REQ-QLT-001`–`007` | `3d35384f`, completed at `reusable-season-base` | `AGENTS.md`, documentation, inspection profiles, coverage rules | Full mandated verification and strict docs build |

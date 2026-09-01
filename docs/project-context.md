@@ -23,6 +23,7 @@ Current `main` is not a neutral season template.
 - [Architecture overview](architecture/overview.md)
 - [Requirements](requirements/index.md)
 - [Rebuild guide](rebuild/index.md)
+- [Audit a one-shot rebuild](rebuild/one-shot.md)
 - [Architectural decisions](reference/decisions.md)
 
 ## Non-Negotiable Boundaries

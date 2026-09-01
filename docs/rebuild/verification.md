@@ -105,6 +105,15 @@ and perform a full install for the changed runtime types before using Sloth.
 Treat the hardware checklist on [Phase 3](phase-3.md) as mandatory evidence before
 competition use.
 
+## Interpreting clean-room coverage
+
+Coverage is measured against the implementation being tested. A clean-room rebuild
+may pass every canonical behavior test yet report less than 100% if it introduces
+additional branches or defensive paths. Do not lower the threshold. Add meaningful
+tests for those paths or simplify the implementation, then rerun the mandatory
+command. The [clean-room audit](clean-room-audit.md) records one such result so it
+cannot be mistaken for a behavioral acceptance failure.
+
 ## Osiris native-hardware trial rebase — October 24, 2026
 
 The personal NextFTC main branch was rebased locally onto Quickstart's unpublished
