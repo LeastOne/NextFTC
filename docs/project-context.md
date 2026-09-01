@@ -17,6 +17,7 @@ then adds the Decode/Osiris robot. Current `main` is not a neutral season templa
 - [Architecture overview](architecture/overview.md)
 - [Requirements](requirements/index.md)
 - [Rebuild guide](rebuild/index.md)
+- [Audit a one-shot rebuild](rebuild/one-shot.md)
 - [Architectural decisions](reference/decisions.md)
 
 ## Non-Negotiable Boundaries

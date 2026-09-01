@@ -33,6 +33,8 @@ The repository has two intentional endpoints:
 - [Architecture](architecture/overview.md) explains how the pieces work.
 - [Requirements](requirements/index.md) defines the durable what and why.
 - [Rebuild](rebuild/index.md) reproduces both the reusable base and Osiris.
+- [Clean-room rebuild](rebuild/one-shot.md) audits whether the requirements can
+  reproduce Osiris without inspecting later production source.
 - [Reference](reference/modules-dependencies.md) records exact values and decisions.
 
 ## Documentation Contract

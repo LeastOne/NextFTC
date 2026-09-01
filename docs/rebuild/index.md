@@ -39,7 +39,7 @@ a zip file; it loses the upstream ancestry this architecture requires.
 |---|---|---|
 | 1 — FTC foundation | `e4d71312` | FTC project syncs/builds; ADB tools exist; only targeted warning policy changed |
 | 2 — reusable platform | Quickstart `bdfc6ad6` | Full mandated verification passes with neutral TeamCode |
-| 3 — Decode/Osiris | phase-3 implementation commits | Full verification passes and robot hardware tests are completed |
+| 3 — Decode/Osiris | phase-3 implementation commits, then requirements and audit commits | Full verification passes and robot hardware tests are completed |
 
 Follow the phase pages in order:
 
@@ -47,6 +47,11 @@ Follow the phase pages in order:
 2. [Phase 2 — reusable platform](phase-2.md)
 3. [Phase 3 — Decode and Osiris](phase-3.md)
 4. [Verification](verification.md)
+
+Use [One-shot clean-room rebuild](one-shot.md) when the objective is to recreate
+the system from requirements without inspecting or cherry-picking later production
+source. It includes the canonical agent instruction and turns unanswered questions
+into documentation work.
 
 ## Exact Replay
 

@@ -14,6 +14,8 @@ and before claiming the requirements are complete.
 
 A clean-room result need not have byte-identical source. It MUST have the same
 observable behavior, module boundaries, safety properties, tests, and phase gates.
+It MUST also preserve the [public API contract](../reference/public-api-contract.md)
+when compatibility with existing seasons, tests, or consumers is required.
 
 ## Prepare an isolated worktree
 
@@ -105,3 +107,8 @@ Classify each ambiguity:
 
 Repeat the audit until a competent agent produces no material behavioral
 assumptions. That, rather than page count, is the standard for one-shot completeness.
+
+See the [2026-08-30 clean-room audit](clean-room-audit.md) for the independent
+prose-only result, the subsequently revealed acceptance-test result, and the
+precise boundary between behavioral reconstruction and implementation-relative
+coverage.

@@ -84,6 +84,7 @@ nav:
       - Phase 2 — reusable platform: rebuild/phase-2.md
       - Phase 3 — Decode and Osiris: rebuild/phase-3.md
       - One-shot clean-room rebuild: rebuild/one-shot.md
+      - Clean-room audit: rebuild/clean-room-audit.md
       - Verification: rebuild/verification.md
   - Reference:
       - Modules and dependencies: reference/modules-dependencies.md
@@ -91,5 +92,6 @@ nav:
       - Hardware and controls: reference/hardware-controls.md
       - Settings: reference/settings.md
       - Decisions: reference/decisions.md
+      - Public API contract: reference/public-api-contract.md
       - Glossary: reference/glossary.md
       - Project context: project-context.md
