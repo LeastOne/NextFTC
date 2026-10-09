@@ -11,7 +11,7 @@ import dev.nextftc.ftc.Gamepads.gamepad2
 import dev.nextftc.extensions.pedro.PedroComponent.Companion.follower
 import org.firstinspires.ftc.threedrd.nextftc.hardware.MotorEx
 import org.firstinspires.ftc.threedrd.nextftc.hardware.ServoEx
-import org.firstinspires.ftc.threedrd.nextftc.hardware.device
+import org.firstinspires.ftc.threedrd.nextftc.hardware.Device
 import org.firstinspires.ftc.threedrd.nextftc.hardware.update
 import org.firstinspires.ftc.threedrd.nextftc.subsystems.Subsystem
 import org.firstinspires.ftc.threedrd.util.Debounce
@@ -46,7 +46,7 @@ object Intake : Subsystem() {
         zeroPowerBehavior = FLOAT
     }
 
-    val laser by device(DigitalChannel::class.java, "laser2") { mode = INPUT }
+    val laser by Device("laser2", DigitalChannel::class.java) { mode = INPUT }
     val bumperLeft = ServoEx("bumperLeft") { scaleRange(BUMPER_LEFT_MIN, BUMPER_LEFT_MAX) }
     val bumperRight = ServoEx("bumperRight") { scaleRange(BUMPER_RIGHT_MIN, BUMPER_RIGHT_MAX) }
 

@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.adaptations.gobilda.prism.GoBildaPrismDriv
 import org.firstinspires.ftc.teamcode.adaptations.gobilda.prism.GoBildaPrismDriver.Artboard.ARTBOARD_0
 import org.firstinspires.ftc.teamcode.adaptations.gobilda.prism.GoBildaPrismDriver.LayerHeight.LAYER_0
 import org.firstinspires.ftc.teamcode.adaptations.gobilda.prism.PrismAnimations
-import org.firstinspires.ftc.threedrd.nextftc.hardware.device
+import org.firstinspires.ftc.threedrd.nextftc.hardware.Device
 import org.firstinspires.ftc.threedrd.nextftc.subsystems.Subsystem
 import org.firstinspires.ftc.teamcode.game.Alliance
 import org.firstinspires.ftc.teamcode.subsystems.Config.alliance
@@ -20,7 +20,7 @@ object Lights : Subsystem() {
     var color = RED
     var stripLength = 48
 
-    val prism by device(GoBildaPrismDriver::class.java, "prism") { configure(this) }
+    val prism by Device("prism", GoBildaPrismDriver::class.java) { configure(this) }
 
     fun set(color: Color) = instant { show(color) }.named("Lights.set")
 
