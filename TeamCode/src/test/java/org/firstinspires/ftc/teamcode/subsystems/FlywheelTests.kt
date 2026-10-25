@@ -92,13 +92,17 @@ class FlywheelTests : SubsystemTests() {
     @Test
     fun periodicControlsEachMotorFromItsOwnFeedback() {
         Flywheel.VEL = 0.4
-        `when`(Flywheel.motorLeft.motor.velocity).thenReturn(200.0)
+        `when`(Flywheel.motorLeft.motor.velocity).thenReturn(-200.0)
         `when`(Flywheel.motorRight.motor.velocity).thenReturn(500.0)
 
         Flywheel.periodic()
 
         assertEquals(0.6, Flywheel.motorLeft.power, 1e-9)
         assertEquals(0.3, Flywheel.motorRight.power, 1e-9)
+        assertEquals(-1, Flywheel.motorLeft.direction)
+        assertEquals(1, Flywheel.motorRight.direction)
+        verify(Flywheel.motorLeft.motor).power = -Flywheel.motorLeft.power
+        verify(Flywheel.motorRight.motor).power = Flywheel.motorRight.power
         listOf(Flywheel.motorLeft, Flywheel.motorRight).forEach {
             verify(it.motor, never()).setVelocityPIDFCoefficients(anyDouble(), anyDouble(), anyDouble(), anyDouble())
             verify(it.motor, never()).velocity = anyDouble()
@@ -115,7 +119,7 @@ class FlywheelTests : SubsystemTests() {
         Flywheel.periodic()
         assertEquals(-1.0, Flywheel.VEL, 0.0)
         assertEquals(-1.0, Flywheel.motorRight.power, 0.0)
-        `when`(Flywheel.motorLeft.motor.velocity).thenReturn(300.0)
+        `when`(Flywheel.motorLeft.motor.velocity).thenReturn(-300.0)
         `when`(Flywheel.motorRight.motor.velocity).thenReturn(300.0)
         Flywheel.stop.start()
         Flywheel.periodic()
@@ -137,9 +141,9 @@ class FlywheelTests : SubsystemTests() {
     fun readinessRequiresBothMotorsWithinToleranceOfAPositiveTarget() {
         assertFalse(Flywheel.ready())
         Flywheel.VEL = 0.5
-        `when`(Flywheel.motorLeft.motor.velocity).thenReturn(300.0)
+        `when`(Flywheel.motorLeft.motor.velocity).thenReturn(-300.0)
         assertFalse(Flywheel.ready())
-        `when`(Flywheel.motorLeft.motor.velocity).thenReturn(500.0)
+        `when`(Flywheel.motorLeft.motor.velocity).thenReturn(-500.0)
         `when`(Flywheel.motorRight.motor.velocity).thenReturn(300.0)
         assertFalse(Flywheel.ready())
         `when`(Flywheel.motorRight.motor.velocity).thenReturn(500.0)

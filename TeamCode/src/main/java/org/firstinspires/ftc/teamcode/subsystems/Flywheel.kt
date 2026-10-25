@@ -1,10 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
 import com.bylazar.configurables.annotations.Configurable
-import com.qualcomm.robotcore.hardware.DcMotor.RunMode.RUN_WITHOUT_ENCODER
-import com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.FLOAT
-import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD
-import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE
 import dev.nextftc.control.ControlSystem
 import dev.nextftc.control.KineticState
 import dev.nextftc.control.builder.controlSystem
@@ -37,17 +33,8 @@ object Flywheel : Subsystem() {
     var VEL = STOP
     var targeting = false
 
-    val motorLeft = MotorEx("flywheelLeft") {
-        zeroPowerBehavior = FLOAT
-        direction = REVERSE
-        mode = RUN_WITHOUT_ENCODER
-    }
-
-    val motorRight = MotorEx("flywheelRight") {
-        zeroPowerBehavior = FLOAT
-        direction = FORWARD
-        mode = RUN_WITHOUT_ENCODER
-    }
+    val motorLeft = MotorEx("flywheelLeft").floatMode().reversed()
+    val motorRight = MotorEx("flywheelRight").floatMode()
 
     val leftController = controlSystem { velPid(PID); basicFF(FF) }
     val rightController = controlSystem { velPid(PID); basicFF(FF) }

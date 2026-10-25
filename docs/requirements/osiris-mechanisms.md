@@ -139,7 +139,12 @@ Hub PIDF loop. Every periodic cycle recalculates and bounds the normalized targe
 to `-1..1`. Each motor has its own NextControl `ControlSystem` using `velPid` and
 `basicFF`, with encoder feedback from `MotorEx.velocityPercentage`. Output is
 bounded power through the native NextFTC motor API. `RUN_WITHOUT_ENCODER` disables
-the Hub velocity controller; encoder readings remain available. The mutable PID
+the Hub velocity controller; NextFTC selects it when writing power, and encoder
+readings remain available. Fluent `floatMode()` declarations retain lazy hardware
+initialization. The left motor uses NextFTC `reversed()` rather than SDK direction:
+native power and velocity have the intended logical sign, while raw `.motor`
+readings and the existing SDK-based motor telemetry retain the physical sign.
+The mutable PID
 and feedforward parameter objects are shared, but controller history is independent.
 The example gains demonstrate the architecture; they are not calibrated robot gains.
 The supplied `KineticState` contains velocity only. Acceleration is zero, so the
