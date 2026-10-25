@@ -151,6 +151,17 @@ velocity makes the example gains readable. Readiness uses a symmetric tolerance,
 and zero target explicitly coasts rather than actively braking to zero.
 This replaces the earlier embedded-control decision for this branch only.
 
+Flywheel now applies the inherited acceleration-limited interpolator and sampled
+current limiter independently per motor. Profiles shape the velocity reference;
+limiters cap the resulting power using measured amperes. Keep readiness tied to the
+final target and bypass both for immediate zero-power stop. New profile/current
+settings are captured by suppliers and read by the existing instances on update;
+PID/FF coefficient objects remain live. Panels writes fields directly, so suppliers
+avoid reliance on Kotlin setters or per-cycle property copying. Profile progress
+and current caps survive edits.
+This demonstrates composition of NextControl utilities rather than a guaranteed
+electrical protection mechanism (REQ-DEC-028).
+
 ## Separate Seasonal Upgrades from Framework Migrations
 
 Upgrade FTC SDK 12, Panels, Sloth/Load, Pedro 2.1.2, Kotlin, Mockito, and drive

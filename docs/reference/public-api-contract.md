@@ -26,12 +26,15 @@ seams unless a deliberate breaking change updates this page and its tests.
 
 ## Control utilities
 
-`ExponentialVelocityInterpolator(timeConstant, seconds)` and
-`AccelerationLimitedVelocityInterpolator(maxAcceleration, seconds)` implement
+`VelocitySmoother(timeConstant, seconds)` and
+`VelocityRamp(maxAcceleration, seconds)` implement
 NextControl's `goal`, `currentReference`, and `reset()`. `CurrentLimiter(maxCurrent,
 reductionRate = 2.0, recoveryRate = 0.5, seconds)` exposes `limit(power, current)`,
-read-only `powerLimit`, and `reset()`. Positive finite constructor settings are
-read-only properties. Each optional `seconds` function defaults to a monotonic
+read-only `powerLimit`, and `reset()`. Positive finite tuning settings are
+suppliers sampled and validated once per update, with fixed-number convenience
+constructors. Read current supplied settings through `maxAcceleration()`,
+`timeConstant()`, `maxCurrent()`, `reductionRate()`, or `recoveryRate()` rather than
+assigning the former mutable properties. Each optional `seconds` function defaults to a monotonic
 system clock and returns seconds. See [Control](../architecture/control.md) for
 the normative units, algorithms, reset behavior, and experimental limitations.
 

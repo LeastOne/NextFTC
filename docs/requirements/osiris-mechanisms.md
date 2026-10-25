@@ -117,6 +117,9 @@ Lifecycle stop selects stop and writes zero power immediately.
 |---|---:|
 | NextControl velocity PID | `(1.0, 0.0, 0.0)` |
 | Motor feedforward `kV`, `kA`, `kS` | `1.0`, `0.0`, `0.0` |
+| Maximum reference acceleration | `1.6` normalized velocity units/second |
+| Current threshold | `5.0` A per motor |
+| Power-cap reduction/recovery rate | `2.0` / `0.5` power units/second |
 | Axial feedforward `kS`, `kV`, `kA` | `0.0`, `0.0008`, `0.0` |
 | Forward/reverse/hold/stop | `0.4`, `-0.5`, `-0.2`, `0.0` |
 | Ready tolerance | `0.05` normalized speed, above and below target |
@@ -147,17 +150,43 @@ readings and the existing SDK-based motor telemetry retain the physical sign.
 The mutable PID
 and feedforward parameter objects are shared, but controller history is independent.
 The example gains demonstrate the architecture; they are not calibrated robot gains.
-The supplied `KineticState` contains velocity only. Acceleration is zero, so the
-default zero `kD` and `kA` remain appropriate; using those terms would require
-measured acceleration and a target acceleration/profile respectively.
+The measured `KineticState` contains velocity only; measured acceleration is zero.
+Each controller has its own acceleration-limited velocity interpolator, which
+supplies reference velocity and acceleration. Motor `kA` can use that reference;
+the example leaves `kA` and `kD` zero, without claiming derivative feedback from
+measured acceleration.
 The axial compensation above adjusts the requested speed; motor feedforward
 converts that requested speed into power.
 
-A zero target resets both controllers and writes zero power, allowing coasting.
+Both profiles receive the final bounded target. At `MAX_ACCELERATION = 1.6`,
+reference speed rises from zero to `0.4` in 250 ms. Profiles limit acceleration,
+deceleration, and reversal; the independent feedback loops can still produce
+different powers. Each requested power passes through its own `CurrentLimiter`
+using a fresh SDK current reading in amperes. Above `MAX_CURRENT`, the cap falls
+at `CURRENT_REDUCTION`; at or below the threshold it recovers at `CURRENT_RECOVERY`.
+The cap remains `0..1` and clips either sign of power. These example settings
+illustrate the experiment, not calibrated motor ratings. This sampled response
+does not guarantee a current ceiling or prevent brief spikes; see
+[control utilities](../architecture/control.md) for the full limiter contract.
+
+`MAX_ACCELERATION`, `MAX_CURRENT`, `CURRENT_REDUCTION`, and `CURRENT_RECOVERY`
+are plain mutable settings captured by tuning lambdas on the existing instances.
+The utilities read those lambdas on update, supporting Panels' backing-field writes
+as well as normal Kotlin assignments without per-cycle property copying.
+Changes take effect without reinitialization or resetting profile/limiter state.
+Initialization resets the existing controllers and limiters. The profiles use
+`VelocityRamp`; the optional exponential library alternative is `VelocitySmoother`.
+Edits to the shared PID/FF coefficient objects remain live. The injectable `seconds`
+clock supports deterministic integration tests.
+
+A zero target resets both profiles/controllers and current limiters and writes
+zero power, allowing coasting without ramping down or actively braking.
 Ready requires a positive target and both measured normalized speeds within the
-absolute tolerance; overspeed also fails readiness. `untilReady()` retains its
-one-second maximum. Initialization resets controller history. Lifecycle stop clears
-targeting, selects stop, resets history, and directly writes zero to both motors.
+absolute tolerance of the final target, not the intermediate ramp reference;
+overspeed also fails readiness. `untilReady()` retains its one-second maximum.
+Lifecycle stop clears targeting, selects stop, resets profiles and limiters,
+and directly writes zero to both motors without waiting for another periodic call.
+Restarting after a stop begins the profile from rest, even after a long idle period.
 
 ## Kickstand
 

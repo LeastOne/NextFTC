@@ -4,6 +4,7 @@ import com.pedropathing.follower.Follower
 import com.pedropathing.geometry.Pose
 import com.pedropathing.math.Vector
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit.AMPS
 import dev.nextftc.extensions.pedro.PedroComponent
 import org.firstinspires.ftc.teamcode.adaptations.nextftc.hardware.configureHardwareTelemetry
 import org.firstinspires.ftc.teamcode.game.Alliance.BLUE
@@ -11,6 +12,7 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Assert.assertSame
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito.mock
@@ -22,9 +24,12 @@ import org.mockito.Mockito.`when`
 class FlywheelTests : SubsystemTests() {
     lateinit var pedro: PedroComponent
     lateinit var follower: Follower
+    var time = 0.0
 
     @Before
     fun setUp() {
+        assertTrue(Flywheel.seconds().isFinite())
+        Flywheel.seconds = { time }
         follower = mock(Follower::class.java)
         pedro = PedroComponent { follower }.apply { preInit() }
         Flywheel.initializeHardware()
@@ -34,6 +39,7 @@ class FlywheelTests : SubsystemTests() {
             `when`(motor.motor.motorType).thenReturn(type)
             `when`(type.achieveableMaxTicksPerSecond).thenReturn(1000.0)
             `when`(motor.motor.velocity).thenReturn(0.0)
+            `when`(motor.motor.getCurrent(AMPS)).thenReturn(0.0)
         }
         `when`(follower.pose).thenReturn(Pose())
         `when`(follower.velocity).thenReturn(Vector())
@@ -48,6 +54,10 @@ class FlywheelTests : SubsystemTests() {
         Flywheel.AXIAL_KS = 0.0
         Flywheel.AXIAL_KV = 0.0008
         Flywheel.AXIAL_KA = 0.0
+        Flywheel.MAX_ACCELERATION = 1.6
+        Flywheel.MAX_CURRENT = 5.0
+        Flywheel.CURRENT_REDUCTION = 2.0
+        Flywheel.CURRENT_RECOVERY = 0.5
         Flywheel.initialize()
     }
 
@@ -92,6 +102,8 @@ class FlywheelTests : SubsystemTests() {
     @Test
     fun periodicControlsEachMotorFromItsOwnFeedback() {
         Flywheel.VEL = 0.4
+        Flywheel.periodic()
+        time = 0.25
         `when`(Flywheel.motorLeft.motor.velocity).thenReturn(-200.0)
         `when`(Flywheel.motorRight.motor.velocity).thenReturn(500.0)
 
@@ -113,9 +125,13 @@ class FlywheelTests : SubsystemTests() {
     fun targetsAndPowerAreBoundedAndZeroTargetCoasts() {
         Flywheel.VEL = 2.0
         Flywheel.periodic()
+        time = 1.0
+        Flywheel.periodic()
         assertEquals(1.0, Flywheel.VEL, 0.0)
         assertEquals(1.0, Flywheel.motorLeft.power, 0.0)
         Flywheel.VEL = -2.0
+        Flywheel.periodic()
+        time = 3.0
         Flywheel.periodic()
         assertEquals(-1.0, Flywheel.VEL, 0.0)
         assertEquals(-1.0, Flywheel.motorRight.power, 0.0)
@@ -132,6 +148,8 @@ class FlywheelTests : SubsystemTests() {
         Flywheel.PID.kP = 0.5
         Flywheel.FF.kV = 0.5
         Flywheel.VEL = 0.4
+        Flywheel.periodic()
+        time = 0.25
         Flywheel.periodic()
         assertEquals(0.4, Flywheel.motorLeft.power, 1e-9)
         assertEquals(0.4, Flywheel.motorRight.power, 1e-9)
@@ -157,6 +175,13 @@ class FlywheelTests : SubsystemTests() {
     fun lifecycleStopStopsBothMotors() {
         Flywheel.targeting = true
         Flywheel.VEL = 1.0
+        Flywheel.periodic()
+        time = 1.0
+        Flywheel.periodic()
+        `when`(Flywheel.motorLeft.motor.getCurrent(AMPS)).thenReturn(6.0)
+        time = 1.25
+        Flywheel.periodic()
+        assertEquals(0.5, Flywheel.leftLimiter.powerLimit, 0.0)
 
         Flywheel.stop()
 
@@ -164,6 +189,136 @@ class FlywheelTests : SubsystemTests() {
         assertEquals(0.0, Flywheel.VEL, 0.0)
         assertEquals(0.0, Flywheel.motorLeft.power, 0.0)
         assertEquals(0.0, Flywheel.motorRight.power, 0.0)
+        assertEquals(0.0, Flywheel.leftController.goal.velocity, 0.0)
+        assertEquals(0.0, Flywheel.rightController.goal.velocity, 0.0)
+        assertEquals(1.0, Flywheel.leftLimiter.powerLimit, 0.0)
+        assertEquals(1.0, Flywheel.rightLimiter.powerLimit, 0.0)
+    }
+
+    @Test
+    fun accelerationRampDoesNotDeclareReadinessAtAnIntermediateSpeed() {
+        Flywheel.forward.start()
+        Flywheel.periodic()
+        time = 0.125
+        `when`(Flywheel.motorLeft.motor.velocity).thenReturn(-200.0)
+        `when`(Flywheel.motorRight.motor.velocity).thenReturn(200.0)
+        Flywheel.periodic()
+        assertEquals(0.2, Flywheel.leftController.reference.velocity, 1e-9)
+        assertEquals(0.2, Flywheel.rightController.reference.velocity, 1e-9)
+        assertEquals(0.2, Flywheel.motorLeft.power, 1e-9)
+        assertFalse(Flywheel.ready())
+        assertEquals(0.4, Flywheel.VEL, 0.0)
+    }
+
+    @Test
+    fun eachMotorLimitsItsOwnCurrentAndStopRestartsFromRestAfterIdle() {
+        Flywheel.VEL = 1.0
+        Flywheel.periodic()
+        time = 1.0
+        Flywheel.periodic()
+        `when`(Flywheel.motorLeft.motor.getCurrent(AMPS)).thenReturn(6.0)
+        time = 1.25
+        Flywheel.periodic()
+        assertEquals(0.5, Flywheel.motorLeft.power, 0.0)
+        assertEquals(1.0, Flywheel.motorRight.power, 0.0)
+        time = 1.5
+        Flywheel.periodic()
+        assertEquals(0.0, Flywheel.motorLeft.power, 0.0)
+        `when`(Flywheel.motorLeft.motor.getCurrent(AMPS)).thenReturn(0.0)
+        time = 1.75
+        Flywheel.periodic()
+        assertEquals(0.125, Flywheel.motorLeft.power, 0.0)
+        Flywheel.stop.start()
+        Flywheel.periodic()
+        assertEquals(0.0, Flywheel.motorLeft.power, 0.0)
+        assertEquals(0.0, Flywheel.motorRight.power, 0.0)
+        assertEquals(1.0, Flywheel.leftLimiter.powerLimit, 0.0)
+        time = 100.0
+        Flywheel.forward.start()
+        Flywheel.periodic()
+        assertEquals(0.0, Flywheel.motorLeft.power, 0.0)
+        assertEquals(0.0, Flywheel.motorRight.power, 0.0)
+        time = 100.125
+        Flywheel.periodic()
+        assertEquals(0.2, Flywheel.leftController.reference.velocity, 1e-9)
+    }
+
+    @Test
+    fun settingsApplyToBothMotorsWithoutReinitialization() {
+        Flywheel.MAX_ACCELERATION = 2.0
+        Flywheel.MAX_CURRENT = 4.0
+        Flywheel.CURRENT_REDUCTION = 1.0
+        Flywheel.CURRENT_RECOVERY = 0.25
+        Flywheel.VEL = 1.0
+        Flywheel.periodic()
+        `when`(Flywheel.motorLeft.motor.getCurrent(AMPS)).thenReturn(5.0)
+        `when`(Flywheel.motorRight.motor.getCurrent(AMPS)).thenReturn(5.0)
+        time = 0.1
+        Flywheel.periodic()
+        assertEquals(0.2, Flywheel.leftController.reference.velocity, 1e-9)
+        assertEquals(0.2, Flywheel.rightController.reference.velocity, 1e-9)
+        assertEquals(0.9, Flywheel.leftLimiter.powerLimit, 1e-9)
+        assertEquals(0.9, Flywheel.rightLimiter.powerLimit, 1e-9)
+        `when`(Flywheel.motorLeft.motor.getCurrent(AMPS)).thenReturn(0.0)
+        time = 0.2
+        Flywheel.periodic()
+        assertEquals(0.925, Flywheel.leftLimiter.powerLimit, 1e-9)
+    }
+
+    @Test
+    fun panelsStyleFieldEditsTuneRunningProfilesAndLimitersWithoutResettingState() {
+        val leftController = Flywheel.leftController
+        val rightController = Flywheel.rightController
+        val leftLimiter = Flywheel.leftLimiter
+        val rightLimiter = Flywheel.rightLimiter
+        Flywheel.VEL = 1.0
+        Flywheel.periodic()
+        time = 0.125
+        Flywheel.periodic()
+        assertEquals(0.2, Flywheel.leftRamp.currentReference.velocity, 1e-9)
+
+        // Panels writes backing fields rather than invoking Kotlin setters.
+        mapOf("MAX_ACCELERATION" to 3.2, "MAX_CURRENT" to 4.0,
+            "CURRENT_REDUCTION" to 1.0, "CURRENT_RECOVERY" to 1.0).forEach { (name, value) ->
+            Flywheel::class.java.getDeclaredField(name).apply { isAccessible = true }.setDouble(null, value)
+        }
+        assertEquals(3.2, Flywheel.leftRamp.maxAcceleration(), 0.0)
+        assertEquals(3.2, Flywheel.rightRamp.maxAcceleration(), 0.0)
+        listOf(leftLimiter, rightLimiter).forEach {
+            assertEquals(4.0, it.maxCurrent(), 0.0)
+            assertEquals(1.0, it.reductionRate(), 0.0)
+            assertEquals(1.0, it.recoveryRate(), 0.0)
+        }
+        Flywheel.periodic()
+        assertEquals(0.2, Flywheel.leftRamp.currentReference.velocity, 1e-9)
+        assertEquals(0.2, Flywheel.rightRamp.currentReference.velocity, 1e-9)
+        `when`(Flywheel.motorLeft.motor.getCurrent(AMPS)).thenReturn(5.0)
+        `when`(Flywheel.motorRight.motor.getCurrent(AMPS)).thenReturn(5.0)
+        time = 0.25
+        Flywheel.periodic()
+        assertEquals(0.6, Flywheel.leftRamp.currentReference.velocity, 1e-9)
+        assertEquals(0.6, Flywheel.rightRamp.currentReference.velocity, 1e-9)
+        assertEquals(0.875, Flywheel.motorLeft.power, 1e-9)
+        assertEquals(0.875, Flywheel.motorRight.power, 1e-9)
+
+        Flywheel.MAX_CURRENT = 10.0
+        Flywheel.CURRENT_RECOVERY = 0.5
+        Flywheel.periodic()
+        assertEquals(0.875, Flywheel.leftLimiter.powerLimit, 1e-9)
+        time = 0.375
+        Flywheel.periodic()
+        assertEquals(0.9375, Flywheel.leftLimiter.powerLimit, 1e-9)
+        assertEquals(0.9375, Flywheel.rightLimiter.powerLimit, 1e-9)
+        Flywheel.MAX_CURRENT = 4.0
+        Flywheel.CURRENT_REDUCTION = 2.0
+        time = 0.5
+        Flywheel.periodic()
+        assertEquals(0.6875, Flywheel.leftLimiter.powerLimit, 1e-9)
+        assertEquals(0.6875, Flywheel.rightLimiter.powerLimit, 1e-9)
+        assertSame(leftController, Flywheel.leftController)
+        assertSame(rightController, Flywheel.rightController)
+        assertSame(leftLimiter, Flywheel.leftLimiter)
+        assertSame(rightLimiter, Flywheel.rightLimiter)
     }
 
     @Test

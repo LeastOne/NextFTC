@@ -51,6 +51,11 @@ Add Intake, Conveyor, and Flywheel:
   [experimental control contract](../requirements/osiris-mechanisms.md#flywheel)
   for normalized units, example gains, zero-target coasting, and power bounds.
 - Motor-owning subsystems write safe power directly from `stop()`.
+- Add Flywheel's per-motor acceleration profiles and current limiters from
+  `3drdNextFTC`; capture live settings through suppliers without resetting state and reset
+  all history when stopping.
+  Test ramp timing, current recovery, readiness against the final target, and idle restart
+  with an injectable clock (REQ-DEC-028).
 
 Checkpoint: dedicated tests pass, then validate direction, sensors, velocities,
 artifact counts, and shutdown on Osiris.
