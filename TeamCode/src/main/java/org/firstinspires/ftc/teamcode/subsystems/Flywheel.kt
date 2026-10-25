@@ -1,24 +1,31 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
 import com.bylazar.configurables.annotations.Configurable
-import com.qualcomm.robotcore.hardware.DcMotor.RunMode.RUN_USING_ENCODER
+import com.qualcomm.robotcore.hardware.DcMotor.RunMode.RUN_WITHOUT_ENCODER
 import com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.FLOAT
 import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD
 import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE
-import com.qualcomm.robotcore.hardware.PIDFCoefficients
+import dev.nextftc.control.ControlSystem
+import dev.nextftc.control.KineticState
+import dev.nextftc.control.builder.controlSystem
+import dev.nextftc.control.feedback.PIDCoefficients
+import dev.nextftc.control.feedforward.BasicFeedforwardParameters
 import dev.nextftc.core.commands.delays.WaitUntil
 import dev.nextftc.extensions.pedro.PedroComponent.Companion.follower
 import dev.nextftc.ftc.Gamepads.gamepad2
+import kotlin.math.abs
 import kotlin.math.hypot
 import kotlin.math.pow
 import kotlin.math.sign
 import org.firstinspires.ftc.threedrd.nextftc.hardware.MotorEx
-import org.firstinspires.ftc.teamcode.adaptations.nextftc.hardware.tel
+import org.firstinspires.ftc.threedrd.nextftc.hardware.velocityPercentage
+import org.firstinspires.ftc.threedrd.nextftc.hardware.update
 import org.firstinspires.ftc.threedrd.nextftc.subsystems.Subsystem
 
 @Configurable
 object Flywheel : Subsystem() {
-    var PIDF = PIDFCoefficients(64.0, 0.0, 0.0, 8.0)
+    val PID = PIDCoefficients(1.0)
+    val FF = BasicFeedforwardParameters(kV = 1.0)
     var AXIAL_KS = 0.0
     var AXIAL_KV = 0.0008
     var AXIAL_KA = 0.0
@@ -26,21 +33,24 @@ object Flywheel : Subsystem() {
     var REV = -0.5
     var HOLD = -0.2
     var STOP = 0.0
-    var THRESHOLD = 0.85
+    var TOLERANCE = 0.05
     var VEL = STOP
     var targeting = false
 
     val motorLeft = MotorEx("flywheelLeft") {
         zeroPowerBehavior = FLOAT
         direction = REVERSE
-        mode = RUN_USING_ENCODER
+        mode = RUN_WITHOUT_ENCODER
     }
 
     val motorRight = MotorEx("flywheelRight") {
         zeroPowerBehavior = FLOAT
         direction = FORWARD
-        mode = RUN_USING_ENCODER
+        mode = RUN_WITHOUT_ENCODER
     }
+
+    val leftController = controlSystem { velPid(PID); basicFF(FF) }
+    val rightController = controlSystem { velPid(PID); basicFF(FF) }
 
     val launch by instant { targeting = true; VEL = FWD }
     val forward by instant { targeting = false; VEL = FWD }
@@ -51,6 +61,8 @@ object Flywheel : Subsystem() {
     override fun initialize() {
         targeting = false
         VEL = STOP
+        leftController.reset()
+        rightController.reset()
     }
 
     override fun controls() {
@@ -66,16 +78,15 @@ object Flywheel : Subsystem() {
     }
 
     override fun periodic() {
-        VEL = calculateVelocity()
-        set(motorLeft)
-        set(motorRight)
+        VEL = calculateVelocity().coerceIn(-1.0, 1.0)
+        set(motorLeft, leftController)
+        set(motorRight, rightController)
     }
 
     override fun stop() {
-        targeting = false
-        VEL = STOP
-        motorLeft.power = STOP
-        motorRight.power = STOP
+        initialize()
+        motorLeft.power = 0.0
+        motorRight.power = 0.0
     }
 
     fun calculateVelocity(): Double {
@@ -92,15 +103,19 @@ object Flywheel : Subsystem() {
     }
 
     fun ready(): Boolean {
-        val target = motorLeft.motor.motorType.achieveableMaxTicksPerSecond * VEL * THRESHOLD
-        return motorLeft.motor.velocity >= target && motorRight.motor.velocity >= target
+        return VEL > 0.0 && abs(motorLeft.velocityPercentage - VEL) <= TOLERANCE &&
+            abs(motorRight.velocityPercentage - VEL) <= TOLERANCE
     }
 
     fun untilReady() = WaitUntil(::ready).endAfter(1.0)
 
-    fun set(motor: MotorEx) {
-        motor.motor.setVelocityPIDFCoefficients(PIDF.p, PIDF.i, PIDF.d, PIDF.f)
-        motor.motor.velocity = motor.motor.motorType.achieveableMaxTicksPerSecond * VEL
-        motor.tel()
+    fun set(motor: MotorEx, controller: ControlSystem) = motor.update {
+        controller.goal = KineticState(velocity = VEL)
+        power = if (VEL == 0.0) {
+            controller.reset()
+            0.0
+        } else {
+            controller.calculate(KineticState(velocity = velocityPercentage)).coerceIn(-1.0, 1.0)
+        }
     }
 }

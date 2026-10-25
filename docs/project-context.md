@@ -11,6 +11,11 @@ then adds the Decode/Osiris robot. The platform adopts FTC SDK 12 and Pedro 2.1.
 while retaining NextFTC v1; Pedro 3 and NextFTC v2 remain future evaluations.
 Current `main` is not a neutral season template.
 
+This personal branch also explores Kotlin and NextFTC approaches. Flywheel now
+uses independent NextControl software velocity systems rather than the deployed
+Hub PIDF loop. Its example gains and revised readiness contract are an exploration,
+not a claim of equivalent robot behavior; see the [mechanism specification](requirements/osiris-mechanisms.md#flywheel).
+
 ## Read First
 
 - [Get started](index.md)

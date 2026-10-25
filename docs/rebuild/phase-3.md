@@ -22,7 +22,7 @@ Key behavior to reproduce:
 - map left-stick Y/X and right-stick X to forward/strafe/turn with verified signs;
 - allow live robot-/field-centric mode and speed scalar;
 - use Next Control for goal/chase corrections;
-- keep embedded motor velocity control available for later flywheel use;
+- retain encoder feedback for the later flywheel software-control experiment;
 - define field poses and paths with tiles, angles, alignment, alliance, and side;
 - reset both starting and current Pedro pose when alliance/side changes;
 - operate Limelight pipelines and convert detections to field poses;
@@ -46,8 +46,10 @@ Add Intake, Conveyor, and Flywheel:
 
 - Intake coordinates roller, bumpers, laser debounce, artifact count, and waits.
 - Conveyor supports transport plus distance-based launch velocity.
-- Flywheel uses hub velocity PIDF plus distance/robot-motion target calculation and
-  readiness wait.
+- Flywheel uses independent NextControl velocity controllers plus the existing
+  distance/robot-motion target calculation and a two-motor readiness wait. See the
+  [experimental control contract](../requirements/osiris-mechanisms.md#flywheel)
+  for normalized units, example gains, zero-target coasting, and power bounds.
 - Motor-owning subsystems write safe power directly from `stop()`.
 
 Checkpoint: dedicated tests pass, then validate direction, sensors, velocities,

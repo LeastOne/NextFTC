@@ -37,7 +37,8 @@ Individual test methods provide finer-grained behavior examples.
 | `REQ-DEC-020` | `49f3fa67` | `Deflector`, `Gate`; [mechanism specification](osiris-mechanisms.md#deflector) | `DeflectorTests`, `GateTests` |
 | `REQ-DEC-021` | `0dbce6ae` | `Intake`; [intake specification](osiris-mechanisms.md#intake) | `IntakeTests` |
 | `REQ-DEC-022` | `0dbce6ae` | `Conveyor`; [conveyor specification](osiris-mechanisms.md#conveyor) | `ConveyorTests` |
-| `REQ-DEC-023` | `0dbce6ae` | `Flywheel`; [flywheel specification](osiris-mechanisms.md#flywheel) | `FlywheelTests` |
+| `REQ-DEC-023` | `0dbce6ae` | Historical Hub PIDF contract; superseded on this branch by `REQ-DEC-027` | Historical tests in Git |
+| `REQ-DEC-027` | Flywheel software-control exploration | `Flywheel`; [flywheel specification](osiris-mechanisms.md#flywheel) | `FlywheelTests` |
 | `REQ-DEC-024` | `b4f08db0` | `Kickstand`; [kickstand specification](osiris-mechanisms.md#kickstand) | `KickstandTests` |
 | `REQ-DEC-025` | `b4f08db0` | `Lights`, unchanged GoBilda Prism vendor files | `LightsTests`; vendor-driver physical check |
 | `REQ-DEC-026` | `29075d09`, refined in phase 3 | `Timing`; [timing specification](osiris-mechanisms.md#timing) | `TimingTests` |

@@ -15,8 +15,8 @@ constants, and MUST remain adjustable unless the design deliberately changes.
 | Intake | `bumperLeft` | `ServoEx`, logical range `0.5..1.0` |
 | Intake | `bumperRight` | `ServoEx`, logical range `0.0..0.5` |
 | Conveyor | `conveyor` | `MotorEx`, `RUN_USING_ENCODER`, float at zero |
-| Flywheel | `flywheelLeft` | `MotorEx`, reversed, `RUN_USING_ENCODER`, float at zero |
-| Flywheel | `flywheelRight` | `MotorEx`, forward, `RUN_USING_ENCODER`, float at zero |
+| Flywheel | `flywheelLeft` | `MotorEx`, reversed, `RUN_WITHOUT_ENCODER`, float at zero |
+| Flywheel | `flywheelRight` | `MotorEx`, forward, `RUN_WITHOUT_ENCODER`, float at zero |
 | Kickstand | `kickstandLeft` | `ServoEx`, logical range `0.25..0.95` |
 | Kickstand | `kickstandRight` | `ServoEx`, logical range `0.30..1.00`, reversed |
 | Lights | `prism` | unchanged vendor `GoBildaPrismDriver` |
@@ -115,10 +115,11 @@ Lifecycle stop selects stop and writes zero power immediately.
 
 | Value | Default |
 |---|---:|
-| Embedded velocity PIDF | `(64.0, 0.0, 0.0, 8.0)` |
+| NextControl velocity PID | `(1.0, 0.0, 0.0)` |
+| Motor feedforward `kV`, `kA`, `kS` | `1.0`, `0.0`, `0.0` |
 | Axial feedforward `kS`, `kV`, `kA` | `0.0`, `0.0008`, `0.0` |
 | Forward/reverse/hold/stop | `0.4`, `-0.5`, `-0.2`, `0.0` |
-| Ready threshold | `0.85` of requested speed |
+| Ready tolerance | `0.05` normalized speed, above and below target |
 | Initial target/current mode | stop, not targeting |
 
 `launch` enables distance targeting and seeds forward velocity. The other four
@@ -133,14 +134,25 @@ When targeting, velocity percentage is:
 + kS * sign(axialVelocity) + kV * axialVelocity + kA * axialAcceleration
 ```
 
-Every periodic cycle recalculates the value, applies the PIDF to each SDK motor,
-sets ticks/second to `achievableMaxTicksPerSecond * VEL`, and reports motor
-telemetry. Embedded Hub velocity control is intentional; Next Control is used for
-lower-rate robot-axis assists, not to replace this motor loop.
+This branch explores NextFTC software control rather than reproducing the deployed
+Hub PIDF loop. Every periodic cycle recalculates and bounds the normalized target
+to `-1..1`. Each motor has its own NextControl `ControlSystem` using `velPid` and
+`basicFF`, with encoder feedback from `MotorEx.velocityPercentage`. Output is
+bounded power through the native NextFTC motor API. `RUN_WITHOUT_ENCODER` disables
+the Hub velocity controller; encoder readings remain available. The mutable PID
+and feedforward parameter objects are shared, but controller history is independent.
+The example gains demonstrate the architecture; they are not calibrated robot gains.
+The supplied `KineticState` contains velocity only. Acceleration is zero, so the
+default zero `kD` and `kA` remain appropriate; using those terms would require
+measured acceleration and a target acceleration/profile respectively.
+The axial compensation above adjusts the requested speed; motor feedforward
+converts that requested speed into power.
 
-Ready means both measured motor velocities are at least
-`achievableMaxTicksPerSecond * VEL * 0.85`. `untilReady()` has a one-second maximum.
-Lifecycle stop clears targeting, selects stop, and directly writes zero to both.
+A zero target resets both controllers and writes zero power, allowing coasting.
+Ready requires a positive target and both measured normalized speeds within the
+absolute tolerance; overspeed also fails readiness. `untilReady()` retains its
+one-second maximum. Initialization resets controller history. Lifecycle stop clears
+targeting, selects stop, resets history, and directly writes zero to both motors.
 
 ## Kickstand
 

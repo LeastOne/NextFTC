@@ -140,11 +140,16 @@ See [Control](../architecture/control.md) for reset and integration contracts.
 
 ## Embedded Versus Robot-Level Control
 
-**Decision:** Use hub embedded velocity PIDF for flywheel motor speed and Next
-Control for drive/robot-level corrections.
+**Decision:** On this exploration branch, replace Flywheel's Hub PIDF loop with two
+NextControl velocity systems writing native NextFTC motor power. Keep the existing
+distance/motion target model. Share mutable tuning parameters, not feedback history.
 
-**Why:** Embedded motor loops run close to the encoder and at high frequency; robot
-assists combine pose, vision, and multiple axes and belong in the OpMode loop.
+**Why:** The goal here is to explore idiomatic Kotlin and NextFTC control rather
+than preserve the deployed controller. Separate systems keep each wheel's feedback
+independent; a motor group would use only its leader's measurement. Normalized
+velocity makes the example gains readable. Readiness uses a symmetric tolerance,
+and zero target explicitly coasts rather than actively braking to zero.
+This replaces the earlier embedded-control decision for this branch only.
 
 ## Separate Seasonal Upgrades from Framework Migrations
 
