@@ -159,29 +159,31 @@ measured acceleration.
 The axial compensation above adjusts the requested speed; motor feedforward
 converts that requested speed into power.
 
-Both profiles receive the final bounded target. At `MAX_ACCELERATION = 1.6` and
-`MAX_JERK = 16.0`, reference speed rises from zero to `0.4` in 350 ms. Profiles limit jerk and acceleration,
+Both profiles receive the final bounded target. At `PROFILE.maxAcceleration = 1.6` and
+`PROFILE.maxJerk = 16.0`, reference speed rises from zero to `0.4` in 350 ms. Profiles limit jerk and acceleration,
 deceleration, and reversal; the independent feedback loops can still produce
 different powers. Each requested power passes through its own `CurrentLimiter`
-using a fresh SDK current reading in amperes. Above `MAX_CURRENT`, the cap falls
-at `CURRENT_REDUCTION`; at or below the threshold it recovers at `CURRENT_RECOVERY`.
+using a fresh SDK current reading in amperes. Above `CURRENT.maxCurrent`, the cap falls
+at `CURRENT.reductionRate`; at or below the threshold it recovers at `CURRENT.recoveryRate`.
 The cap remains `0..1` and clips either sign of power. These example settings
 illustrate the experiment, not calibrated motor ratings. This sampled response
 does not guarantee a current ceiling or prevent brief spikes; see
 [control utilities](../architecture/control.md) for the full limiter contract.
 
-`MAX_ACCELERATION`, `MAX_JERK`, `MAX_CURRENT`, `CURRENT_REDUCTION`, and `CURRENT_RECOVERY`
-are plain mutable settings captured by tuning lambdas on the existing instances.
-The utilities read those lambdas on update, supporting Panels' backing-field writes
-as well as normal Kotlin assignments without per-cycle property copying.
+`PROFILE` is a shared `SCurveParameters` object and `CURRENT` is a shared
+`CurrentLimitParameters` object, declared beside `PID` and `FF`. Panels edits their
+mutable nested properties directly. Each motor's profile/limiter reads that shared
+configuration while retaining independent motion state and power cap, without
+tuning lambdas, clock arguments, or per-cycle property copying.
 Changes take effect without reinitialization or resetting profile/limiter state.
 Initialization resets the existing controllers and limiters. The profiles use
 `SCurve`; the simpler library alternatives remain `VelocityRamp` and `VelocitySmoother`.
 Retargeting preserves reference velocity and acceleration. A sudden nearby/reversed
 goal can require temporary overshoot while acceleration is removed. A lowered live
 acceleration limit is approached at bounded jerk rather than erasing acceleration.
-Edits to the shared PID/FF coefficient objects remain live. The injectable `seconds`
-clock supports deterministic integration tests.
+Edits to the shared PID/FF coefficient objects remain live. Timing is internal to
+the library. Integration tests replace and restore private clocks only in test
+code; Flywheel has no public clock seam or timing declarations.
 
 A zero target resets both profiles/controllers and current limiters and writes
 zero power, allowing coasting without ramping down or actively braking.

@@ -26,23 +26,24 @@ seams unless a deliberate breaking change updates this page and its tests.
 
 ## Control utilities
 
-`VelocitySmoother(timeConstant, seconds)` and
-`VelocityRamp(maxAcceleration, seconds)` implement
-NextControl's `goal`, `currentReference`, and `reset()`. `CurrentLimiter(maxCurrent,
-reductionRate = 2.0, recoveryRate = 0.5, seconds)` exposes `limit(power, current)`,
-read-only `powerLimit`, and `reset()`. Positive finite tuning settings are
-suppliers sampled and validated once per update, with fixed-number convenience
-constructors. Read current supplied settings through `maxAcceleration()`,
-`timeConstant()`, `maxCurrent()`, `reductionRate()`, or `recoveryRate()` rather than
-assigning the former mutable properties. Each optional `seconds` function defaults to a monotonic
-system clock and returns seconds. See [Control](../architecture/control.md) for
-the normative units, algorithms, reset behavior, and experimental limitations.
+`VelocitySmoother`, `VelocityRamp`, and `SCurve` implement NextControl's `goal`,
+`currentReference`, and `reset()`. Their public constructors accept the corresponding
+`VelocitySmootherParameters`, `VelocityRampParameters`, or `SCurveParameters` object,
+or fixed numbers. `CurrentLimiter` accepts `CurrentLimitParameters` or fixed
+`maxCurrent`, `reductionRate = 2.0`, and `recoveryRate = 0.5` values; it exposes
+`limit(power, current)`, read-only `powerLimit`, and `reset()`.
 
-`SCurve(maxAcceleration, maxJerk, seconds)` implements the same velocity-only
-interpolator interface, accepting either two suppliers or two fixed numbers.
-`maxAcceleration()` and `maxJerk()` expose the supplied settings. Its reset clears
-velocity, acceleration, goal, and clock without sampling settings. Retargeting and
-lowered acceleration limits preserve motion state; see the S-curve contract.
+All four expose their shared tuning object as `parameters`. Parameter fields are
+mutable and discoverable through an owning Panels `@Configurable` object. Objects
+validate initial settings; utilities read and validate them on update. Sharing
+parameters must not share motion/limiter state. This replaces tuning suppliers and
+public clock arguments: pass `SCurve(PROFILE)` and edit `PROFILE.maxJerk` directly.
+
+Production timing is internal. Library tests use internal clock-injecting
+constructors; robot integration tests can replace private clocks in test code
+without adding timing machinery to the subsystem. Reset clears history without
+reading settings. See [Control](../architecture/control.md) for normative units,
+retargeting, live-limit behavior, and experimental current-limiting limitations.
 
 ## Quanomous
 

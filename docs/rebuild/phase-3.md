@@ -52,11 +52,11 @@ Add Intake, Conveyor, and Flywheel:
   for normalized units, example gains, zero-target coasting, and power bounds.
 - Motor-owning subsystems write safe power directly from `stop()`.
 - Add Flywheel's per-motor acceleration profiles and current limiters from
-  `3drdNextFTC`; capture live settings through suppliers without resetting state and reset
+  `3drdNextFTC`; share live parameter objects without resetting state and reset
   all history when stopping.
   Test ramp timing, current recovery, readiness against the final target, and idle restart
   with an injectable clock (REQ-DEC-028).
-- Select `SCurve` for Flywheel, add live `MAX_JERK`, and preserve reference velocity
+- Select `SCurve` for Flywheel, add live `PROFILE.maxJerk`, and preserve reference velocity
   and acceleration when retargeting. Verify the 350 ms reference spin-up to `0.4`
   at acceleration `1.6` and jerk `16.0`, plus live edits and immediate stops
   (REQ-DEC-029).

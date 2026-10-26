@@ -155,15 +155,15 @@ Flywheel now applies the inherited acceleration-limited interpolator and sampled
 current limiter independently per motor. Profiles shape the velocity reference;
 limiters cap the resulting power using measured amperes. Keep readiness tied to the
 final target and bypass both for immediate zero-power stop. New profile/current
-settings are captured by suppliers and read by the existing instances on update;
-PID/FF coefficient objects remain live. Panels writes fields directly, so suppliers
-avoid reliance on Kotlin setters or per-cycle property copying. Profile progress
-and current caps survive edits.
+settings use shared mutable parameter objects read by the existing instances on
+update, following the PID/FF pattern. Panels writes those nested fields directly,
+without tuning callbacks or per-cycle property copying. Timing stays inside the
+library; profile progress and current caps survive edits.
 This demonstrates composition of NextControl utilities rather than a guaranteed
 electrical protection mechanism (REQ-DEC-028).
 
 Flywheel now chooses the inherited `SCurve` profile with live acceleration and jerk
-suppliers (REQ-DEC-029), softening the onset and removal of acceleration as well as
+parameters (REQ-DEC-029), softening the onset and removal of acceleration as well as
 bounding acceleration itself. The default spin-up reference is slower than the
 linear ramp at the same acceleration ceiling. Current limiting and immediate
 zero-power stop remain separate concerns.

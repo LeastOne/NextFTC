@@ -41,7 +41,7 @@ Individual test methods provide finer-grained behavior examples.
 | `REQ-DEC-027` | Flywheel software-control exploration | `Flywheel`; [flywheel specification](osiris-mechanisms.md#flywheel) | `FlywheelTests` |
 | `REQ-DEC-028` | Flywheel profile/current integration | `Flywheel`; inherited REQ-PLT-045/046 utilities | `FlywheelTests` fake-clock integration scenarios |
 | `REQ-PLT-047` | Quickstart S-curve utility | `nextftc.control.interpolators.SCurve` | `SCurveTests` |
-| `REQ-DEC-029` | Flywheel S-curve integration | `Flywheel`, live acceleration/jerk suppliers | `FlywheelTests` |
+| `REQ-DEC-029` | Flywheel S-curve integration | `Flywheel`, shared live PROFILE parameters | `FlywheelTests` |
 | `REQ-DEC-024` | `b4f08db0` | `Kickstand`; [kickstand specification](osiris-mechanisms.md#kickstand) | `KickstandTests` |
 | `REQ-DEC-025` | `b4f08db0` | `Lights`, unchanged GoBilda Prism vendor files | `LightsTests`; vendor-driver physical check |
 | `REQ-DEC-026` | `29075d09`, refined in phase 3 | `Timing`; [timing specification](osiris-mechanisms.md#timing) | `TimingTests` |

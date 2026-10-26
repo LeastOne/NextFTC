@@ -16,7 +16,9 @@ import kotlin.math.sign
 import org.firstinspires.ftc.threedrd.nextftc.hardware.MotorEx
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit.AMPS
 import org.firstinspires.ftc.threedrd.nextftc.control.CurrentLimiter
+import org.firstinspires.ftc.threedrd.nextftc.control.CurrentLimitParameters
 import org.firstinspires.ftc.threedrd.nextftc.control.interpolators.SCurve
+import org.firstinspires.ftc.threedrd.nextftc.control.interpolators.SCurveParameters
 import org.firstinspires.ftc.threedrd.nextftc.hardware.velocityPercentage
 import org.firstinspires.ftc.threedrd.nextftc.hardware.update
 import org.firstinspires.ftc.threedrd.nextftc.subsystems.Subsystem
@@ -25,11 +27,8 @@ import org.firstinspires.ftc.threedrd.nextftc.subsystems.Subsystem
 object Flywheel : Subsystem() {
     val PID = PIDCoefficients(1.0)
     val FF = BasicFeedforwardParameters(kV = 1.0)
-    var MAX_ACCELERATION = 1.6
-    var MAX_JERK = 16.0
-    var MAX_CURRENT = 5.0
-    var CURRENT_REDUCTION = 2.0
-    var CURRENT_RECOVERY = 0.5
+    val PROFILE = SCurveParameters(maxAcceleration = 1.6, maxJerk = 16.0)
+    val CURRENT = CurrentLimitParameters(maxCurrent = 5.0)
     var AXIAL_KS = 0.0
     var AXIAL_KV = 0.0008
     var AXIAL_KA = 0.0
@@ -40,30 +39,22 @@ object Flywheel : Subsystem() {
     var TOLERANCE = 0.05
     var VEL = STOP
     var targeting = false
-    var seconds: () -> Double = { System.nanoTime() / 1e9 }
 
     val motorLeft = MotorEx("flywheelLeft").floatMode().reversed()
     val motorRight = MotorEx("flywheelRight").floatMode()
 
-    val leftProfile = SCurve(maxAcceleration = { MAX_ACCELERATION }, maxJerk = { MAX_JERK }, seconds = { seconds() })
-    val rightProfile = SCurve(maxAcceleration = { MAX_ACCELERATION }, maxJerk = { MAX_JERK }, seconds = { seconds() })
+    val leftProfile = SCurve(PROFILE)
+    val rightProfile = SCurve(PROFILE)
     val leftController = controller(leftProfile)
     val rightController = controller(rightProfile)
-    val leftLimiter = limiter()
-    val rightLimiter = limiter()
+    val leftLimiter = CurrentLimiter(CURRENT)
+    val rightLimiter = CurrentLimiter(CURRENT)
 
     fun controller(profile: SCurve) = controlSystem {
         velPid(PID)
         basicFF(FF)
         interpolator(profile)
     }
-
-    fun limiter() = CurrentLimiter(
-        maxCurrent = { MAX_CURRENT },
-        reductionRate = { CURRENT_REDUCTION },
-        recoveryRate = { CURRENT_RECOVERY },
-        seconds = { seconds() },
-    )
 
     val launch by instant { targeting = true; VEL = FWD }
     val forward by instant { targeting = false; VEL = FWD }
@@ -136,7 +127,11 @@ object Flywheel : Subsystem() {
             limiter.reset()
             0.0
         } else {
-            limiter.limit(controller.calculate(KineticState(velocity = velocityPercentage)), motor.getCurrent(AMPS))
+            limiter.limit(
+                controller.calculate(
+                    KineticState(velocity = velocityPercentage)
+                ), motor.getCurrent(AMPS)
+            )
         }
     }
 }
