@@ -38,6 +38,12 @@ import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 
 class VisionTests : SubsystemTests() {
+    @Test
+    fun turretRangeRetainsTheNativeServoType() {
+        assertEquals(dev.nextftc.hardware.impl.ServoEx::class.java, Vision.servo.javaClass)
+        verify(Vision.servo.servo).scaleRange(Vision.POS_MIN, Vision.POS_MAX)
+    }
+
     lateinit var pedro: PedroComponent
     lateinit var follower: Follower
     lateinit var timer: ElapsedTime

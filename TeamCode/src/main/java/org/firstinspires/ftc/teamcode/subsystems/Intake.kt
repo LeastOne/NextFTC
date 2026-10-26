@@ -12,6 +12,7 @@ import dev.nextftc.extensions.pedro.PedroComponent.Companion.follower
 import org.firstinspires.ftc.threedrd.nextftc.hardware.MotorEx
 import org.firstinspires.ftc.threedrd.nextftc.hardware.velocityPercentage
 import org.firstinspires.ftc.threedrd.nextftc.hardware.ServoEx
+import org.firstinspires.ftc.threedrd.nextftc.hardware.scaleRange
 import org.firstinspires.ftc.threedrd.nextftc.hardware.Device
 import org.firstinspires.ftc.threedrd.nextftc.hardware.update
 import org.firstinspires.ftc.threedrd.nextftc.subsystems.Subsystem
@@ -48,8 +49,8 @@ object Intake : Subsystem() {
     }
 
     val laser by Device("laser2", DigitalChannel::class.java) { mode = INPUT }
-    val bumperLeft = ServoEx("bumperLeft") { scaleRange(BUMPER_LEFT_MIN, BUMPER_LEFT_MAX) }
-    val bumperRight = ServoEx("bumperRight") { scaleRange(BUMPER_RIGHT_MIN, BUMPER_RIGHT_MAX) }
+    val bumperLeft = ServoEx("bumperLeft").scaleRange(BUMPER_LEFT_MIN, BUMPER_LEFT_MAX)
+    val bumperRight = ServoEx("bumperRight").scaleRange(BUMPER_RIGHT_MIN, BUMPER_RIGHT_MAX)
 
     val laserDebounce = Debounce()
     var full = false

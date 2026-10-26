@@ -29,6 +29,7 @@ class DeflectorTests : SubsystemTests() {
 
     @Test
     fun servoIsConfigured() {
+        assertEquals(dev.nextftc.hardware.impl.ServoEx::class.java, servo.javaClass)
         verify(servo.servo).scaleRange(0.0, 0.8)
         verify(servo.servo).direction = Servo.Direction.REVERSE
     }

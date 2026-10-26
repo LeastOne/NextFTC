@@ -18,6 +18,7 @@ import kotlin.math.tan
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.RADIANS
 import org.firstinspires.ftc.threedrd.nextftc.config.ConfigComponent
 import org.firstinspires.ftc.threedrd.nextftc.hardware.ServoEx
+import org.firstinspires.ftc.threedrd.nextftc.hardware.scaleRange
 import org.firstinspires.ftc.threedrd.nextftc.hardware.Device
 import org.firstinspires.ftc.threedrd.nextftc.hardware.update
 import org.firstinspires.ftc.threedrd.nextftc.subsystems.Subsystem
@@ -56,7 +57,7 @@ object Vision : Subsystem() {
     var SETTLE_SECONDS = 0.6
 
     val limelight by Device("limelight", Limelight3A::class.java) { pipelineSwitch(QR_CODE.index); start() }
-    val servo = ServoEx("turret") { scaleRange(POS_MIN, POS_MAX) }
+    val servo = ServoEx("turret").scaleRange(POS_MIN, POS_MAX)
 
     var pipeline = QR_CODE
     var timer = ElapsedTime()

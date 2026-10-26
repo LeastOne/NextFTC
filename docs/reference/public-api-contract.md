@@ -24,6 +24,17 @@ seams unless a deliberate breaking change updates this page and its tests.
 | generic debounce utility | `org.firstinspires.ftc.threedrd.util` |
 | Quanomous parsing, storage, and compilation | `org.firstinspires.ftc.threedrd.quanomous` |
 
+## Fluent servo configuration
+
+The project hardware package exposes `ServoEx.scaleRange(min, max): ServoEx` for
+instances created by its ServoEx factories. It returns the same native object,
+queues SDK configuration until first acquisition, and applies later calls immediately.
+Its private weak-keyed `configurations` bridge uses no reflection or subclass.
+Unregistered upstream-created instances fail without eager lookup. Numeric range
+arguments are captured at declaration; no live range binding is implied. Import
+the extension explicitly or through the package wildcard. Existing constructors
+and SDK configuration blocks remain available; see the hardware architecture.
+
 ## Control utilities
 
 `VelocitySmoother`, `VelocityRamp`, and `SCurve` implement NextControl's `goal`,

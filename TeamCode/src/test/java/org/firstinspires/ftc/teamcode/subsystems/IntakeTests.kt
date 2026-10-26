@@ -22,6 +22,14 @@ import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 
 class IntakeTests : SubsystemTests() {
+    @Test
+    fun bumperRangesRetainNativeServoTypes() {
+        assertEquals(dev.nextftc.hardware.impl.ServoEx::class.java, Intake.bumperLeft.javaClass)
+        assertEquals(dev.nextftc.hardware.impl.ServoEx::class.java, Intake.bumperRight.javaClass)
+        verify(Intake.bumperLeft.servo).scaleRange(Intake.BUMPER_LEFT_MIN, Intake.BUMPER_LEFT_MAX)
+        verify(Intake.bumperRight.servo).scaleRange(Intake.BUMPER_RIGHT_MIN, Intake.BUMPER_RIGHT_MAX)
+    }
+
     lateinit var pedro: PedroComponent
     lateinit var follower: Follower
     lateinit var motor: DcMotorEx

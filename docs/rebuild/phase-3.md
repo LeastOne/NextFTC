@@ -44,6 +44,11 @@ rest. Keep test clocks out of the production subsystem declaration. See the
 
 Add the two servo subsystems with configurable ranges/positions, delegated commands,
 operator chord bindings, periodic hardware update, and one test file per subsystem.
+Use the inherited `scaleRange` extension to declare native lazy servo ranges,
+followed by native `reversed()` where the existing behavior toggles direction.
+Keep explicit SDK direction assignments where that was the intended contract.
+Verify all affected mechanism servos retain their range, native type, and initial
+position behavior (REQ-PLT-049).
 
 Checkpoint: test on hardware that configured direction/range produce the expected
 physical positions.

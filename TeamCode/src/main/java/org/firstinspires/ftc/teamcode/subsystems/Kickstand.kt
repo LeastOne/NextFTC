@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.Servo.Direction.REVERSE
 import dev.nextftc.ftc.Gamepads.gamepad1
 import dev.nextftc.ftc.Gamepads.gamepad2
 import org.firstinspires.ftc.threedrd.nextftc.hardware.ServoEx
+import org.firstinspires.ftc.threedrd.nextftc.hardware.scaleRange
 import org.firstinspires.ftc.threedrd.nextftc.hardware.update
 import org.firstinspires.ftc.threedrd.nextftc.subsystems.Subsystem
 
@@ -18,8 +19,8 @@ object Kickstand : Subsystem() {
     var ENGAGE = 1.0
     var POS = DISENGAGE
 
-    val servoLeft = ServoEx("kickstandLeft") { scaleRange(LEFT_MIN, LEFT_MAX) }
-    val servoRight = ServoEx("kickstandRight") { scaleRange(RIGHT_MIN, RIGHT_MAX); direction = REVERSE }
+    val servoLeft = ServoEx("kickstandLeft").scaleRange(LEFT_MIN, LEFT_MAX)
+    val servoRight = ServoEx("kickstandRight") { direction = REVERSE }.scaleRange(RIGHT_MIN, RIGHT_MAX)
 
     val engage by instant { POS = ENGAGE }
     val disengage by instant { POS = DISENGAGE }

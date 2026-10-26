@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.subsystems
 
 import com.bylazar.configurables.annotations.Configurable
 import org.firstinspires.ftc.threedrd.nextftc.hardware.ServoEx
+import org.firstinspires.ftc.threedrd.nextftc.hardware.scaleRange
 import org.firstinspires.ftc.threedrd.nextftc.hardware.update
 import org.firstinspires.ftc.threedrd.nextftc.subsystems.Subsystem
 
@@ -14,7 +15,7 @@ object Deflector : Subsystem() {
     var POS = 0.5
     var INC = 0.02
 
-    val servo = ServoEx("deflector") { scaleRange(MIN, MAX) }.apply { reversed() }
+    val servo = ServoEx("deflector").scaleRange(MIN, MAX).reversed()
 
     val up by instant { move(+INC) }
     val down by instant { move(-INC) }

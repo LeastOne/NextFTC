@@ -25,6 +25,15 @@ A missing device MUST disable only its owning subsystem through the reusable
 hardware/subsystem lifecycle. Vendor Prism Java sources remain in their supplied
 language and recognizable structure.
 
+Servo declarations use the inherited fluent range bridge, for example
+`ServoEx("deflector").scaleRange(MIN, MAX).reversed()`. Deflector, Gate, bumper,
+kickstand, and turret ranges retain the values above and the native ServoEx type.
+Range arguments are captured at declaration and applied lazily on first acquisition;
+these are not live range bindings. Kickstand's right servo keeps its explicit SDK
+`direction = REVERSE` block before the fluent range call, preserving assignment
+semantics instead of changing to a direction toggle. No initial position writes
+are added by this refactor. See [fluent range configuration](../architecture/hardware.md#fluent-servo-range-configuration).
+
 ## Deflector
 
 | Tuning value | Default |

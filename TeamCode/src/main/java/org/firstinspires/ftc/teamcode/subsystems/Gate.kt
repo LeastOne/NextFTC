@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.subsystems
 
 import com.bylazar.configurables.annotations.Configurable
 import org.firstinspires.ftc.threedrd.nextftc.hardware.ServoEx
+import org.firstinspires.ftc.threedrd.nextftc.hardware.scaleRange
 import org.firstinspires.ftc.threedrd.nextftc.hardware.update
 import org.firstinspires.ftc.threedrd.nextftc.subsystems.Subsystem
 
@@ -16,7 +17,7 @@ object Gate : Subsystem() {
     var OPEN = 1.0
     var POS = CLOSE
 
-    val servo = ServoEx("gate") { scaleRange(MIN, MAX) }.apply { reversed() }
+    val servo = ServoEx("gate").scaleRange(MIN, MAX).reversed()
 
     val open by instant { POS = OPEN }
     val hold by instant { POS = HOLD }

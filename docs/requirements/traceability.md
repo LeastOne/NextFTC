@@ -35,6 +35,7 @@ Individual test methods provide finer-grained behavior examples.
 | `REQ-DEC-013` | `6b7e0567` | `Vision`; [vision specification](osiris-navigation-vision.md#vision-hardware-and-tuning) | `VisionTests` |
 | `REQ-DEC-014` | `6b7e0567` | TeamCode `OpMode`, `PedroDrawingComponent`, Constants radius | `OpModeTests`, `ConstantsTests`; physical drawing check |
 | `REQ-PLT-048` | Quickstart driver shaping | `PedroDriverControlled`, `DriverSlewParameters`, coordinated `DriverCommandSlew` | Vector and driver-command tests |
+| `REQ-PLT-049` | Quickstart fluent servo ranges | `nextftc.hardware.ServoEx` factory/configurations bridge | `ServoExTests`; subsystem native-type/range checks |
 | `REQ-DEC-015` | Manual Drive opt-in | `Drive.DRIVER_SLEW` and manual command; [driver motion](osiris-system.md#manual-command-shaping) | `DriveTests` live/scaled/frame/assist/stop tests |
 | `REQ-DEC-020` | `49f3fa67` | `Deflector`, `Gate`; [mechanism specification](osiris-mechanisms.md#deflector) | `DeflectorTests`, `GateTests` |
 | `REQ-DEC-021` | `0dbce6ae` | `Intake`; [intake specification](osiris-mechanisms.md#intake) | `IntakeTests` |
