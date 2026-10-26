@@ -16,6 +16,7 @@ import org.junit.Assert.assertSame
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.clearInvocations
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.never
 import org.mockito.ArgumentMatchers.anyDouble
@@ -55,6 +56,7 @@ class FlywheelTests : SubsystemTests() {
         Flywheel.AXIAL_KV = 0.0008
         Flywheel.AXIAL_KA = 0.0
         Flywheel.MAX_ACCELERATION = 1.6
+        Flywheel.MAX_JERK = 16.0
         Flywheel.MAX_CURRENT = 5.0
         Flywheel.CURRENT_REDUCTION = 2.0
         Flywheel.CURRENT_RECOVERY = 0.5
@@ -101,9 +103,10 @@ class FlywheelTests : SubsystemTests() {
 
     @Test
     fun periodicControlsEachMotorFromItsOwnFeedback() {
+        clearInvocations(Flywheel.motorLeft.motor, Flywheel.motorRight.motor)
         Flywheel.VEL = 0.4
         Flywheel.periodic()
-        time = 0.25
+        time = 0.35
         `when`(Flywheel.motorLeft.motor.velocity).thenReturn(-200.0)
         `when`(Flywheel.motorRight.motor.velocity).thenReturn(500.0)
 
@@ -149,7 +152,7 @@ class FlywheelTests : SubsystemTests() {
         Flywheel.FF.kV = 0.5
         Flywheel.VEL = 0.4
         Flywheel.periodic()
-        time = 0.25
+        time = 0.35
         Flywheel.periodic()
         assertEquals(0.4, Flywheel.motorLeft.power, 1e-9)
         assertEquals(0.4, Flywheel.motorRight.power, 1e-9)
@@ -196,18 +199,42 @@ class FlywheelTests : SubsystemTests() {
     }
 
     @Test
-    fun accelerationRampDoesNotDeclareReadinessAtAnIntermediateSpeed() {
+    fun sCurveDoesNotDeclareReadinessAtAnIntermediateSpeed() {
         Flywheel.forward.start()
         Flywheel.periodic()
         time = 0.125
-        `when`(Flywheel.motorLeft.motor.velocity).thenReturn(-200.0)
-        `when`(Flywheel.motorRight.motor.velocity).thenReturn(200.0)
+        `when`(Flywheel.motorLeft.motor.velocity).thenReturn(-120.0)
+        `when`(Flywheel.motorRight.motor.velocity).thenReturn(120.0)
         Flywheel.periodic()
-        assertEquals(0.2, Flywheel.leftController.reference.velocity, 1e-9)
-        assertEquals(0.2, Flywheel.rightController.reference.velocity, 1e-9)
-        assertEquals(0.2, Flywheel.motorLeft.power, 1e-9)
+        assertEquals(0.12, Flywheel.leftController.reference.velocity, 1e-9)
+        assertEquals(0.12, Flywheel.rightController.reference.velocity, 1e-9)
+        assertEquals(0.12, Flywheel.motorLeft.power, 1e-9)
         assertFalse(Flywheel.ready())
         assertEquals(0.4, Flywheel.VEL, 0.0)
+    }
+
+    @Test
+    fun sCurveSmoothsAccelerationAndRetargetsContinuously() {
+        Flywheel.forward.start()
+        Flywheel.periodic()
+        time = 0.025
+        Flywheel.periodic()
+        val before = Flywheel.leftProfile.currentReference
+        assertEquals(0.005, before.velocity, 1e-9)
+        assertEquals(0.4, before.acceleration, 1e-9)
+        Flywheel.reverse.start()
+        Flywheel.periodic()
+        assertEquals(before, Flywheel.leftProfile.currentReference)
+        assertEquals(before, Flywheel.rightProfile.currentReference)
+        time = 0.05
+        Flywheel.periodic()
+        assertEquals(0.01, Flywheel.leftProfile.currentReference.velocity, 1e-9)
+        assertEquals(0.0, Flywheel.leftProfile.currentReference.acceleration, 1e-9)
+        assertFalse(Flywheel.ready())
+        Flywheel.stop.start()
+        Flywheel.periodic()
+        assertEquals(0.0, Flywheel.motorLeft.power, 0.0)
+        assertEquals(0.0, Flywheel.leftProfile.currentReference.acceleration, 0.0)
     }
 
     @Test
@@ -240,12 +267,13 @@ class FlywheelTests : SubsystemTests() {
         assertEquals(0.0, Flywheel.motorRight.power, 0.0)
         time = 100.125
         Flywheel.periodic()
-        assertEquals(0.2, Flywheel.leftController.reference.velocity, 1e-9)
+        assertEquals(0.12, Flywheel.leftController.reference.velocity, 1e-9)
     }
 
     @Test
     fun settingsApplyToBothMotorsWithoutReinitialization() {
         Flywheel.MAX_ACCELERATION = 2.0
+        Flywheel.MAX_JERK = 20.0
         Flywheel.MAX_CURRENT = 4.0
         Flywheel.CURRENT_REDUCTION = 1.0
         Flywheel.CURRENT_RECOVERY = 0.25
@@ -255,8 +283,8 @@ class FlywheelTests : SubsystemTests() {
         `when`(Flywheel.motorRight.motor.getCurrent(AMPS)).thenReturn(5.0)
         time = 0.1
         Flywheel.periodic()
-        assertEquals(0.2, Flywheel.leftController.reference.velocity, 1e-9)
-        assertEquals(0.2, Flywheel.rightController.reference.velocity, 1e-9)
+        assertEquals(0.1, Flywheel.leftController.reference.velocity, 1e-9)
+        assertEquals(0.1, Flywheel.rightController.reference.velocity, 1e-9)
         assertEquals(0.9, Flywheel.leftLimiter.powerLimit, 1e-9)
         assertEquals(0.9, Flywheel.rightLimiter.powerLimit, 1e-9)
         `when`(Flywheel.motorLeft.motor.getCurrent(AMPS)).thenReturn(0.0)
@@ -275,29 +303,31 @@ class FlywheelTests : SubsystemTests() {
         Flywheel.periodic()
         time = 0.125
         Flywheel.periodic()
-        assertEquals(0.2, Flywheel.leftRamp.currentReference.velocity, 1e-9)
+        assertEquals(0.12, Flywheel.leftProfile.currentReference.velocity, 1e-9)
 
         // Panels writes backing fields rather than invoking Kotlin setters.
-        mapOf("MAX_ACCELERATION" to 3.2, "MAX_CURRENT" to 4.0,
+        mapOf("MAX_ACCELERATION" to 3.2, "MAX_JERK" to 32.0, "MAX_CURRENT" to 4.0,
             "CURRENT_REDUCTION" to 1.0, "CURRENT_RECOVERY" to 1.0).forEach { (name, value) ->
             Flywheel::class.java.getDeclaredField(name).apply { isAccessible = true }.setDouble(null, value)
         }
-        assertEquals(3.2, Flywheel.leftRamp.maxAcceleration(), 0.0)
-        assertEquals(3.2, Flywheel.rightRamp.maxAcceleration(), 0.0)
+        assertEquals(3.2, Flywheel.leftProfile.maxAcceleration(), 0.0)
+        assertEquals(3.2, Flywheel.rightProfile.maxAcceleration(), 0.0)
+        assertEquals(32.0, Flywheel.leftProfile.maxJerk(), 0.0)
+        assertEquals(32.0, Flywheel.rightProfile.maxJerk(), 0.0)
         listOf(leftLimiter, rightLimiter).forEach {
             assertEquals(4.0, it.maxCurrent(), 0.0)
             assertEquals(1.0, it.reductionRate(), 0.0)
             assertEquals(1.0, it.recoveryRate(), 0.0)
         }
         Flywheel.periodic()
-        assertEquals(0.2, Flywheel.leftRamp.currentReference.velocity, 1e-9)
-        assertEquals(0.2, Flywheel.rightRamp.currentReference.velocity, 1e-9)
+        assertEquals(0.12, Flywheel.leftProfile.currentReference.velocity, 1e-9)
+        assertEquals(0.12, Flywheel.rightProfile.currentReference.velocity, 1e-9)
         `when`(Flywheel.motorLeft.motor.getCurrent(AMPS)).thenReturn(5.0)
         `when`(Flywheel.motorRight.motor.getCurrent(AMPS)).thenReturn(5.0)
         time = 0.25
         Flywheel.periodic()
-        assertEquals(0.6, Flywheel.leftRamp.currentReference.velocity, 1e-9)
-        assertEquals(0.6, Flywheel.rightRamp.currentReference.velocity, 1e-9)
+        assertEquals(0.48, Flywheel.leftProfile.currentReference.velocity, 1e-9)
+        assertEquals(0.48, Flywheel.rightProfile.currentReference.velocity, 1e-9)
         assertEquals(0.875, Flywheel.motorLeft.power, 1e-9)
         assertEquals(0.875, Flywheel.motorRight.power, 1e-9)
 

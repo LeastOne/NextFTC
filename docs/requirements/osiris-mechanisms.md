@@ -118,6 +118,7 @@ Lifecycle stop selects stop and writes zero power immediately.
 | NextControl velocity PID | `(1.0, 0.0, 0.0)` |
 | Motor feedforward `kV`, `kA`, `kS` | `1.0`, `0.0`, `0.0` |
 | Maximum reference acceleration | `1.6` normalized velocity units/second |
+| Maximum reference jerk | `16.0` normalized velocity units/second squared |
 | Current threshold | `5.0` A per motor |
 | Power-cap reduction/recovery rate | `2.0` / `0.5` power units/second |
 | Axial feedforward `kS`, `kV`, `kA` | `0.0`, `0.0008`, `0.0` |
@@ -151,15 +152,15 @@ The mutable PID
 and feedforward parameter objects are shared, but controller history is independent.
 The example gains demonstrate the architecture; they are not calibrated robot gains.
 The measured `KineticState` contains velocity only; measured acceleration is zero.
-Each controller has its own acceleration-limited velocity interpolator, which
+Each controller has its own jerk-limited `SCurve` velocity interpolator, which
 supplies reference velocity and acceleration. Motor `kA` can use that reference;
 the example leaves `kA` and `kD` zero, without claiming derivative feedback from
 measured acceleration.
 The axial compensation above adjusts the requested speed; motor feedforward
 converts that requested speed into power.
 
-Both profiles receive the final bounded target. At `MAX_ACCELERATION = 1.6`,
-reference speed rises from zero to `0.4` in 250 ms. Profiles limit acceleration,
+Both profiles receive the final bounded target. At `MAX_ACCELERATION = 1.6` and
+`MAX_JERK = 16.0`, reference speed rises from zero to `0.4` in 350 ms. Profiles limit jerk and acceleration,
 deceleration, and reversal; the independent feedback loops can still produce
 different powers. Each requested power passes through its own `CurrentLimiter`
 using a fresh SDK current reading in amperes. Above `MAX_CURRENT`, the cap falls
@@ -169,13 +170,16 @@ illustrate the experiment, not calibrated motor ratings. This sampled response
 does not guarantee a current ceiling or prevent brief spikes; see
 [control utilities](../architecture/control.md) for the full limiter contract.
 
-`MAX_ACCELERATION`, `MAX_CURRENT`, `CURRENT_REDUCTION`, and `CURRENT_RECOVERY`
+`MAX_ACCELERATION`, `MAX_JERK`, `MAX_CURRENT`, `CURRENT_REDUCTION`, and `CURRENT_RECOVERY`
 are plain mutable settings captured by tuning lambdas on the existing instances.
 The utilities read those lambdas on update, supporting Panels' backing-field writes
 as well as normal Kotlin assignments without per-cycle property copying.
 Changes take effect without reinitialization or resetting profile/limiter state.
 Initialization resets the existing controllers and limiters. The profiles use
-`VelocityRamp`; the optional exponential library alternative is `VelocitySmoother`.
+`SCurve`; the simpler library alternatives remain `VelocityRamp` and `VelocitySmoother`.
+Retargeting preserves reference velocity and acceleration. A sudden nearby/reversed
+goal can require temporary overshoot while acceleration is removed. A lowered live
+acceleration limit is approached at bounded jerk rather than erasing acceleration.
 Edits to the shared PID/FF coefficient objects remain live. The injectable `seconds`
 clock supports deterministic integration tests.
 

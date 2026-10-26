@@ -16,7 +16,7 @@ import kotlin.math.sign
 import org.firstinspires.ftc.threedrd.nextftc.hardware.MotorEx
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit.AMPS
 import org.firstinspires.ftc.threedrd.nextftc.control.CurrentLimiter
-import org.firstinspires.ftc.threedrd.nextftc.control.interpolators.VelocityRamp
+import org.firstinspires.ftc.threedrd.nextftc.control.interpolators.SCurve
 import org.firstinspires.ftc.threedrd.nextftc.hardware.velocityPercentage
 import org.firstinspires.ftc.threedrd.nextftc.hardware.update
 import org.firstinspires.ftc.threedrd.nextftc.subsystems.Subsystem
@@ -26,6 +26,7 @@ object Flywheel : Subsystem() {
     val PID = PIDCoefficients(1.0)
     val FF = BasicFeedforwardParameters(kV = 1.0)
     var MAX_ACCELERATION = 1.6
+    var MAX_JERK = 16.0
     var MAX_CURRENT = 5.0
     var CURRENT_REDUCTION = 2.0
     var CURRENT_RECOVERY = 0.5
@@ -44,17 +45,17 @@ object Flywheel : Subsystem() {
     val motorLeft = MotorEx("flywheelLeft").floatMode().reversed()
     val motorRight = MotorEx("flywheelRight").floatMode()
 
-    val leftRamp = VelocityRamp(maxAcceleration = { MAX_ACCELERATION }, seconds = { seconds() })
-    val rightRamp = VelocityRamp(maxAcceleration = { MAX_ACCELERATION }, seconds = { seconds() })
-    val leftController = controller(leftRamp)
-    val rightController = controller(rightRamp)
+    val leftProfile = SCurve(maxAcceleration = { MAX_ACCELERATION }, maxJerk = { MAX_JERK }, seconds = { seconds() })
+    val rightProfile = SCurve(maxAcceleration = { MAX_ACCELERATION }, maxJerk = { MAX_JERK }, seconds = { seconds() })
+    val leftController = controller(leftProfile)
+    val rightController = controller(rightProfile)
     val leftLimiter = limiter()
     val rightLimiter = limiter()
 
-    fun controller(ramp: VelocityRamp) = controlSystem {
+    fun controller(profile: SCurve) = controlSystem {
         velPid(PID)
         basicFF(FF)
-        interpolator(ramp)
+        interpolator(profile)
     }
 
     fun limiter() = CurrentLimiter(

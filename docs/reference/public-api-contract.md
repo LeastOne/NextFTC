@@ -38,6 +38,12 @@ assigning the former mutable properties. Each optional `seconds` function defaul
 system clock and returns seconds. See [Control](../architecture/control.md) for
 the normative units, algorithms, reset behavior, and experimental limitations.
 
+`SCurve(maxAcceleration, maxJerk, seconds)` implements the same velocity-only
+interpolator interface, accepting either two suppliers or two fixed numbers.
+`maxAcceleration()` and `maxJerk()` expose the supplied settings. Its reset clears
+velocity, acceleration, goal, and clock without sampling settings. Retargeting and
+lowered acceleration limits preserve motion state; see the S-curve contract.
+
 ## Quanomous
 
 `Quanomous` is a Kotlin singleton. It publicly provides `decode`, `parse`,

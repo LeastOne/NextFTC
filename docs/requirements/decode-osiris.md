@@ -47,6 +47,13 @@ Those pages refine, but do not replace, the stable requirement IDs below.
 | `REQ-DEC-027` | Experimental Flywheel MUST use independent NextControl velocity feedback and feedforward per motor, bounded normalized targets and power, positive-target two-sided readiness, zero-target coasting, and immediate lifecycle shutdown. | Explore native NextFTC control without preserving Hub PIDF behavior. | Flywheel tests cover independent feedback, live coefficients, target/power bounds, readiness, modes, telemetry, and stop. |
 | `REQ-DEC-028` | Flywheel MUST apply separate acceleration-limited references and sampled-current power limiters per motor, read its live settings through suppliers without clearing state, compare readiness to the final target, and clear profile/limiter history on zero target and lifecycle stop. | Explore gentler spin-up and sampled overload response without claiming a hardware current ceiling. | Fake-clock Flywheel tests cover ramp timing, per-motor reduction/recovery, intermediate-speed readiness, live Panels-style field edits, immediate stop, and restart after idle. |
 
+`REQ-DEC-029`: Flywheel's velocity profiles MUST use independent `SCurve` instances
+with live `MAX_ACCELERATION` and `MAX_JERK` suppliers, preserving reference velocity
+and acceleration on retargeting. Immediate stop and final-target readiness remain
+unchanged. The example settings are `1.6` and `16.0`; `FlywheelTests` verifies smooth
+spin-up, live Panels-style edits to both limits, reset/restart, and independent
+current limiting. REQ-PLT-047 defines the inherited profile algorithm.
+
 ## Autonomous
 
 | ID | Requirement | Why | Acceptance |

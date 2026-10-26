@@ -162,6 +162,12 @@ and current caps survive edits.
 This demonstrates composition of NextControl utilities rather than a guaranteed
 electrical protection mechanism (REQ-DEC-028).
 
+Flywheel now chooses the inherited `SCurve` profile with live acceleration and jerk
+suppliers (REQ-DEC-029), softening the onset and removal of acceleration as well as
+bounding acceleration itself. The default spin-up reference is slower than the
+linear ramp at the same acceleration ceiling. Current limiting and immediate
+zero-power stop remain separate concerns.
+
 ## Separate Seasonal Upgrades from Framework Migrations
 
 Upgrade FTC SDK 12, Panels, Sloth/Load, Pedro 2.1.2, Kotlin, Mockito, and drive

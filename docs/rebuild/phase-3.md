@@ -56,6 +56,10 @@ Add Intake, Conveyor, and Flywheel:
   all history when stopping.
   Test ramp timing, current recovery, readiness against the final target, and idle restart
   with an injectable clock (REQ-DEC-028).
+- Select `SCurve` for Flywheel, add live `MAX_JERK`, and preserve reference velocity
+  and acceleration when retargeting. Verify the 350 ms reference spin-up to `0.4`
+  at acceleration `1.6` and jerk `16.0`, plus live edits and immediate stops
+  (REQ-DEC-029).
 
 Checkpoint: dedicated tests pass, then validate direction, sensors, velocities,
 artifact counts, and shutdown on Osiris.
