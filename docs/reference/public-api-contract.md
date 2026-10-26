@@ -102,6 +102,16 @@ commands.
 
 ## Pedro and reusable drive/navigation
 
+`PedroDriverControlled` appends optional `slew: DriverSlewParameters? = null` after
+the heading-offset supplier. Existing callers retain the legacy transfer behavior.
+`DriverSlewParameters` exposes shared `translation` and `turn` SCurveParameters,
+with mutable normalized-command limits. Each opted-in command owns independent
+state and internal timing. Input shaping follows NextFTC scaling and precedes
+the existing `drive`, `strafe`, and `turn` callbacks. See the
+[driver-shaping contract](../architecture/drive-navigation.md#optional-driver-command-shaping)
+for frame conversion, lifecycle, and live-edit behavior. No current controller or
+electrical ceiling is part of this API.
+
 The Pedro package exposes `TILE_WIDTH` as 23.5 inches, `tile`/`tiles` unit helpers,
 pose-relative transformations, normalized headings, typed distance and path
 progress, follower pose reset, drawing, and driver-control commands.

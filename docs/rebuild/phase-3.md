@@ -32,6 +32,14 @@ Checkpoint: constants, game, OpMode, config, drive, nav, and vision tests pass; 
 validate stick directions, field-centric driving, localization, and Panels drawing
 on Osiris.
 
+Opt the manual Drive command into the inherited `DriverSlewParameters` integration
+(REQ-DEC-015): translation `4.0/40.0` and turn `8.0/80.0` are visible live Panels
+examples, in normalized command-derivative units. Shape after the power scalar and
+before the existing assist callbacks. Leave chaseControlled and autonomous paths
+unshaped, preserve frame continuity, and test immediate stops plus restart from
+rest. Keep test clocks out of the production subsystem declaration. See the
+[manual command specification](../requirements/osiris-system.md#manual-command-shaping).
+
 ## 2. Deflector and Gate — `49f3fa67`
 
 Add the two servo subsystems with configurable ranges/positions, delegated commands,

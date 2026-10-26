@@ -13,6 +13,7 @@ import dev.nextftc.control.KineticState
 import dev.nextftc.control.builder.controlSystem
 import dev.nextftc.control.feedback.AngleType.RADIANS
 import dev.nextftc.control.feedback.PIDCoefficients
+import org.firstinspires.ftc.threedrd.nextftc.control.interpolators.SCurveParameters
 import dev.nextftc.core.commands.delays.WaitUntil
 import dev.nextftc.core.units.Distance
 import dev.nextftc.core.units.deg
@@ -32,6 +33,10 @@ object Drive : DriveSubsystem() {
     val FORWARD_PID = PIDCoefficients(0.035, 0.005, 0.005)
     val STRAFE_PID = PIDCoefficients(0.025, 0.005, 0.005)
     val HEADING_PID = PIDCoefficients(0.35, 0.0015, 0.05)
+    val DRIVER_SLEW = DriverSlewParameters(
+        translation = SCurveParameters(4.0, 40.0),
+        turn = SCurveParameters(8.0, 80.0),
+    )
     var FORWARD_KS = 0.05
     var STRAFE_KS = 0.05
     var TURN_KS = 0.05
@@ -61,7 +66,8 @@ object Drive : DriveSubsystem() {
         gamepad1.rightStickX.negate(),
         { Config.robotCentric && !chaseLocked },
         { if (Config.robotCentric || chaseLocked || alliance == UNKNOWN) 0.0
-          else alliance(-90).deg.inRad }
+          else alliance(-90).deg.inRad },
+        slew = DRIVER_SLEW,
     ).apply {
         drive = ::calculateForward
         strafe = ::calculateStrafe

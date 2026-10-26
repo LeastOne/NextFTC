@@ -16,6 +16,11 @@ uses independent NextControl software velocity systems rather than the deployed
 Hub PIDF loop. Its example gains and revised readiness contract are an exploration,
 not a claim of equivalent robot behavior; see the [mechanism specification](requirements/osiris-mechanisms.md#flywheel).
 
+Manual Drive also explores the inherited coordinated command-slew shaping, before
+assist calculations. `DRIVER_SLEW` is live through Panels; assists, autonomous paths,
+and chase-only control retain their existing behavior. These are command-derivative
+limits, not guaranteed chassis acceleration or electrical current limits.
+
 ## Read First
 
 - [Get started](index.md)

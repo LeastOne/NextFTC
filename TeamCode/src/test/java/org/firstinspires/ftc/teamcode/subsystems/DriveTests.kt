@@ -61,6 +61,18 @@ class DriveTests : SubsystemTests() {
     lateinit var motors: List<DcMotorEx>
     lateinit var builder: PathBuilder
     lateinit var chain: PathChain
+    var time = 0.0
+    var restoreClock: () -> Unit = {}
+
+    private fun output() = mockingDetails(follower).invocations.last { it.method.name == "setTeleOpDrive" }
+        .arguments.take(3).map { it as Double }.toDoubleArray()
+
+    private fun advanceTo(seconds: Double) {
+        while (time < seconds - 1e-9) {
+            time += 0.01
+            driverControlled.update()
+        }
+    }
 
     @Before
     fun setUp() {
@@ -77,6 +89,7 @@ class DriveTests : SubsystemTests() {
         `when`(builder.build()).thenReturn(chain)
         component = PedroComponent { follower }
         component.preInit()
+        `when`(follower.pose).thenReturn(Pose())
         POWER_LOW = 0.5
         POWER_MEDIUM = 0.75
         POWER_HIGH = 1.0
@@ -102,12 +115,27 @@ class DriveTests : SubsystemTests() {
             `when`(ActiveOpMode.hardwareMap.getNamesOf(motor)).thenReturn(setOf("driveMotor$index"))
         }
         controls()
+        Drive.DRIVER_SLEW.translation.maxAcceleration = 4.0
+        Drive.DRIVER_SLEW.translation.maxJerk = 40.0
+        Drive.DRIVER_SLEW.turn.maxAcceleration = 8.0
+        Drive.DRIVER_SLEW.turn.maxJerk = 80.0
+        val shaping = driverControlled.javaClass.getDeclaredField("shaping").apply { isAccessible = true }.get(driverControlled)
+        val clock = shaping.javaClass.getDeclaredField("clock").apply { isAccessible = true }.get(shaping)
+        val seconds = clock.javaClass.getDeclaredField("seconds").apply { isAccessible = true }
+        val original = seconds.get(clock)
+        val testSeconds: () -> Double = { time }
+        seconds.set(clock, testSeconds)
+        restoreClock = { seconds.set(clock, original) }
+        driverControlled.start()
+        clearInvocations(follower)
     }
 
     @After
     fun tearDown() {
         CommandManager.cancelAll()
         CommandManager.run()
+        driverControlled.stop(true)
+        restoreClock()
         component.postStop()
     }
 
@@ -160,19 +188,86 @@ class DriveTests : SubsystemTests() {
         initialize()
         BindingManager.update()
         driverControlled.update()
-
-        verify(follower).setTeleOpDrive(-0.25, 0.5, -0.75, true, 0.0)
+        assertArrayEquals(doubleArrayOf(0.0, 0.0, 0.0), output(), 0.0)
+        advanceTo(2.0)
+        assertArrayEquals(doubleArrayOf(-0.25, 0.5, -0.75), output(), 1e-5)
 
         Config.alliance = RED
         Config.robotCentric = false
         driverControlled.update()
 
-        verify(follower).setTeleOpDrive(-0.25, 0.5, -0.75, false, Math.PI / 2)
+        assertArrayEquals(doubleArrayOf(0.5, 0.25, -0.75), output(), 1e-5)
+        advanceTo(4.0)
+        assertArrayEquals(doubleArrayOf(-0.25, 0.5, -0.75), output(), 1e-5)
 
         Config.alliance = BLUE
         driverControlled.update()
 
-        verify(follower).setTeleOpDrive(-0.25, 0.5, -0.75, false, -Math.PI / 2)
+        assertArrayEquals(doubleArrayOf(0.25, -0.5, -0.75), output(), 1e-5)
+        advanceTo(6.0)
+        assertArrayEquals(doubleArrayOf(-0.25, 0.5, -0.75), output(), 1e-5)
+        verify(follower, atLeastOnce()).setTeleOpDrive(anyDouble(), anyDouble(), anyDouble(), eq(true), eq(0.0))
+        verify(follower, atLeastOnce()).setTeleOpDrive(anyDouble(), anyDouble(), anyDouble(), eq(false), eq(Math.PI / 2))
+        verify(follower, atLeastOnce()).setTeleOpDrive(anyDouble(), anyDouble(), anyDouble(), eq(false), eq(-Math.PI / 2))
+    }
+
+    @Test
+    fun manualSlewReadsLivePanelsParametersAfterScalingAndStopsImmediately() {
+        assertSame(Drive.DRIVER_SLEW, driverControlled.slew)
+        assertNull(Drive.chaseControlled.slew)
+        ActiveOpMode.it!!.gamepad1.left_stick_y = -1.0f
+        ActiveOpMode.it!!.gamepad1.left_stick_x = -1.0f
+        ActiveOpMode.it!!.gamepad1.right_stick_x = -1.0f
+        BindingManager.update()
+        driverControlled.scalar = 0.5
+        driverControlled.update()
+        assertArrayEquals(doubleArrayOf(0.0, 0.0, 0.0), output(), 0.0)
+        time = 0.05
+        driverControlled.update()
+        val before = output()
+        assertTrue(before[0] > 0.0 && before[0] < 0.5)
+        assertEquals(before[0], before[1], 1e-12)
+        assertEquals(0.1, before[2], 1e-12)
+        mapOf("maxAcceleration" to 2.0, "maxJerk" to 20.0).forEach { (name, value) ->
+            Drive.DRIVER_SLEW.translation.javaClass.getDeclaredField(name).apply { isAccessible = true }
+                .setDouble(Drive.DRIVER_SLEW.translation, value)
+        }
+        Drive.DRIVER_SLEW.turn.maxAcceleration = 4.0
+        Drive.DRIVER_SLEW.turn.maxJerk = 40.0
+        driverControlled.update()
+        assertArrayEquals(before, output(), 0.0)
+        time = 0.1
+        driverControlled.update()
+        assertTrue(kotlin.math.hypot(output()[0] - before[0], output()[1] - before[1]) <= 0.1 + 1e-9)
+        stop()
+        verify(follower).breakFollowing()
+        time = 100.0
+        driverControlled.start()
+        driverControlled.update()
+        assertArrayEquals(doubleArrayOf(0.0, 0.0, 0.0), output(), 0.0)
+    }
+
+    @Test
+    fun driveAssistsBypassManualShaping() {
+        state.started = true
+        state.teleop = true
+        Config.alliance = RED
+        Config.side = NORTH
+        Config.robotCentric = false
+        Vision.element = Pose(30.0, 30.0, 0.0)
+        `when`(follower.pose).thenReturn(Pose(10.0, 10.0, 0.0))
+        val coefficients = listOf(Drive.FORWARD_PID, Drive.STRAFE_PID, Drive.HEADING_PID)
+        val original = coefficients.map { it.kI to it.kD }
+        try {
+            coefficients.forEach { it.kI = 0.0; it.kD = 0.0 }
+            Drive.setChaseLock(true)
+            val expected = doubleArrayOf(Drive.calculateForward(0.0), Drive.calculateStrafe(0.0), Drive.calculateTurn(0.0))
+            assertTrue(expected.any { kotlin.math.abs(it) > 0.0 })
+            driverControlled.update()
+            assertArrayEquals(expected, output(), 1e-9)
+        } finally {
+            coefficients.zip(original).forEach { (coefficient, values) -> coefficient.kI = values.first; coefficient.kD = values.second }
+        }
     }
 
     @Test

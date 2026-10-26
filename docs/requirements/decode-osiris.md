@@ -32,6 +32,7 @@ Those pages refine, but do not replace, the stable requirement IDs below.
 | `REQ-DEC-012` | Goal and artifact assists MUST use Next Control feedback while preserving manual control when a target is unavailable or within tolerance. | Assisted alignment should help rather than unexpectedly seize the robot. | Drive tests cover goal/chase states, corrections, and fallback. |
 | `REQ-DEC-013` | Vision MUST operate the Limelight pipelines and turret, translate detections into Pedro field poses, and stop the camera with the OpMode. | Navigation and launching depend on consistent field-relative targets and safe resource cleanup. | Vision tests cover pipeline switching, conversions, locks, and stop. |
 | `REQ-DEC-014` | Panels MUST draw the robot using Pedro's field coordinate convention and Osiris radius. | Visualization is useful only when it agrees with the localizer and physical footprint. | OpMode, Constants, and drawing tests pass; robot testing confirms orientation. |
+| `REQ-DEC-015` | Drive's manual command MUST opt into coordinated translation slew/jerk limiting and separate turn SCurve after power scaling and before assist calculations. Its shared DRIVER_SLEW parameters MUST remain live through Panels, while chaseControlled, autonomous paths, and assist outputs remain unshaped. | Soften abrupt driver demands without changing assist/autonomous control policy or claiming an electrical ceiling. | Drive tests cover scaled startup, live nested edits, frame continuity, direct assist output, immediate stop/restart, and chase-only opt-out. |
 
 ## Mechanisms
 

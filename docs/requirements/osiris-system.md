@@ -118,6 +118,8 @@ Start MUST NOT reset it again: movement tracked after field selection is valid.
 | Intake/low/medium/high/auto power | `0.5`, `0.5`, `0.75`, `1.0`, `1.0` |
 | Too-far threshold | `3 tiles` |
 | Goal-lock maximum turn | `0.4` |
+| DRIVER_SLEW translation maximum slew / change in slew | `4.0 /s`, `40.0 /s²` |
+| DRIVER_SLEW turn maximum slew / change in slew | `8.0 /s`, `80.0 /s²` |
 
 ### Inputs and modes
 
@@ -134,6 +136,42 @@ The command MUST require Drive. It is the default only in Teleop. Initialization
 captures the three gamepad ranges, chooses auto/high scalar by OpMode type, clears
 both locks, and resets the still timer. D-pad down, either side, and up select low,
 medium, and high while Back is not held; Back+Start toggles centric mode.
+
+### Manual command shaping
+
+`Drive.DRIVER_SLEW` is a shared `DriverSlewParameters` object exposed through the
+existing `@Configurable` Drive. Its translation and turn groups contain mutable
+`SCurveParameters`; all four limits are live. They describe normalized command
+derivatives, not physical chassis acceleration or measured motor current.
+
+The manual `driverControlled` command applies the selected power scalar first,
+then coordinated 2D translation shaping and scalar turn `SCurve`, then calls
+`calculateForward`, `calculateStrafe`, and `calculateTurn`. Translation shares one
+Euclidean slew/jerk budget, so diagonal input does not get an independent full
+budget on each axis. Its critically damped vector tracker converges to held demand.
+The NextControl position and heading controllers remain assist controllers.
+
+Assist outputs bypass shaping. `chaseControlled` is deliberately constructed
+without shaping; autonomous paths and chase-only behavior retain their existing
+control. Scalar changes adjust the target, not a hard instantaneous output ceiling.
+Release approaches zero smoothly; reversal preserves the ongoing command/slew
+state. A command start/restart begins at rest. Centric-mode and alliance-offset
+changes rotate translation and slew into the new input frame while preserving
+field direction. All lifecycle/emergency stops remain direct `breakFollowing()`
+calls, bypassing deceleration. Command ending also clears shaping state; restart
+cannot replay old demand after idle time. Normal declarations expose no clock.
+
+The existing power-level and centric instant commands still require Drive. When
+scheduled against the default driver command they can interrupt it, so the normal
+immediate-stop/restart-from-rest policy applies. A scalar or Config field edit while
+the driver command remains active instead preserves its shaping state and uses
+the smooth target/frame transition. This change does not alter command ownership.
+
+The inherited [driver-shaping contract](../architecture/drive-navigation.md#optional-driver-command-shaping)
+defines timing caps, validation, frame transforms, and the derivative bounds.
+These example limits need driver/robot evaluation; they do not establish reduced
+voltage sag on hardware. No wheel-current limiters or shared electrical cap are
+introduced. REQ-DEC-015 maps to the fake-clock integration tests in `DriveTests`.
 
 ### Assist behavior
 

@@ -34,6 +34,8 @@ Individual test methods provide finer-grained behavior examples.
 | `REQ-DEC-012` | `6b7e0567` | Drive lock/correction functions and Next Control systems | Drive lock, correction, and status tests |
 | `REQ-DEC-013` | `6b7e0567` | `Vision`; [vision specification](osiris-navigation-vision.md#vision-hardware-and-tuning) | `VisionTests` |
 | `REQ-DEC-014` | `6b7e0567` | TeamCode `OpMode`, `PedroDrawingComponent`, Constants radius | `OpModeTests`, `ConstantsTests`; physical drawing check |
+| `REQ-PLT-048` | Quickstart driver shaping | `PedroDriverControlled`, `DriverSlewParameters`, coordinated `DriverCommandSlew` | Vector and driver-command tests |
+| `REQ-DEC-015` | Manual Drive opt-in | `Drive.DRIVER_SLEW` and manual command; [driver motion](osiris-system.md#manual-command-shaping) | `DriveTests` live/scaled/frame/assist/stop tests |
 | `REQ-DEC-020` | `49f3fa67` | `Deflector`, `Gate`; [mechanism specification](osiris-mechanisms.md#deflector) | `DeflectorTests`, `GateTests` |
 | `REQ-DEC-021` | `0dbce6ae` | `Intake`; [intake specification](osiris-mechanisms.md#intake) | `IntakeTests` |
 | `REQ-DEC-022` | `0dbce6ae` | `Conveyor`; [conveyor specification](osiris-mechanisms.md#conveyor) | `ConveyorTests` |
